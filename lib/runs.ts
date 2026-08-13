@@ -126,3 +126,32 @@ export function sortRuns(tests: SpeedTestRow[], sort: RunSort): SpeedTestRow[] {
   });
   return copy;
 }
+
+export type RunPage = {
+  rows: SpeedTestRow[];
+  total: number;
+  page: number;
+  pageCount: number;
+  from: number;
+  to: number;
+};
+
+export function pageRuns(
+  rows: SpeedTestRow[],
+  page: number,
+  pageSize = PAGE_SIZE,
+): RunPage {
+  const total = rows.length;
+  const lastPage = Math.max(1, Math.ceil(total / pageSize));
+  const clamped = total === 0 ? 1 : Math.min(Math.max(page, 1), lastPage);
+  const start = (clamped - 1) * pageSize;
+  const slice = rows.slice(start, start + pageSize);
+  return {
+    rows: slice,
+    total,
+    page: clamped,
+    pageCount: lastPage,
+    from: total === 0 ? 0 : start + 1,
+    to: start + slice.length,
+  };
+}

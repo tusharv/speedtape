@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterRuns, parseRunQuery, runHref, sortRuns } from "@/lib/runs";
+import { PAGE_SIZE, filterRuns, pageRuns, parseRunQuery, runHref, sortRuns } from "@/lib/runs";
 import type { Summary } from "@/lib/db";
 import type { SpeedTestRow } from "@/lib/types";
 
@@ -202,5 +202,46 @@ describe("sortRuns", () => {
     expect(sortRuns([a, b, cFailed], "highest-ping").map((item) => item.id)).toEqual([
       1, 2, 3,
     ]);
+  });
+});
+
+describe("pageRuns", () => {
+  const many = Array.from({ length: 25 }, (_, index) =>
+    row({
+      id: index + 1,
+      testedAt: new Date(Date.UTC(2026, 7, 13, 0, index, 0)).toISOString(),
+    }),
+  );
+
+  it("uses pages of 24 and returns the remainder on the last page", () => {
+    expect(PAGE_SIZE).toBe(24);
+    const first = pageRuns(many, 1);
+    expect(first.rows).toHaveLength(24);
+    expect(first.rows[0]?.id).toBe(1);
+    expect(first.total).toBe(25);
+    expect(first.page).toBe(1);
+    expect(first.pageCount).toBe(2);
+    expect(first.from).toBe(1);
+    expect(first.to).toBe(24);
+
+    const second = pageRuns(many, 2);
+    expect(second.rows).toHaveLength(1);
+    expect(second.rows[0]?.id).toBe(25);
+    expect(second.from).toBe(25);
+    expect(second.to).toBe(25);
+  });
+
+  it("clamps page to the last page, or 1 when empty", () => {
+    expect(pageRuns(many, 99).page).toBe(2);
+    expect(pageRuns(many, 0).page).toBe(1);
+    const empty = pageRuns([], 4);
+    expect(empty).toEqual({
+      rows: [],
+      total: 0,
+      page: 1,
+      pageCount: 1,
+      from: 0,
+      to: 0,
+    });
   });
 });
