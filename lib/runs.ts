@@ -1,5 +1,6 @@
+import type { Summary } from "@/lib/db";
 import { parseRange } from "@/lib/range";
-import type { Range } from "@/lib/types";
+import type { Range, SpeedTestRow } from "@/lib/types";
 
 export type RunStatus = "all" | "ok" | "failed";
 export type RunSort = "newest" | "oldest" | "slowest-down" | "highest-ping";
@@ -58,4 +59,33 @@ export function runHref(query: RunQuery): string {
   if (query.sort !== "newest") params.set("sort", query.sort);
   if (query.page > 1) params.set("page", String(query.page));
   return `/?${params.toString()}`;
+}
+
+export function filterRuns(
+  tests: SpeedTestRow[],
+  summary: Summary,
+  filters: RunFilters,
+): SpeedTestRow[] {
+  const slowActive = filters.slow && summary.download.avg !== null;
+  const pingActive = filters.ping && summary.ping.avg !== null;
+  const downAvg = summary.download.avg;
+  const pingAvg = summary.ping.avg;
+
+  return tests.filter((item) => {
+    if (filters.status === "ok" && item.error !== null) return false;
+    if (filters.status === "failed" && item.error === null) return false;
+    if (slowActive) {
+      if (item.error !== null || item.downloadMbps === null || downAvg === null) {
+        return false;
+      }
+      if (!(item.downloadMbps < downAvg)) return false;
+    }
+    if (pingActive) {
+      if (item.error !== null || item.pingMs === null || pingAvg === null) {
+        return false;
+      }
+      if (!(item.pingMs > pingAvg)) return false;
+    }
+    return true;
+  });
 }
