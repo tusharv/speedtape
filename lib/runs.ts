@@ -89,3 +89,40 @@ export function filterRuns(
     return true;
   });
 }
+
+function timeKey(item: SpeedTestRow): number {
+  return new Date(item.testedAt).getTime();
+}
+
+export function sortRuns(tests: SpeedTestRow[], sort: RunSort): SpeedTestRow[] {
+  const copy = [...tests];
+  copy.sort((left, right) => {
+    if (sort === "newest") {
+      return timeKey(right) - timeKey(left) || right.id - left.id;
+    }
+    if (sort === "oldest") {
+      return timeKey(left) - timeKey(right) || left.id - right.id;
+    }
+    if (sort === "slowest-down") {
+      const leftMissing = left.downloadMbps === null;
+      const rightMissing = right.downloadMbps === null;
+      if (leftMissing !== rightMissing) return leftMissing ? 1 : -1;
+      if (
+        !leftMissing &&
+        !rightMissing &&
+        left.downloadMbps !== right.downloadMbps
+      ) {
+        return (left.downloadMbps as number) - (right.downloadMbps as number);
+      }
+      return timeKey(right) - timeKey(left) || right.id - left.id;
+    }
+    const leftMissing = left.pingMs === null;
+    const rightMissing = right.pingMs === null;
+    if (leftMissing !== rightMissing) return leftMissing ? 1 : -1;
+    if (!leftMissing && !rightMissing && left.pingMs !== right.pingMs) {
+      return (right.pingMs as number) - (left.pingMs as number);
+    }
+    return timeKey(right) - timeKey(left) || right.id - left.id;
+  });
+  return copy;
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterRuns, parseRunQuery, runHref } from "@/lib/runs";
+import { filterRuns, parseRunQuery, runHref, sortRuns } from "@/lib/runs";
 import type { Summary } from "@/lib/db";
 import type { SpeedTestRow } from "@/lib/types";
 
@@ -163,5 +163,44 @@ describe("filterRuns", () => {
     expect(
       filterRuns(tests, emptySummary, { status: "all", slow: true, ping: true }),
     ).toEqual(tests);
+  });
+});
+
+describe("sortRuns", () => {
+  const a = row({
+    id: 1,
+    testedAt: "2026-08-13T10:00:00.000Z",
+    downloadMbps: 80,
+    pingMs: 30,
+  });
+  const b = row({
+    id: 2,
+    testedAt: "2026-08-13T12:00:00.000Z",
+    downloadMbps: 40,
+    pingMs: 10,
+  });
+  const cFailed = row({
+    id: 3,
+    testedAt: "2026-08-13T11:00:00.000Z",
+    downloadMbps: null,
+    pingMs: null,
+    error: "timeout",
+  });
+
+  it("sorts newest and oldest by testedAt then id", () => {
+    expect(sortRuns([a, b], "newest").map((item) => item.id)).toEqual([2, 1]);
+    expect(sortRuns([b, a], "oldest").map((item) => item.id)).toEqual([1, 2]);
+  });
+
+  it("sorts slowest download with missing values last, then newest", () => {
+    expect(sortRuns([a, b, cFailed], "slowest-down").map((item) => item.id)).toEqual([
+      2, 1, 3,
+    ]);
+  });
+
+  it("sorts highest ping with missing values last, then newest", () => {
+    expect(sortRuns([a, b, cFailed], "highest-ping").map((item) => item.id)).toEqual([
+      1, 2, 3,
+    ]);
   });
 });
