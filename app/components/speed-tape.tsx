@@ -1,21 +1,29 @@
-import { DAY_PART_LABELS, groupTapeDayParts, type TapeCell } from "@/lib/tape";
+import { formatMbps } from "@/app/components/stats";
 import { TermTip } from "@/app/components/term-tip";
+import {
+  DAY_PART_LABELS,
+  summarizeTapeGroups,
+  tapeBarHeightPct,
+  tapeBarMax,
+  tapeBarTitle,
+  type TapeCell,
+} from "@/lib/tape";
 
-function barHeight(cell: TapeCell, peak: number): string {
-  if (cell.failed) return "18%";
-  if (cell.downloadMbps === null || peak <= 0) return "6%";
-  return `${Math.max(8, (cell.downloadMbps / peak) * 100)}%`;
+function barFillClass(cell: TapeCell, isCurrent: boolean): string {
+  if (cell.failed) return "bg-fail";
+  if (cell.downloadMbps === null) return "bg-hairline";
+  if (isCurrent) return "bg-amber";
+  return "bg-copper";
 }
 
 export function SpeedTape({ cells }: { cells: TapeCell[] }) {
-  const peak = Math.max(
-    0,
-    ...cells.map((cell) => cell.downloadMbps ?? 0),
-  );
+  const groups = summarizeTapeGroups(cells);
+  const max = tapeBarMax(cells);
+  const currentIndex = cells.length - 1;
 
   return (
     <section
-      aria-label="Last 24 hours of download speed"
+      aria-label="Last 24 hours of download by time of day"
       className="border border-hairline bg-panel px-4 py-5 sm:px-6"
     >
       <div className="mb-4 flex items-baseline justify-between gap-4">
@@ -23,48 +31,48 @@ export function SpeedTape({ cells }: { cells: TapeCell[] }) {
           <TermTip term="range24h">24h tape</TermTip>
         </h2>
         <p className="text-[11px] uppercase tracking-[0.18em] text-muted">
-          One cell per hour of{" "}
-          <TermTip term="download">download</TermTip>
+          <TermTip term="download">Avg download</TermTip>
+          {" · one bar per hour"}
         </p>
       </div>
-      <div className="flex h-28 items-stretch gap-px">
-        {cells.map((cell) => (
+      <div className="flex min-w-0">
+        {groups.map((group, index) => (
           <div
-            key={cell.hourStart}
-            className="group relative flex h-full min-w-0 flex-1 flex-col items-center justify-end"
-            title={
-              cell.failed
-                ? `${cell.label}: test failed`
-                : cell.downloadMbps === null
-                  ? `${cell.label}: no reading`
-                  : `${cell.label}: ${cell.downloadMbps.toFixed(1)} Mbps`
-            }
+            key={`${group.part}-${group.startIndex}`}
+            className={`min-w-0 ${index > 0 ? "border-l border-hairline pl-2 sm:pl-3" : "pr-1"}`}
+            style={{ flexGrow: group.count, flexBasis: 0 }}
           >
-            <div
-              className={`w-full max-w-4 ${
-                cell.failed
-                  ? "bg-fail/80"
-                  : cell.downloadMbps === null
-                    ? "bg-hairline"
-                    : "bg-copper"
-              }`}
-              style={{ height: barHeight(cell, peak) }}
-            />
+            <p className="text-[10px] leading-tight uppercase tracking-wider text-muted">
+              {DAY_PART_LABELS[group.part]}
+            </p>
+            <p className="mt-1 font-display text-2xl leading-none text-copper">
+              {formatMbps(group.avgDownloadMbps)}
+              {group.avgDownloadMbps !== null ? (
+                <span className="ml-1 font-mono text-[10px] tracking-normal text-muted">
+                  Mbps
+                </span>
+              ) : null}
+            </p>
+            <div className="mt-3 flex h-20 items-end gap-px">
+              {group.cells.map((cell, cellIndex) => {
+                const isCurrent =
+                  group.startIndex + cellIndex === currentIndex;
+                return (
+                  <div
+                    key={cell.hourStart}
+                    title={tapeBarTitle(cell)}
+                    className={`min-w-0 flex-1 ${barFillClass(cell, isCurrent)}`}
+                    style={{ height: `${tapeBarHeightPct(cell, max)}%` }}
+                  />
+                );
+              })}
+            </div>
           </div>
         ))}
       </div>
-      <div className="mt-2 flex text-[10px] uppercase tracking-wider text-muted">
-        {groupTapeDayParts(cells).map((group, index) => (
-          <span
-            key={`${group.part}-${group.startIndex}`}
-            className={`min-w-0 text-center ${
-              index > 0 ? "border-l border-hairline" : ""
-            }`}
-            style={{ flexGrow: group.count, flexBasis: 0 }}
-          >
-            {DAY_PART_LABELS[group.part]}
-          </span>
-        ))}
+      <div className="mt-2 flex justify-between text-[10px] uppercase tracking-wider text-muted">
+        <span>24h ago</span>
+        <span>now</span>
       </div>
     </section>
   );

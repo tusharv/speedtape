@@ -4,6 +4,8 @@ export type TapeCell = {
   hourStart: number;
   label: string;
   downloadMbps: number | null;
+  uploadMbps: number | null;
+  pingMs: number | null;
   failed: boolean;
 };
 
@@ -86,9 +88,61 @@ export function buildSpeedTape(
       hourStart,
       label: padHour(new Date(hourStart).getHours()),
       downloadMbps: successful?.downloadMbps ?? null,
+      uploadMbps: successful?.uploadMbps ?? null,
+      pingMs: successful?.pingMs ?? null,
       failed,
     });
   }
 
   return cells;
+}
+
+export type TapeWeatherGroup = TapeDayPartGroup & {
+  avgDownloadMbps: number | null;
+  cells: TapeCell[];
+};
+
+function successfulDownload(cell: TapeCell): number | null {
+  if (cell.failed || cell.downloadMbps === null) return null;
+  return cell.downloadMbps;
+}
+
+export function summarizeTapeGroups(cells: TapeCell[]): TapeWeatherGroup[] {
+  return groupTapeDayParts(cells).map((group) => {
+    const slice = cells.slice(group.startIndex, group.startIndex + group.count);
+    const readings = slice
+      .map(successfulDownload)
+      .filter((value): value is number => value !== null);
+    const avgDownloadMbps =
+      readings.length === 0
+        ? null
+        : readings.reduce((sum, value) => sum + value, 0) / readings.length;
+    return { ...group, avgDownloadMbps, cells: slice };
+  });
+}
+
+export function tapeBarMax(cells: TapeCell[]): number {
+  let max = 0;
+  for (const cell of cells) {
+    const value = successfulDownload(cell);
+    if (value !== null && value > max) max = value;
+  }
+  return max;
+}
+
+export function tapeBarTitle(cell: TapeCell): string {
+  if (cell.failed) return `${cell.label}: failed`;
+  if (cell.downloadMbps === null) return `${cell.label}: no reading`;
+  return `${cell.label}: ${cell.downloadMbps.toFixed(1)} Mbps`;
+}
+
+const EMPTY_STUB_PCT = 8;
+const FAIL_STUB_PCT = 20;
+
+export function tapeBarHeightPct(cell: TapeCell, max: number): number {
+  const value = successfulDownload(cell);
+  if (value === null || max <= 0) {
+    return cell.failed ? FAIL_STUB_PCT : EMPTY_STUB_PCT;
+  }
+  return Math.max(EMPTY_STUB_PCT, (value / max) * 100);
 }
