@@ -30,6 +30,27 @@ export function dayPartForHour(hour: number): DayPart {
   return "night";
 }
 
+export type TapeDayPartGroup = {
+  part: DayPart;
+  startIndex: number;
+  count: number;
+};
+
+export function groupTapeDayParts(cells: TapeCell[]): TapeDayPartGroup[] {
+  const groups: TapeDayPartGroup[] = [];
+  for (let i = 0; i < cells.length; i += 1) {
+    const hour = Number.parseInt(cells[i]!.label, 10);
+    const part = dayPartForHour(hour);
+    const last = groups[groups.length - 1];
+    if (last && last.part === part) {
+      last.count += 1;
+    } else {
+      groups.push({ part, startIndex: i, count: 1 });
+    }
+  }
+  return groups;
+}
+
 function startOfHour(date: Date): number {
   const copy = new Date(date);
   copy.setMinutes(0, 0, 0);
