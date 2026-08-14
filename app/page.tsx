@@ -54,7 +54,7 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
 
   return (
     <div className="mx-auto flex min-h-dvh w-full min-w-0 max-w-7xl flex-col overflow-x-clip px-4 sm:px-8 lg:px-10">
-      <header className="flex min-h-20 flex-wrap items-center justify-between gap-3 border-b border-hairline py-4">
+      <header className="flex min-h-16 flex-wrap items-center justify-between gap-3 border-b border-hairline py-4">
         <BrandLockup />
         <nav
           aria-label="Landing"
@@ -75,7 +75,7 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
       </header>
 
       <main className="flex min-w-0 flex-1 flex-col">
-        <section className="grid min-w-0 gap-10 py-12 md:py-16 lg:grid-cols-[minmax(0,0.76fr)_minmax(0,1.24fr)] lg:items-end lg:gap-16">
+        <section className="grid min-w-0 gap-10 py-12 md:grid-cols-[minmax(0,0.76fr)_minmax(0,1.24fr)] md:items-end md:gap-10 md:py-16 lg:gap-16">
           <div className="max-w-lg min-w-0">
             <p className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-copper">
               Local network monitor
