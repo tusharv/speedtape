@@ -45,7 +45,7 @@ export function migrateLegacyDatabase(
   try {
     fs.copyFileSync(src, dest);
     for (const extra of sidecar(src)) {
-      if (fs.existsSync(extra)) {
+      if (fs.existsSync(/* turbopackIgnore: true */ extra)) {
         fs.copyFileSync(extra, extra.replace(src, dest));
       }
     }
