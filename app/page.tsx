@@ -1,16 +1,39 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import {
+  BrandLockup,
+  BrandMark,
+} from "@/app/components/brand-lockup";
 import { LandingCommands } from "@/app/components/landing-commands";
 import { LandingTape } from "@/app/components/landing-tape";
 import { landingTapeCells } from "@/lib/landing-tape";
-import { APP_NAME, GITHUB_URL, LICENSE_LABEL } from "@/lib/site";
+import { GITHUB_URL, LICENSE_LABEL } from "@/lib/site";
 
 const dashboardHref = "/app";
 
 const primaryCta =
-  "inline-flex items-center border border-copper bg-copper px-4 py-2 text-xs uppercase tracking-[0.16em] text-white transition-transform hover:bg-amber active:scale-[0.98]";
+  "inline-flex items-center whitespace-nowrap rounded-lg border border-copper bg-copper px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.16)] outline-none transition-[transform,background-color] hover:bg-amber active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink";
 const secondaryCta =
-  "inline-flex items-center whitespace-nowrap border border-hairline px-3 py-2 text-[11px] uppercase tracking-[0.12em] text-paper transition-colors hover:border-copper hover:text-copper sm:px-4 sm:text-xs sm:tracking-[0.16em]";
+  "inline-flex items-center whitespace-nowrap rounded-lg border border-hairline px-3 py-2 text-[11px] font-medium uppercase tracking-[0.1em] text-paper outline-none transition-[transform,border-color,color] hover:border-copper hover:text-copper active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:px-4 sm:text-xs";
+
+const systemFacts = [
+  {
+    title: "This Mac only",
+    body: "Collectors are LaunchAgents on one machine, not a site you leave open.",
+  },
+  {
+    title: "Ookla Speedtest CLI",
+    body: "The same official CLI you run in Terminal. The browser never runs the test.",
+  },
+  {
+    title: "SQLite on disk",
+    body: "Samples never leave this house. Phones on the same Wi-Fi can still watch the tape.",
+  },
+  {
+    title: "Tape, chart, runs",
+    body: "A day strip, history, and every test kept, on the schedule you set.",
+  },
+] as const;
 
 function firstString(
   value: string | string[] | undefined,
@@ -30,9 +53,9 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
   }
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full min-w-0 max-w-6xl flex-col overflow-x-clip px-4 sm:px-8">
-      <header className="flex min-h-16 flex-wrap items-center justify-between gap-3 py-3">
-        <p className="font-display text-lg font-semibold text-paper">{APP_NAME}</p>
+    <div className="mx-auto flex min-h-dvh w-full min-w-0 max-w-7xl flex-col overflow-x-clip px-4 sm:px-8 lg:px-10">
+      <header className="flex min-h-20 flex-wrap items-center justify-between gap-3 border-b border-hairline py-4">
+        <BrandLockup />
         <nav aria-label="Landing" className="flex shrink-0 items-center gap-2">
           <a
             href={GITHUB_URL}
@@ -42,86 +65,107 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
           >
             View on GitHub
           </a>
+          <Link href={dashboardHref} className={primaryCta}>
+            Open dashboard
+          </Link>
         </nav>
       </header>
 
-      <main className="flex min-w-0 flex-1 flex-col gap-12 pb-16 pt-8 sm:gap-20">
-        <section className="grid min-w-0 items-end gap-10 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:gap-14">
-          <div className="max-w-md min-w-0">
-            <h1 className="font-display text-[2rem] font-semibold leading-[1.1] tracking-tight text-paper sm:text-4xl md:text-5xl">
-              Internet speed for the house.
-            </h1>
-            <p className="mt-4 max-w-[36ch] text-base leading-relaxed text-muted">
-              Watch the line from any device on this LAN. Close the page.
-              Sampling continues.
+      <main className="flex min-w-0 flex-1 flex-col">
+        <section className="grid min-w-0 gap-10 py-12 md:py-16 lg:grid-cols-[minmax(0,0.76fr)_minmax(0,1.24fr)] lg:items-end lg:gap-16">
+          <div className="max-w-lg min-w-0">
+            <p className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-copper">
+              Local network monitor
             </p>
-            <div className="mt-6">
+            <h1 className="mt-4 max-w-[9ch] font-display text-5xl font-semibold leading-[0.96] tracking-[-0.055em] text-paper sm:text-6xl lg:text-7xl">
+              Know your line.
+            </h1>
+            <p className="mt-5 max-w-[38ch] text-base leading-7 text-muted sm:text-lg">
+              A continuous record of download, upload, and ping from the Mac in
+              your house.
+            </p>
+            <div className="mt-7">
               <Link href={dashboardHref} className={primaryCta}>
                 Open dashboard
               </Link>
             </div>
           </div>
-          <div className="min-w-0 overflow-x-clip">
+
+          <div
+            aria-label="24 hour signal"
+            role="group"
+            className="min-w-0 rounded-lg border border-hairline bg-panel p-4 shadow-[0_28px_80px_-54px_rgba(15,118,110,0.7)] sm:p-6"
+          >
+            <div className="mb-5 flex items-center justify-between gap-4 border-b border-hairline pb-4 font-mono text-[10px] uppercase tracking-[0.12em] text-muted">
+              <span>24 hour signal</span>
+              <span>Sample data</span>
+            </div>
             <LandingTape cells={landingTapeCells()} />
           </div>
         </section>
 
-        <section>
-          <h2 className="font-display text-2xl font-semibold text-paper">
-            How it runs
-          </h2>
-          <p className="mt-2 max-w-[65ch] text-sm text-muted">
-            Click a command to copy it. Then open the dashboard on this Mac or
-            the LAN IP.
-          </p>
-          <div className="mt-6 min-w-0 max-w-xl border-y border-hairline">
+        <section className="grid gap-10 border-t border-hairline py-14 md:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] md:gap-14 md:py-20">
+          <div className="max-w-sm">
+            <h2 className="font-display text-3xl font-semibold tracking-[-0.035em] text-paper md:text-4xl">
+              How it runs
+            </h2>
+            <p className="mt-3 max-w-[36ch] text-sm leading-6 text-muted">
+              Click a command to copy it. Then open the dashboard on this Mac or
+              the LAN IP.
+            </p>
+          </div>
+          <div className="min-w-0 rounded-lg border border-hairline bg-panel px-5 sm:px-6">
             <LandingCommands />
           </div>
         </section>
 
-        <section className="border-t border-hairline pt-10">
-          <h2 className="font-display text-2xl font-semibold leading-[1.15] text-paper md:text-3xl">
-            Close the dashboard. The Mac keeps the record.
-          </h2>
-          <p className="mt-3 max-w-[55ch] text-sm leading-6 text-muted">
-            macOS only. Official Ookla Speedtest CLI. Not a test inside the
-            browser.
-          </p>
-          <dl className="mt-8 max-w-xl divide-y divide-hairline">
-            <div className="flex flex-col gap-1 py-4 first:pt-0 sm:flex-row sm:gap-8">
-              <dt className="shrink-0 font-medium text-paper sm:w-48">This Mac only</dt>
-              <dd className="text-sm leading-6 text-muted">
-                Collectors are LaunchAgents on one machine, not a site you leave
-                open.
-              </dd>
-            </div>
-            <div className="flex flex-col gap-1 py-4 sm:flex-row sm:gap-8">
-              <dt className="shrink-0 font-medium text-paper sm:w-48">Ookla Speedtest CLI</dt>
-              <dd className="text-sm leading-6 text-muted">
-                The same official CLI you run in Terminal. The browser never
-                runs the test.
-              </dd>
-            </div>
-            <div className="flex flex-col gap-1 py-4 sm:flex-row sm:gap-8">
-              <dt className="shrink-0 font-medium text-paper sm:w-48">SQLite on disk</dt>
-              <dd className="text-sm leading-6 text-muted">
-                Samples never leave this house. Phones on the same Wi-Fi can
-                still watch the tape.
-              </dd>
-            </div>
-            <div className="flex flex-col gap-1 py-4 last:pb-0 sm:flex-row sm:gap-8">
-              <dt className="shrink-0 font-medium text-paper sm:w-48">Tape, chart, runs</dt>
-              <dd className="text-sm leading-6 text-muted">
-                A day strip, history, and every test kept, on the schedule you
-                set.
-              </dd>
-            </div>
+        <section className="grid gap-8 border-t border-hairline py-14 md:py-20 lg:grid-cols-[minmax(0,1.04fr)_minmax(0,0.96fr)] lg:gap-14">
+          <div className="relative overflow-hidden rounded-lg border border-hairline bg-panel p-6 sm:p-8">
+            <BrandMark size="lg" className="mb-16 opacity-90 sm:mb-24" />
+            <h2 className="max-w-[18ch] font-display text-3xl font-semibold leading-[1.05] tracking-[-0.04em] text-paper sm:text-4xl md:text-5xl">
+              Close the dashboard. The Mac keeps the record.
+            </h2>
+            <p className="mt-5 max-w-[50ch] text-sm leading-6 text-muted">
+              macOS only. Official Ookla Speedtest CLI. Not a test inside the
+              browser.
+            </p>
+          </div>
+
+          <dl className="grid content-start sm:grid-cols-2">
+            {systemFacts.map((fact) => (
+              <div
+                key={fact.title}
+                className="border-t border-hairline py-6 sm:min-h-40 sm:px-5"
+              >
+                <dt className="font-medium text-paper">{fact.title}</dt>
+                <dd className="mt-2 text-sm leading-6 text-muted">{fact.body}</dd>
+              </div>
+            ))}
           </dl>
         </section>
       </main>
 
-      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-hairline py-6 text-xs text-muted">
-        <p>{LICENSE_LABEL}</p>
+      <footer className="flex flex-col gap-5 border-t border-hairline py-7 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <BrandLockup markSize="sm" className="text-sm" />
+          <p>{LICENSE_LABEL}</p>
+        </div>
+        <nav aria-label="Footer" className="flex items-center gap-5">
+          <a
+            href={GITHUB_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="outline-none transition-colors hover:text-copper focus-visible:text-copper"
+          >
+            GitHub
+          </a>
+          <Link
+            href={dashboardHref}
+            className="outline-none transition-colors hover:text-copper focus-visible:text-copper"
+          >
+            Dashboard
+          </Link>
+        </nav>
       </footer>
     </div>
   );
