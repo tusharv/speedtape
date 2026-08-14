@@ -53,6 +53,21 @@ describe("SpeedTape", () => {
     expect(html).not.toMatch(/>01<\/span><span>12<\/span><span>00</);
   });
 
+  it("keeps a one-hour last group headline inside the tape", () => {
+    const hours = Array.from({ length: 24 }, (_, index) => {
+      const hour = (16 - 24 + index + 24) % 24;
+      return cell(index, String(hour).padStart(2, "0"), 106.9);
+    });
+    const html = renderToStaticMarkup(<SpeedTape cells={hours} />);
+
+    expect(html).toContain("@container");
+    expect(html).toContain("overflow-hidden");
+    expect(html).toContain("cqw");
+    expect(html).not.toContain(
+      'ml-1 font-mono text-[10px] tracking-normal text-muted',
+    );
+  });
+
   it("paints failed hours in fail color and the current hour in amber", () => {
     const html = renderToStaticMarkup(
       <SpeedTape

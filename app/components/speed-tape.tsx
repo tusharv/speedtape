@@ -27,10 +27,10 @@ export function SpeedTape({ cells }: { cells: TapeCell[] }) {
       className="border border-hairline bg-panel px-4 py-5 sm:px-6 rounded-lg"
     >
       <div className="mb-4 flex items-baseline justify-between gap-4">
-        <h2 className="font-display text-2xl text-paper">
+        <h2 className="min-w-0 font-display text-2xl text-paper">
           <TermTip term="range24h">24hr History</TermTip>
         </h2>
-        <p className="text-[11px] uppercase tracking-[0.18em] text-muted">
+        <p className="min-w-0 shrink text-right text-[11px] uppercase tracking-[0.18em] text-muted">
           <TermTip term="download">Avg download</TermTip>
           {" · one bar per hour"}
         </p>
@@ -39,20 +39,20 @@ export function SpeedTape({ cells }: { cells: TapeCell[] }) {
         {groups.map((group, index) => (
           <div
             key={`${group.part}-${group.startIndex}`}
-            className={`min-w-0 ${index > 0 ? "border-l border-hairline pl-2 sm:pl-3" : "pr-1"}`}
+            className={`@container min-w-0 overflow-hidden ${index > 0 ? "border-l border-hairline pl-1.5" : ""}`}
             style={{ flexGrow: group.count, flexBasis: 0 }}
           >
-            <p className="text-[10px] leading-tight uppercase tracking-wider text-muted">
+            <p className="break-words text-[10px] leading-tight uppercase tracking-wider text-muted">
               {DAY_PART_LABELS[group.part]}
             </p>
-            <p className="mt-1 font-display text-2xl leading-none text-copper">
+            <p className="mt-1 font-display text-[clamp(0.75rem,38cqw,1.5rem)] leading-none text-copper">
               {formatMbps(group.avgDownloadMbps)}
-              {group.avgDownloadMbps !== null ? (
-                <span className="ml-1 font-mono text-[10px] tracking-normal text-muted">
-                  Mbps
-                </span>
-              ) : null}
             </p>
+            {group.avgDownloadMbps !== null ? (
+              <p className="mt-0.5 font-mono text-[10px] leading-tight tracking-normal text-muted">
+                Mbps
+              </p>
+            ) : null}
             <div className="mt-3 flex h-20 items-end gap-px">
               {group.cells.map((cell, cellIndex) => {
                 const isCurrent =
