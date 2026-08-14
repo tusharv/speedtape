@@ -51,12 +51,14 @@
 
 html {
   background: var(--ink);
+  overflow-x: clip;
 }
 
 body {
   background: var(--ink);
   color: var(--paper);
   font-family: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  overflow-x: clip;
 }
 
 ::selection {
@@ -70,6 +72,21 @@ body {
   *::after {
     animation: none !important;
     transition: none !important;
+  }
+}
+
+@keyframes tape-rise {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .landing-tape-bar {
+    animation: tape-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 }
 
@@ -89,7 +106,7 @@ body {
   bottom: calc(100% + 0.45rem);
   z-index: 30;
   width: max-content;
-  max-width: 16.5rem;
+  max-width: min(16.5rem, calc(100vw - 2rem));
   transform: translateX(-50%);
   border: 1px solid var(--hairline);
   background: var(--raised);

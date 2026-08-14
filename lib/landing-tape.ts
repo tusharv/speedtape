@@ -1,4 +1,8 @@
-import type { TapeCell } from "@/lib/tape";
+import {
+  DAY_PART_LABELS,
+  dayPartForHour,
+  type TapeCell,
+} from "@/lib/tape";
 
 const START = Date.parse("2026-08-14T00:00:00.000Z");
 const SAMPLE_DOWN = [
@@ -18,4 +22,27 @@ export function landingTapeCells(): TapeCell[] {
       failed,
     };
   });
+}
+
+export function landingHourReadout(cell: TapeCell): string {
+  const hour = Number.parseInt(cell.label, 10);
+  const part = DAY_PART_LABELS[dayPartForHour(hour)];
+  const clock = `${cell.label}:00`;
+  if (cell.failed) return `${part} ${clock} failed`;
+  if (cell.downloadMbps === null) return `${part} ${clock} no reading`;
+  const down = cell.downloadMbps.toFixed(1);
+  const up = (cell.uploadMbps ?? 0).toFixed(1);
+  const ping = (cell.pingMs ?? 0).toFixed(1);
+  return `${part} ${clock}  ${down} down  ${up} up  ${ping} ping`;
+}
+
+export function tapeIndexFromClientX(
+  clientX: number,
+  left: number,
+  width: number,
+  count: number,
+): number {
+  if (count <= 0 || width <= 0) return 0;
+  const x = Math.min(Math.max(clientX - left, 0), width - 1);
+  return Math.min(count - 1, Math.floor((x / width) * count));
 }

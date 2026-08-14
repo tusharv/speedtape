@@ -1,5 +1,5 @@
 import { downsampleChart, type ChartPoint } from "@/lib/chart";
-import { isAgentLoaded } from "@/lib/agent";
+import { countLoadedAgents, defaultLaunchd } from "@/lib/agent";
 import {
   getLatest,
   getSpeedTest,
@@ -12,7 +12,9 @@ import {
   type Range,
   type Summary,
 } from "@/lib/db";
+import { scheduleLabel } from "@/lib/paths";
 import type { ArchiveQuery } from "@/lib/runs";
+import { listSchedules } from "@/lib/schedules";
 import { buildSpeedTape, type TapeCell } from "@/lib/tape";
 import type { SpeedTestRow } from "@/lib/types";
 
@@ -23,12 +25,13 @@ export type DashboardData = {
   tape: TapeCell[];
   chart: ChartPoint[];
   preview: SpeedTestRow[];
-  agentLoaded: boolean;
+  agentsLoaded: number;
 };
 
 export function loadDashboard(range: Range, now = new Date()): DashboardData {
   return withDatabase((db) => {
     const tapeSource = listSpeedTests(db, "24h", now);
+    const labels = listSchedules(db).map((row) => scheduleLabel(row.id));
     return {
       range,
       latest: getLatest(db),
@@ -36,7 +39,7 @@ export function loadDashboard(range: Range, now = new Date()): DashboardData {
       tape: buildSpeedTape(tapeSource, now),
       chart: downsampleChart(listChartPoints(db, range, now)),
       preview: listRecentSpeedTests(db, range, now),
-      agentLoaded: isAgentLoaded(),
+      agentsLoaded: countLoadedAgents(labels, defaultLaunchd().isLoaded),
     };
   });
 }

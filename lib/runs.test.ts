@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   PAGE_SIZE,
   archiveHref,
+  configHref,
   filterRuns,
   formatRunId,
   homeHref,
@@ -168,6 +169,12 @@ describe("homeHref", () => {
   it("omits the default 24h range", () => {
     expect(homeHref("24h")).toBe("/app");
     expect(homeHref("7d")).toBe("/app?range=7d");
+  });
+});
+
+describe("configHref", () => {
+  it("points at the config page", () => {
+    expect(configHref()).toBe("/app/config");
   });
 });
 

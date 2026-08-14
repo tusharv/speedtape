@@ -7,6 +7,9 @@ import {
   legacyDbPath,
   agentLogPaths,
   agentPlistPath,
+  labeledAgentPlistPath,
+  scheduleLabel,
+  speedtestLockPath,
   legacyAgentPlistPath,
 } from "@/lib/paths";
 
@@ -40,5 +43,16 @@ describe("paths", () => {
         "com.home-network-checker.speedtest.plist",
       ),
     );
+  });
+
+  it("names a labeled schedule plist and the speedtest lock next to the db", () => {
+    expect(scheduleLabel(3)).toBe("com.speedtape.speedtest.3");
+    expect(labeledAgentPlistPath(home, 3)).toBe(
+      path.join(home, "Library", "LaunchAgents", "com.speedtape.speedtest.3.plist"),
+    );
+    expect(speedtestLockPath(defaultDbPath(home))).toBe(
+      path.join(home, "Library", "Application Support", "speedtape", "speedtest.lock"),
+    );
+    expect(speedtestLockPath("/tmp/custom.db")).toBe("/tmp/speedtest.lock");
   });
 });

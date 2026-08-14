@@ -42,7 +42,7 @@ function Stat({
       <p className="text-[11px] uppercase tracking-[0.2em] text-muted">
         <TermTip term={term}>{label}</TermTip>
       </p>
-      <p className="mt-2 font-display text-5xl leading-none text-amber">
+      <p className="mt-2 font-display text-4xl leading-none text-amber sm:text-5xl">
         {value}
         <span className="ml-2 font-mono text-sm tracking-normal text-muted">
           <TermTip term={unitTerm}>{unit}</TermTip>
@@ -89,7 +89,7 @@ const RANGE_TERMS: Record<Range, TermKey> = {
 
 export function RangeTabs({ range }: { range: Range }) {
   return (
-    <nav aria-label="History range" className="flex gap-1">
+    <nav aria-label="History range" className="flex flex-wrap gap-1">
       {RANGES.map((value) => {
         const active = value === range;
         return (

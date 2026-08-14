@@ -15,7 +15,7 @@ const mono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: APP_NAME,
-  description: "Hourly internet speed for the house",
+  description: "Internet speed for the house",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -24,7 +24,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${sans.variable} ${mono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="flex min-h-full min-w-0 flex-col overflow-x-clip">
+        {children}
+      </body>
     </html>
   );
 }

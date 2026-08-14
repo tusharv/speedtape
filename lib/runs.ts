@@ -107,6 +107,10 @@ export function homeHref(range: Range): string {
   return range === "24h" ? "/app" : `/app?range=${range}`;
 }
 
+export function configHref(): string {
+  return "/app/config";
+}
+
 export function archiveHref(query: ArchiveQuery): string {
   const params = new URLSearchParams();
   if (query.status !== "all") params.set("status", query.status);

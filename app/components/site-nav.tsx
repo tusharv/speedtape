@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { archiveHref, homeHref } from "@/lib/runs";
+import { archiveHref, configHref, homeHref } from "@/lib/runs";
 
 const tab =
-  "border px-3 py-1 text-[11px] uppercase tracking-[0.16em]";
+  "border px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] sm:px-3 sm:tracking-[0.16em]";
 
-export function SiteNav({ current }: { current: "home" | "runs" }) {
+export function SiteNav({ current }: { current: "home" | "runs" | "config" }) {
   return (
     <nav aria-label="Site" className="flex flex-wrap items-center gap-1">
       <Link
@@ -39,13 +39,23 @@ export function SiteNav({ current }: { current: "home" | "runs" }) {
       >
         Runs
       </Link>
+      <Link
+        href={configHref()}
+        className={`${tab} ${
+          current === "config"
+            ? "border-copper bg-copper text-white"
+            : "border-hairline text-muted hover:border-copper hover:text-paper"
+        }`}
+      >
+        Config
+      </Link>
     </nav>
   );
 }
 
 export function PageShell({ children }: { children: ReactNode }) {
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-4 py-10 sm:px-8">
+    <div className="mx-auto flex w-full min-w-0 max-w-5xl flex-1 flex-col gap-8 overflow-x-clip px-4 py-10 sm:px-8">
       {children}
     </div>
   );

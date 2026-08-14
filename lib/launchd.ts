@@ -1,9 +1,9 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { AGENT_LABEL, agentLogPaths, agentPlistPath } from "@/lib/paths";
+import { agentLogPaths, labeledAgentPlistPath, scheduleLabel } from "@/lib/paths";
 
-export { agentPlistPath };
+export { labeledAgentPlistPath, agentPlistPath } from "@/lib/paths";
 
 export type PlistPaths = {
   nodePath: string;
@@ -15,6 +15,16 @@ export type PlistPaths = {
   errLog: string;
 };
 
+export type CalendarEntry = {
+  weekday?: number;
+  hour: number;
+  minute: number;
+};
+
+export type PlistSchedule =
+  | { kind: "interval"; seconds: number }
+  | { kind: "clock"; entries: CalendarEntry[] };
+
 function xmlEscape(value: string): string {
   return value
     .replaceAll("&", "&amp;")
@@ -22,7 +32,42 @@ function xmlEscape(value: string): string {
     .replaceAll(">", "&gt;");
 }
 
-export function generatePlist(paths: PlistPaths): string {
+function calendarXml(entries: CalendarEntry[]): string {
+  const dicts = entries
+    .map((entry) => {
+      const weekday =
+        entry.weekday === undefined
+          ? ""
+          : `      <key>Weekday</key>
+      <integer>${entry.weekday}</integer>
+`;
+      return `    <dict>
+${weekday}      <key>Hour</key>
+      <integer>${entry.hour}</integer>
+      <key>Minute</key>
+      <integer>${entry.minute}</integer>
+    </dict>`;
+    })
+    .join("\n");
+  return `  <key>StartCalendarInterval</key>
+  <array>
+${dicts}
+  </array>
+  <key>RunAtLoad</key>
+  <false/>`;
+}
+
+function intervalXml(seconds: number): string {
+  return `  <key>StartInterval</key>
+  <integer>${seconds}</integer>
+  <key>RunAtLoad</key>
+  <true/>`;
+}
+
+export function generatePlist(
+  paths: PlistPaths,
+  options: { label: string; schedule: PlistSchedule },
+): string {
   const nodePath = xmlEscape(paths.nodePath);
   const tsxPath = xmlEscape(paths.tsxPath);
   const scriptPath = xmlEscape(paths.scriptPath);
@@ -30,13 +75,18 @@ export function generatePlist(paths: PlistPaths): string {
   const pathEnv = xmlEscape(paths.pathEnv);
   const outLog = xmlEscape(paths.outLog);
   const errLog = xmlEscape(paths.errLog);
+  const label = xmlEscape(options.label);
+  const scheduleXml =
+    options.schedule.kind === "interval"
+      ? intervalXml(options.schedule.seconds)
+      : calendarXml(options.schedule.entries);
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
   <key>Label</key>
-  <string>${AGENT_LABEL}</string>
+  <string>${label}</string>
   <key>ProgramArguments</key>
   <array>
     <string>${nodePath}</string>
@@ -45,10 +95,7 @@ export function generatePlist(paths: PlistPaths): string {
   </array>
   <key>WorkingDirectory</key>
   <string>${workdir}</string>
-  <key>StartInterval</key>
-  <integer>3600</integer>
-  <key>RunAtLoad</key>
-  <true/>
+${scheduleXml}
   <key>StandardOutPath</key>
   <string>${outLog}</string>
   <key>StandardErrorPath</key>
@@ -69,21 +116,29 @@ export function writeAgentPlist(options: {
   nodePath: string;
   tsxPath: string;
   pathEnv: string;
+  id: number;
+  schedule: PlistSchedule;
 }): string {
   const homeDir = options.homeDir ?? os.homedir();
-  const plistPath = agentPlistPath(homeDir);
+  const plistPath = labeledAgentPlistPath(homeDir, options.id);
   const logs = agentLogPaths(homeDir);
   fs.mkdirSync(path.dirname(plistPath), { recursive: true });
   fs.mkdirSync(path.join(homeDir, "Library", "Logs"), { recursive: true });
-  const xml = generatePlist({
-    nodePath: options.nodePath,
-    tsxPath: options.tsxPath,
-    scriptPath: path.join(options.projectRoot, "scripts", "run-speedtest.ts"),
-    workdir: options.projectRoot,
-    pathEnv: options.pathEnv,
-    outLog: logs.outLog,
-    errLog: logs.errLog,
-  });
+  const xml = generatePlist(
+    {
+      nodePath: options.nodePath,
+      tsxPath: options.tsxPath,
+      scriptPath: path.join(options.projectRoot, "scripts", "run-speedtest.ts"),
+      workdir: options.projectRoot,
+      pathEnv: options.pathEnv,
+      outLog: logs.outLog,
+      errLog: logs.errLog,
+    },
+    {
+      label: scheduleLabel(options.id),
+      schedule: options.schedule,
+    },
+  );
   fs.writeFileSync(plistPath, xml);
   return plistPath;
 }

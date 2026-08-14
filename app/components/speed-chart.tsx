@@ -43,8 +43,8 @@ export function SpeedChart({
     <div
       className={
         embedded
-          ? "h-64"
-          : "h-72 border border-hairline bg-panel px-2 py-4 sm:px-4"
+          ? "h-64 min-w-0"
+          : "h-64 min-w-0 overflow-x-clip border border-hairline bg-panel px-1 py-4 sm:h-72 sm:px-4"
       }
     >
       <ResponsiveContainer width="100%" height="100%">

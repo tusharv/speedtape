@@ -47,13 +47,13 @@ function Metric({
   accent?: boolean;
 }) {
   return (
-    <div>
-      <p className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.16em] text-muted">
+    <div className="min-w-0">
+      <p className="inline-flex min-w-0 items-center gap-1 text-[10px] uppercase tracking-[0.08em] text-muted sm:gap-1.5 sm:text-[11px] sm:tracking-[0.16em]">
         <Icon {...iconProps} />
         <TermTip term={term}>{label}</TermTip>
       </p>
       <p
-        className={`mt-2 font-display text-3xl leading-none ${
+        className={`mt-2 break-words font-display text-2xl leading-none sm:text-3xl ${
           accent ? "text-amber" : "text-paper"
         }`}
       >
@@ -76,7 +76,7 @@ function Meta({
   return (
     <p className="inline-flex min-w-0 items-center gap-1.5 text-xs leading-5 text-muted">
       <Icon {...iconProps} className="shrink-0 text-copper" />
-      <span className="min-w-0">{children}</span>
+      <span className="min-w-0 break-words">{children}</span>
     </p>
   );
 }
@@ -90,7 +90,7 @@ export function RunCard({ test }: { test: SpeedTestRow }) {
     <article
       id={runCardId(test.id)}
       aria-label={`Run ${test.id}, ${failed ? "failed" : "ok"}, ${when}`}
-      className="group relative flex h-full scroll-mt-6 flex-col border border-hairline bg-panel py-4 pl-5 pr-4 transition-colors hover:border-copper"
+      className="group relative flex h-full min-w-0 scroll-mt-6 flex-col overflow-x-clip border border-hairline bg-panel py-4 pl-5 pr-4 transition-colors hover:border-copper"
     >
       <span
         aria-hidden
@@ -122,7 +122,7 @@ export function RunCard({ test }: { test: SpeedTestRow }) {
         </div>
       </header>
 
-      <div className="mt-4 grid grid-cols-3 gap-3">
+      <div className="mt-4 grid min-w-0 grid-cols-3 gap-2 sm:gap-3">
         <Metric
           icon={ArrowDownIcon}
           label="Down"
@@ -150,7 +150,7 @@ export function RunCard({ test }: { test: SpeedTestRow }) {
         />
       </div>
       {failed ? (
-        <p className="mt-auto border-t border-hairline pt-3 text-sm leading-6 text-fail">
+        <p className="mt-auto min-w-0 break-words border-t border-hairline pt-3 text-sm leading-6 text-fail">
           {formatSpeedtestError(test.error ?? "")}
         </p>
       ) : (

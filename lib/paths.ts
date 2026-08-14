@@ -41,6 +41,26 @@ export function agentPlistPath(homeDir = os.homedir()): string {
   return path.join(homeDir, "Library", "LaunchAgents", `${AGENT_LABEL}.plist`);
 }
 
+export function scheduleLabel(id: number): string {
+  return `${AGENT_LABEL}.${id}`;
+}
+
+export function labeledAgentPlistPath(
+  homeDir: string,
+  id: number,
+): string {
+  return path.join(
+    homeDir,
+    "Library",
+    "LaunchAgents",
+    `${scheduleLabel(id)}.plist`,
+  );
+}
+
+export function speedtestLockPath(dbPath: string): string {
+  return path.join(path.dirname(dbPath), "speedtest.lock");
+}
+
 export function legacyAgentPlistPath(homeDir = os.homedir()): string {
   return path.join(
     homeDir,

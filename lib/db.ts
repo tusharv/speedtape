@@ -52,6 +52,15 @@ export function openDatabase(filePath: string): Database.Database {
     );
     CREATE INDEX IF NOT EXISTS idx_speed_tests_tested_at
       ON speed_tests (tested_at);
+    CREATE TABLE IF NOT EXISTS schedules (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      kind TEXT NOT NULL CHECK (kind IN ('interval', 'clock')),
+      interval_seconds INTEGER,
+      times_json TEXT,
+      weekdays_json TEXT,
+      created_at TEXT NOT NULL
+    );
   `);
   return db;
 }

@@ -7,7 +7,7 @@ export default function NotFound() {
     <PageShell>
       <header className="flex flex-col gap-4 border-b border-hairline pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="font-display text-5xl font-semibold text-paper sm:text-6xl">
+          <h1 className="font-display text-4xl font-semibold text-paper sm:text-6xl">
             Not found
           </h1>
           <p className="mt-2 max-w-md text-sm text-muted">

@@ -50,6 +50,7 @@ describe("loadDashboard", () => {
     expect(data.preview[0]?.testedAt).toBe(now.toISOString());
     expect(data.chart.length).toBeLessThanOrEqual(CHART_MAX_POINTS);
     expect(data.summary.count).toBe(120);
+    expect(data.agentsLoaded).toBe(0);
     expect("tests" in data).toBe(false);
   });
 });
