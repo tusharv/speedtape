@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   CheckIcon,
   CopyIcon,
@@ -43,8 +43,16 @@ export async function copyCommand(
   }
 }
 
+export function copyRequestIsCurrent(
+  scheduledRequest: number,
+  latestRequest: number,
+) {
+  return scheduledRequest === latestRequest;
+}
+
 export function LandingCommands() {
   const [copyState, setCopyState] = useState<CopyState>(null);
+  const latestCopyRequest = useRef(0);
 
   return (
     <ul className="min-w-0 divide-y divide-hairline">
@@ -62,12 +70,24 @@ export function LandingCommands() {
             <button
               type="button"
               onClick={async () => {
+                const copyRequest = ++latestCopyRequest.current;
                 const nextResult = await copyCommand(
                   navigator.clipboard.writeText.bind(navigator.clipboard),
                   item.command,
                 );
+                if (!copyRequestIsCurrent(copyRequest, latestCopyRequest.current)) {
+                  return;
+                }
                 setCopyState({ name: item.name, result: nextResult });
                 window.setTimeout(() => {
+                  if (
+                    !copyRequestIsCurrent(
+                      copyRequest,
+                      latestCopyRequest.current,
+                    )
+                  ) {
+                    return;
+                  }
                   setCopyState((current) =>
                     current?.name === item.name ? null : current,
                   );

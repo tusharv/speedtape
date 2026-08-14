@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   LandingCommands,
   copyCommand,
+  copyRequestIsCurrent,
 } from "@/app/components/landing-commands";
 
 describe("LandingCommands", () => {
@@ -28,5 +29,10 @@ describe("LandingCommands", () => {
     const writeText = vi.fn().mockRejectedValue(new Error("clipboard denied"));
 
     await expect(copyCommand(writeText, "npm install")).resolves.toBe("failed");
+  });
+
+  it("keeps only the latest copy request current", () => {
+    expect(copyRequestIsCurrent(1, 2)).toBe(false);
+    expect(copyRequestIsCurrent(2, 2)).toBe(true);
   });
 });
