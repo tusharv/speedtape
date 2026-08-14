@@ -12,9 +12,9 @@ import { GITHUB_URL, LICENSE_LABEL } from "@/lib/site";
 const dashboardHref = "/app";
 
 const primaryCta =
-  "inline-flex items-center whitespace-nowrap rounded-lg border border-copper bg-copper px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.16)] outline-none transition-[transform,background-color] hover:bg-amber active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink";
+  "inline-flex items-center justify-center whitespace-nowrap rounded-lg border border-copper bg-copper px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.16)] outline-none transition-[transform,background-color] hover:bg-paper hover:text-ink active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink";
 const secondaryCta =
-  "inline-flex items-center whitespace-nowrap rounded-lg border border-hairline px-3 py-2 text-[11px] font-medium uppercase tracking-[0.1em] text-paper outline-none transition-[transform,border-color,color] hover:border-copper hover:text-copper active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:px-4 sm:text-xs";
+  "inline-flex items-center justify-center whitespace-nowrap rounded-lg border border-hairline px-3 py-2 text-[11px] font-medium uppercase tracking-[0.1em] text-paper outline-none transition-[transform,border-color,color] hover:border-copper hover:text-copper active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:px-4 sm:text-xs";
 
 const systemFacts = [
   {
@@ -56,7 +56,10 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
     <div className="mx-auto flex min-h-dvh w-full min-w-0 max-w-7xl flex-col overflow-x-clip px-4 sm:px-8 lg:px-10">
       <header className="flex min-h-20 flex-wrap items-center justify-between gap-3 border-b border-hairline py-4">
         <BrandLockup />
-        <nav aria-label="Landing" className="flex shrink-0 items-center gap-2">
+        <nav
+          aria-label="Landing"
+          className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto"
+        >
           <a
             href={GITHUB_URL}
             target="_blank"
@@ -155,13 +158,13 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
             href={GITHUB_URL}
             target="_blank"
             rel="noreferrer"
-            className="outline-none transition-colors hover:text-copper focus-visible:text-copper"
+            className="rounded-lg outline-none transition-colors hover:text-copper focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
           >
             GitHub
           </a>
           <Link
             href={dashboardHref}
-            className="outline-none transition-colors hover:text-copper focus-visible:text-copper"
+            className="rounded-lg outline-none transition-colors hover:text-copper focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
           >
             Dashboard
           </Link>

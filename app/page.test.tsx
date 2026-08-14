@@ -1,6 +1,14 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import Landing from "@/app/page";
+
+const { redirectMock } = vi.hoisted(() => ({
+  redirectMock: vi.fn(),
+}));
+
+vi.mock("next/navigation", () => ({
+  redirect: redirectMock,
+}));
 
 describe("Speedtape landing page", () => {
   it("renders the approved Signal Ledger identity and structure", async () => {
@@ -22,5 +30,48 @@ describe("Speedtape landing page", () => {
     expect(html).toContain("MIT");
     expect(html).not.toContain("—");
     expect(html).not.toContain("–");
+  });
+
+  it("renders responsive navigation and accessible interaction states", async () => {
+    const page = await Landing({
+      params: Promise.resolve({}),
+      searchParams: Promise.resolve({}),
+    });
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto");
+    expect(html).toContain("hover:bg-paper");
+    expect(html).toContain("hover:text-ink");
+    expect(html).not.toContain("hover:bg-amber");
+    expect(
+      html.match(
+        /class="rounded-lg outline-none transition-colors hover:text-copper focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink"/g,
+      ) ?? [],
+    ).toHaveLength(2);
+  });
+
+  it("renders the intended landmark and heading hierarchy", async () => {
+    const page = await Landing({
+      params: Promise.resolve({}),
+      searchParams: Promise.resolve({}),
+    });
+    const html = renderToStaticMarkup(page);
+
+    expect(html.match(/<h1/g) ?? []).toHaveLength(1);
+    expect(html.match(/<h2/g) ?? []).toHaveLength(2);
+    expect(html.match(/<nav/g) ?? []).toHaveLength(2);
+    expect(html.match(/href="\/app"/g) ?? []).toHaveLength(3);
+  });
+
+  it("preserves range query redirects to the dashboard", async () => {
+    redirectMock.mockClear();
+
+    await Landing({
+      params: Promise.resolve({}),
+      searchParams: Promise.resolve({ range: "7d", slow: "1" }),
+    });
+
+    expect(redirectMock).toHaveBeenCalledOnce();
+    expect(redirectMock).toHaveBeenCalledWith("/app?range=7d&slow=1");
   });
 });
