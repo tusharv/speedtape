@@ -60,6 +60,26 @@ export async function copyCommand(
   }
 }
 
+export function createCopyRequestTracker() {
+  let active = true;
+  let latestRequestId = 0;
+
+  return {
+    start() {
+      active = true;
+      latestRequestId += 1;
+      return latestRequestId;
+    },
+    isCurrent(requestId: number) {
+      return active && requestId === latestRequestId;
+    },
+    invalidate() {
+      active = false;
+      latestRequestId += 1;
+    },
+  };
+}
+
 export function copyFeedbackReducer(
   state: CopyFeedbackState,
   action: CopyFeedbackAction,
@@ -86,11 +106,12 @@ export function LandingCommands() {
     copyFeedbackReducer,
     initialCopyFeedbackState,
   );
-  const latestCopyRequest = useRef(0);
-  const feedbackTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const copyRequests = useRef(createCopyRequestTracker());
+  const feedbackTimeout = useRef<number | null>(null);
 
   useEffect(
     () => () => {
+      copyRequests.current.invalidate();
       if (feedbackTimeout.current !== null) {
         window.clearTimeout(feedbackTimeout.current);
       }
@@ -117,7 +138,7 @@ export function LandingCommands() {
             <button
               type="button"
               onClick={async () => {
-                const copyRequest = ++latestCopyRequest.current;
+                const copyRequest = copyRequests.current.start();
                 if (feedbackTimeout.current !== null) {
                   window.clearTimeout(feedbackTimeout.current);
                   feedbackTimeout.current = null;
@@ -127,7 +148,7 @@ export function LandingCommands() {
                   navigator.clipboard?.writeText?.bind(navigator.clipboard),
                   item.command,
                 );
-                if (copyRequest !== latestCopyRequest.current) {
+                if (!copyRequests.current.isCurrent(copyRequest)) {
                   return;
                 }
                 dispatchCopyState({
@@ -137,10 +158,11 @@ export function LandingCommands() {
                   result: nextResult,
                 });
                 feedbackTimeout.current = window.setTimeout(() => {
-                  dispatchCopyState({ type: "reset", requestId: copyRequest });
-                  if (copyRequest === latestCopyRequest.current) {
-                    feedbackTimeout.current = null;
+                  if (!copyRequests.current.isCurrent(copyRequest)) {
+                    return;
                   }
+                  dispatchCopyState({ type: "reset", requestId: copyRequest });
+                  feedbackTimeout.current = null;
                 }, COPY_FEEDBACK_MS);
               }}
               className="group flex w-full min-w-0 flex-col items-start gap-3 py-5 text-left outline-none transition-[color,transform] hover:text-copper active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-panel"

@@ -5,6 +5,7 @@ import {
   LandingCommands,
   copyCommand,
   copyFeedbackReducer,
+  createCopyRequestTracker,
   initialCopyFeedbackState,
 } from "@/app/components/landing-commands";
 
@@ -22,6 +23,20 @@ describe("LandingCommands", () => {
 
   it("uses an 1800ms feedback duration", () => {
     expect(COPY_FEEDBACK_MS).toBe(1800);
+  });
+
+  it("invalidates pending copy requests", () => {
+    const tracker = createCopyRequestTracker();
+    const firstRequest = tracker.start();
+
+    expect(tracker.isCurrent(firstRequest)).toBe(true);
+
+    const secondRequest = tracker.start();
+    expect(tracker.isCurrent(firstRequest)).toBe(false);
+    expect(tracker.isCurrent(secondRequest)).toBe(true);
+
+    tracker.invalidate();
+    expect(tracker.isCurrent(secondRequest)).toBe(false);
   });
 
   it("clears prior feedback when a new copy request starts", () => {
