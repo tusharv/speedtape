@@ -5,12 +5,15 @@ import type { Range, SpeedTestRow } from "@/lib/types";
 export type RunStatus = "all" | "ok" | "failed";
 export type RunSort = "newest" | "oldest" | "slowest-down" | "highest-ping";
 
-export type RunQuery = {
-  range: Range;
+export type ArchiveQuery = {
   status: RunStatus;
   slow: boolean;
   ping: boolean;
   sort: RunSort;
+};
+
+export type RunQuery = ArchiveQuery & {
+  range: Range;
   page: number;
 };
 
@@ -31,23 +34,62 @@ export type RunSearchParams = {
   page?: string;
 };
 
+function parseStatus(value: string | undefined): RunStatus {
+  return value === "ok" || value === "failed" ? value : "all";
+}
+
+function parseSort(value: string | undefined): RunSort {
+  return value === "oldest" ||
+    value === "slowest-down" ||
+    value === "highest-ping"
+    ? value
+    : "newest";
+}
+
 export function parseRunQuery(params: RunSearchParams): RunQuery {
   const pageNum = Number.parseInt(params.page ?? "", 10);
-  const status = params.status;
-  const sort = params.sort;
   return {
     range: parseRange(params.range),
-    status: status === "ok" || status === "failed" ? status : "all",
+    status: parseStatus(params.status),
     slow: params.slow === "1",
     ping: params.ping === "1",
-    sort:
-      sort === "oldest" ||
-      sort === "slowest-down" ||
-      sort === "highest-ping"
-        ? sort
-        : "newest",
+    sort: parseSort(params.sort),
     page: Number.isInteger(pageNum) && pageNum >= 1 ? pageNum : 1,
   };
+}
+
+export function parseArchiveQuery(params: RunSearchParams): ArchiveQuery {
+  return {
+    status: parseStatus(params.status),
+    slow: params.slow === "1",
+    ping: params.ping === "1",
+    sort: parseSort(params.sort),
+  };
+}
+
+export function runCardId(id: number): string {
+  return `run-${id}`;
+}
+
+export function formatRunId(id: number): string {
+  return `#${id}`;
+}
+
+export function patchRunQuery(
+  query: RunQuery,
+  patch: Partial<RunQuery>,
+): RunQuery {
+  const next: RunQuery = { ...query, ...patch };
+  const filterChanged =
+    (patch.status !== undefined && patch.status !== query.status) ||
+    (patch.slow !== undefined && patch.slow !== query.slow) ||
+    (patch.ping !== undefined && patch.ping !== query.ping) ||
+    (patch.sort !== undefined && patch.sort !== query.sort) ||
+    (patch.range !== undefined && patch.range !== query.range);
+  if (filterChanged && patch.page === undefined) {
+    next.page = 1;
+  }
+  return next;
 }
 
 export function runHref(query: RunQuery): string {
@@ -58,7 +100,30 @@ export function runHref(query: RunQuery): string {
   if (query.ping) params.set("ping", "1");
   if (query.sort !== "newest") params.set("sort", query.sort);
   if (query.page > 1) params.set("page", String(query.page));
-  return `/?${params.toString()}`;
+  return `/app?${params.toString()}`;
+}
+
+export function homeHref(range: Range): string {
+  return range === "24h" ? "/app" : `/app?range=${range}`;
+}
+
+export function archiveHref(query: ArchiveQuery): string {
+  const params = new URLSearchParams();
+  if (query.status !== "all") params.set("status", query.status);
+  if (query.slow) params.set("slow", "1");
+  if (query.ping) params.set("ping", "1");
+  if (query.sort !== "newest") params.set("sort", query.sort);
+  const qs = params.toString();
+  return qs ? `/app/runs?${qs}` : "/app/runs";
+}
+
+export function runDetailHref(id: number): string {
+  return `/app/runs/${id}`;
+}
+
+export function parseRunId(value: string): number | null {
+  if (!/^[1-9]\d*$/.test(value)) return null;
+  return Number.parseInt(value, 10);
 }
 
 export function filterRuns(

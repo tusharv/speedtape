@@ -1,5 +1,20 @@
 import { describe, expect, it } from "vitest";
-import { PAGE_SIZE, filterRuns, pageRuns, parseRunQuery, runHref, sortRuns } from "@/lib/runs";
+import {
+  PAGE_SIZE,
+  archiveHref,
+  filterRuns,
+  formatRunId,
+  homeHref,
+  pageRuns,
+  parseArchiveQuery,
+  parseRunId,
+  parseRunQuery,
+  patchRunQuery,
+  runCardId,
+  runDetailHref,
+  runHref,
+  sortRuns,
+} from "@/lib/runs";
 import type { Summary } from "@/lib/db";
 import type { SpeedTestRow } from "@/lib/types";
 
@@ -96,6 +111,31 @@ describe("parseRunQuery", () => {
   });
 });
 
+describe("parseArchiveQuery", () => {
+  it("defaults unknown values and ignores range and page", () => {
+    expect(parseArchiveQuery({})).toEqual({
+      status: "all",
+      slow: false,
+      ping: false,
+      sort: "newest",
+    });
+    expect(
+      parseArchiveQuery({
+        range: "7d",
+        status: "weird",
+        page: "9",
+        sort: "oldest",
+        slow: "1",
+      }),
+    ).toEqual({
+      status: "all",
+      slow: true,
+      ping: false,
+      sort: "oldest",
+    });
+  });
+});
+
 describe("runHref", () => {
   it("omits default params", () => {
     expect(
@@ -107,7 +147,7 @@ describe("runHref", () => {
         sort: "newest",
         page: 1,
       }),
-    ).toBe("/?range=24h");
+    ).toBe("/app?range=24h");
   });
 
   it("includes only non-default params", () => {
@@ -120,7 +160,88 @@ describe("runHref", () => {
         sort: "highest-ping",
         page: 2,
       }),
-    ).toBe("/?range=7d&status=ok&slow=1&ping=1&sort=highest-ping&page=2");
+    ).toBe("/app?range=7d&status=ok&slow=1&ping=1&sort=highest-ping&page=2");
+  });
+});
+
+describe("homeHref", () => {
+  it("omits the default 24h range", () => {
+    expect(homeHref("24h")).toBe("/app");
+    expect(homeHref("7d")).toBe("/app?range=7d");
+  });
+});
+
+describe("archiveHref", () => {
+  it("omits default archive params", () => {
+    expect(
+      archiveHref({
+        status: "all",
+        slow: false,
+        ping: false,
+        sort: "newest",
+      }),
+    ).toBe("/app/runs");
+  });
+
+  it("includes only non-default archive params", () => {
+    expect(
+      archiveHref({
+        status: "failed",
+        slow: true,
+        ping: true,
+        sort: "oldest",
+      }),
+    ).toBe("/app/runs?status=failed&slow=1&ping=1&sort=oldest");
+  });
+});
+
+describe("runDetailHref", () => {
+  it("points at the run detail page", () => {
+    expect(runDetailHref(42)).toBe("/app/runs/42");
+  });
+});
+
+describe("parseRunId", () => {
+  it("accepts a positive integer id and rejects junk", () => {
+    expect(parseRunId("42")).toBe(42);
+    expect(parseRunId("0")).toBeNull();
+    expect(parseRunId("-1")).toBeNull();
+    expect(parseRunId("42a")).toBeNull();
+    expect(parseRunId("042")).toBeNull();
+  });
+});
+
+describe("patchRunQuery", () => {
+  const base = {
+    range: "7d" as const,
+    status: "ok" as const,
+    slow: true,
+    ping: false,
+    sort: "newest" as const,
+    page: 3,
+  };
+
+  it("resets page when status, sort, or problem filters change", () => {
+    expect(patchRunQuery(base, { status: "failed" }).page).toBe(1);
+    expect(patchRunQuery(base, { sort: "oldest" }).page).toBe(1);
+    expect(patchRunQuery(base, { slow: false }).page).toBe(1);
+    expect(patchRunQuery(base, { ping: true }).page).toBe(1);
+  });
+
+  it("keeps page when only the page changes", () => {
+    expect(patchRunQuery(base, { page: 2 })).toEqual({ ...base, page: 2 });
+  });
+
+  it("clears status and problem filters without touching sort", () => {
+    expect(
+      patchRunQuery(base, { status: "all", slow: false, ping: false, page: 1 }),
+    ).toEqual({
+      ...base,
+      status: "all",
+      slow: false,
+      ping: false,
+      page: 1,
+    });
   });
 });
 
@@ -243,5 +364,17 @@ describe("pageRuns", () => {
       from: 0,
       to: 0,
     });
+  });
+});
+
+describe("runCardId", () => {
+  it("prefixes the numeric run id for a stable DOM id", () => {
+    expect(runCardId(42)).toBe("run-42");
+  });
+});
+
+describe("formatRunId", () => {
+  it("shows the run id as a hash label", () => {
+    expect(formatRunId(42)).toBe("#42");
   });
 });
