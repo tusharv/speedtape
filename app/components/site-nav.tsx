@@ -18,7 +18,7 @@ export function SiteNav({ current }: { current: "home" | "runs" }) {
         href={homeHref("24h")}
         className={`${tab} ${
           current === "home"
-            ? "border-copper bg-copper text-ink"
+            ? "border-copper bg-copper text-white"
             : "border-hairline text-muted hover:border-copper hover:text-paper"
         }`}
       >
@@ -33,7 +33,7 @@ export function SiteNav({ current }: { current: "home" | "runs" }) {
         })}
         className={`${tab} ${
           current === "runs"
-            ? "border-copper bg-copper text-ink"
+            ? "border-copper bg-copper text-white"
             : "border-hairline text-muted hover:border-copper hover:text-paper"
         }`}
       >

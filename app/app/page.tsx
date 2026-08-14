@@ -38,11 +38,8 @@ export default async function Home({
     <PageShell>
       <header className="flex flex-col gap-4 border-b border-hairline pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-[11px] uppercase tracking-[0.28em] text-copper">
-            House circuit
-          </p>
-          <h1 className="mt-2 font-display text-5xl text-paper sm:text-6xl">
-            Home line
+          <h1 className="font-display text-5xl font-semibold text-paper sm:text-6xl">
+            Speedtape
           </h1>
           <p className="mt-2 max-w-md text-sm text-muted">
             Download, upload, and ping for this network. Hourly samples stay
@@ -66,8 +63,8 @@ export default async function Home({
       </header>
 
       {empty ? (
-        <section className="border border-dashed border-hairline bg-panel px-6 py-10">
-          <h2 className="font-display text-3xl text-paper">No readings yet</h2>
+        <section className="rounded-lg border border-dashed border-hairline bg-panel px-6 py-10">
+          <h2 className="font-display text-3xl font-semibold text-paper">No readings yet</h2>
           <p className="mt-3 max-w-lg text-sm leading-6 text-muted">
             Run a test now, or install the hourly agent so this house keeps a
             record while you are away from the dashboard.
@@ -113,10 +110,10 @@ export default async function Home({
         />
       </section>
 
-      <section className="flex flex-col gap-4 border border-hairline bg-raised px-4 py-5 sm:px-6">
+      <section className="flex flex-col gap-4 rounded-lg border border-hairline bg-raised px-4 py-5 sm:px-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="font-display text-2xl text-paper">History</h2>
+            <h2 className="font-display text-2xl font-semibold text-paper">History</h2>
             <p className="mt-1 text-xs text-muted">
               <TermTip term="minAvgMax">Min / avg / max</TermTip> from successful
               tests in this range

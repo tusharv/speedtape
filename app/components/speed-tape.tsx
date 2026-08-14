@@ -24,11 +24,11 @@ export function SpeedTape({ cells }: { cells: TapeCell[] }) {
   return (
     <section
       aria-label="Last 24 hours of download by time of day"
-      className="border border-hairline bg-panel px-4 py-5 sm:px-6"
+      className="border border-hairline bg-panel px-4 py-5 sm:px-6 rounded-lg"
     >
       <div className="mb-4 flex items-baseline justify-between gap-4">
         <h2 className="font-display text-2xl text-paper">
-          <TermTip term="range24h">24h tape</TermTip>
+          <TermTip term="range24h">24hr History</TermTip>
         </h2>
         <p className="text-[11px] uppercase tracking-[0.18em] text-muted">
           <TermTip term="download">Avg download</TermTip>
