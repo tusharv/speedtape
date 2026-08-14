@@ -25,7 +25,7 @@ describe("SpeedTape", () => {
   it("shows day-part weather headlines over hour bars, not a line graph", () => {
     const html = renderToStaticMarkup(<SpeedTape cells={noonCells} />);
 
-    expect(html).toContain("24h tape");
+    expect(html).toContain("24hr History");
     expect(html).toContain("Avg download");
     expect(html).toContain("one bar per hour");
     expect(html).toContain("Noon");

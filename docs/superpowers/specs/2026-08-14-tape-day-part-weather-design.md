@@ -1,4 +1,4 @@
-# 24h tape as day-part weather
+# 24hr History as day-part weather
 
 **Status:** Approved. Building.
 
@@ -6,13 +6,13 @@
 
 ## Why this exists
 
-The home page shows a 24h tape and a History chart. Both were the same line graph, so they did not give two overviews. The tape should be weather of the last 24 hours. History stays the analytical line chart.
+The home page shows a 24hr History and a History chart. Both were the same line graph, so they did not give two overviews. The tape should be weather of the last 24 hours. History stays the analytical line chart.
 
 ## Jobs
 
 | Block | Question it answers |
 | --- | --- |
-| 24h tape | How did each stretch of the last 24 hours feel? |
+| 24hr History | How did each stretch of the last 24 hours feel? |
 | History | What is the trend, with down / up / ping and a range you pick? |
 
 History is unchanged: range tabs, min / avg / max, `SpeedChart` line graph.
@@ -29,7 +29,7 @@ Each contiguous day-part group (`groupTapeDayParts`) is a flex slot (`flex-grow:
 
 Hairline between groups. Caption under the strip: `24h ago` on the left, `now` on the right.
 
-Heading stays `24h tape`. Subtitle: `Avg download · one bar per hour`.
+Heading stays `24hr History`. Subtitle: `Avg download · one bar per hour`.
 
 `SpeedTape` does not use `SpeedChart`.
 

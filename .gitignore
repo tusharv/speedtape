@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# brainstorm mockups
+.superpowers/
+
+# local speed records
+*.db
+*.db-wal
+*.db-shm

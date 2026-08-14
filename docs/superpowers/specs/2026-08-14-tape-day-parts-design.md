@@ -1,4 +1,4 @@
-# 24h tape day parts
+# 24hr History day parts
 
 **Status:** Approved design. Ready for an implementation plan.
 
@@ -6,7 +6,7 @@
 
 ## Why this exists
 
-The 24h tape already has one cell per local hour, but the axis only shows three clock numbers (start, middle, end). Those numbers do not tell you which stretch of the day you are looking at. The house needs to scan morning, noon, evening, night, and late night on that tape.
+The 24hr History already has one cell per local hour, but the axis only shows three clock numbers (start, middle, end). Those numbers do not tell you which stretch of the day you are looking at. The house needs to scan morning, noon, evening, night, and late night on that tape.
 
 ## Decision
 
