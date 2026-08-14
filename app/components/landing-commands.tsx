@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { CheckIcon, CopyIcon } from "@phosphor-icons/react/ssr";
+import {
+  CheckIcon,
+  CopyIcon,
+  WarningCircleIcon,
+} from "@phosphor-icons/react/ssr";
 
-const icon = { size: 14, weight: "regular" as const, "aria-hidden": true };
+const icon = { size: 15, weight: "regular" as const, "aria-hidden": true };
 
 const COMMANDS = [
   {
@@ -24,37 +28,75 @@ const COMMANDS = [
   },
 ] as const;
 
+type CopyResult = "copied" | "failed";
+type CopyState = { name: string; result: CopyResult } | null;
+
+export async function copyCommand(
+  writeText: (text: string) => Promise<void>,
+  command: string,
+): Promise<CopyResult> {
+  try {
+    await writeText(command);
+    return "copied";
+  } catch {
+    return "failed";
+  }
+}
+
 export function LandingCommands() {
-  const [copied, setCopied] = useState<string | null>(null);
+  const [copyState, setCopyState] = useState<CopyState>(null);
 
   return (
     <ul className="min-w-0 divide-y divide-hairline">
       {COMMANDS.map((item) => {
-        const isCopied = copied === item.name;
+        const result = copyState?.name === item.name ? copyState.result : null;
+        const feedback =
+          result === "copied"
+            ? "Copied"
+            : result === "failed"
+              ? "Copy failed"
+              : "Copy command";
+
         return (
           <li key={item.name}>
             <button
               type="button"
               onClick={async () => {
-                try {
-                  await navigator.clipboard.writeText(item.command);
-                  setCopied(item.name);
-                  window.setTimeout(() => setCopied(null), 1500);
-                } catch {
-                  setCopied(null);
-                }
+                const nextResult = await copyCommand(
+                  navigator.clipboard.writeText.bind(navigator.clipboard),
+                  item.command,
+                );
+                setCopyState({ name: item.name, result: nextResult });
+                window.setTimeout(() => {
+                  setCopyState((current) =>
+                    current?.name === item.name ? null : current,
+                  );
+                }, 1800);
               }}
-              className="flex w-full min-w-0 flex-col items-start gap-2 px-0 py-4 text-left transition-colors hover:text-copper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copper"
+              className="group flex w-full min-w-0 flex-col items-start gap-3 py-5 text-left outline-none transition-[color,transform] hover:text-copper active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-panel"
             >
-              <span className="flex items-center gap-2 text-sm text-paper">
-                {item.name}
-                {isCopied ? (
-                  <CheckIcon {...icon} />
-                ) : (
-                  <CopyIcon {...icon} />
-                )}
-                <span className="sr-only">
-                  {isCopied ? "Copied" : "Copy command"}
+              <span className="flex w-full items-center justify-between gap-4">
+                <span className="flex items-center gap-2 text-sm font-medium text-paper group-hover:text-copper">
+                  {result === "copied" ? (
+                    <CheckIcon {...icon} />
+                  ) : result === "failed" ? (
+                    <WarningCircleIcon {...icon} />
+                  ) : (
+                    <CopyIcon {...icon} />
+                  )}
+                  {item.name}
+                </span>
+                <span
+                  aria-live="polite"
+                  className={`shrink-0 font-mono text-[10px] uppercase tracking-[0.1em] ${
+                    result === "failed"
+                      ? "text-fail"
+                      : result === "copied"
+                        ? "text-copper"
+                        : "sr-only"
+                  }`}
+                >
+                  {feedback}
                 </span>
               </span>
               <span className="min-w-0 break-all font-mono text-[11px] leading-5 text-muted sm:text-xs sm:leading-6">
