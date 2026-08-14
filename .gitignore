@@ -43,6 +43,9 @@ next-env.d.ts
 # brainstorm mockups
 .superpowers/
 
+# isolated feature workspaces
+.worktrees/
+
 # local speed records
 *.db
 *.db-wal
