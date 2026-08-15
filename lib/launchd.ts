@@ -1,14 +1,19 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { agentLogPaths, labeledAgentPlistPath, scheduleLabel } from "@/lib/paths";
+import { ensureCollectorApp } from "@/lib/collector-app";
+import {
+  COLLECTOR_BUNDLE_ID,
+  agentLogPaths,
+  collectorAppExecutablePath,
+  labeledAgentPlistPath,
+  scheduleLabel,
+} from "@/lib/paths";
 
 export { labeledAgentPlistPath, agentPlistPath } from "@/lib/paths";
 
 export type PlistPaths = {
-  nodePath: string;
-  tsxPath: string;
-  scriptPath: string;
+  agentBinPath: string;
   workdir: string;
   pathEnv: string;
   outLog: string;
@@ -68,14 +73,13 @@ export function generatePlist(
   paths: PlistPaths,
   options: { label: string; schedule: PlistSchedule },
 ): string {
-  const nodePath = xmlEscape(paths.nodePath);
-  const tsxPath = xmlEscape(paths.tsxPath);
-  const scriptPath = xmlEscape(paths.scriptPath);
+  const agentBinPath = xmlEscape(paths.agentBinPath);
   const workdir = xmlEscape(paths.workdir);
   const pathEnv = xmlEscape(paths.pathEnv);
   const outLog = xmlEscape(paths.outLog);
   const errLog = xmlEscape(paths.errLog);
   const label = xmlEscape(options.label);
+  const bundleId = xmlEscape(COLLECTOR_BUNDLE_ID);
   const scheduleXml =
     options.schedule.kind === "interval"
       ? intervalXml(options.schedule.seconds)
@@ -87,11 +91,13 @@ export function generatePlist(
 <dict>
   <key>Label</key>
   <string>${label}</string>
+  <key>AssociatedBundleIdentifiers</key>
+  <array>
+    <string>${bundleId}</string>
+  </array>
   <key>ProgramArguments</key>
   <array>
-    <string>${nodePath}</string>
-    <string>${tsxPath}</string>
-    <string>${scriptPath}</string>
+    <string>${agentBinPath}</string>
   </array>
   <key>WorkingDirectory</key>
   <string>${workdir}</string>
@@ -122,13 +128,20 @@ export function writeAgentPlist(options: {
   const homeDir = options.homeDir ?? os.homedir();
   const plistPath = labeledAgentPlistPath(homeDir, options.id);
   const logs = agentLogPaths(homeDir);
+  const scriptPath = path.join(options.projectRoot, "scripts", "run-speedtest.ts");
+  ensureCollectorApp({
+    homeDir,
+    nodePath: options.nodePath,
+    tsxPath: options.tsxPath,
+    scriptPath,
+    workdir: options.projectRoot,
+    pathEnv: options.pathEnv,
+  });
   fs.mkdirSync(path.dirname(plistPath), { recursive: true });
   fs.mkdirSync(path.join(homeDir, "Library", "Logs"), { recursive: true });
   const xml = generatePlist(
     {
-      nodePath: options.nodePath,
-      tsxPath: options.tsxPath,
-      scriptPath: path.join(options.projectRoot, "scripts", "run-speedtest.ts"),
+      agentBinPath: collectorAppExecutablePath(homeDir),
       workdir: options.projectRoot,
       pathEnv: options.pathEnv,
       outLog: logs.outLog,

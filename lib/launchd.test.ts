@@ -5,9 +5,8 @@ import { describe, expect, it } from "vitest";
 import { generatePlist, writeAgentPlist } from "@/lib/launchd";
 
 const paths = {
-  nodePath: "/opt/homebrew/bin/node",
-  tsxPath: "/Users/tushar/proj/node_modules/tsx/dist/cli.mjs",
-  scriptPath: "/Users/tushar/proj/scripts/run-speedtest.ts",
+  agentBinPath:
+    "/Users/tushar/Library/Application Support/speedtape/Speedtape.app/Contents/MacOS/Speedtape",
   workdir: "/Users/tushar/proj",
   pathEnv: "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin",
   outLog: "/Users/tushar/Library/Logs/speedtape.out.log",
@@ -28,10 +27,12 @@ describe("generatePlist", () => {
     expect(xml).toContain("<key>RunAtLoad</key>");
     expect(xml).toContain("<true/>");
     expect(xml).not.toContain("StartCalendarInterval");
-    expect(xml).toContain("<string>/opt/homebrew/bin/node</string>");
     expect(xml).toContain(
-      "<string>/Users/tushar/proj/scripts/run-speedtest.ts</string>",
+      "<string>/Users/tushar/Library/Application Support/speedtape/Speedtape.app/Contents/MacOS/Speedtape</string>",
     );
+    expect(xml).not.toContain("<string>/opt/homebrew/bin/node</string>");
+    expect(xml).toContain("<key>AssociatedBundleIdentifiers</key>");
+    expect(xml).toContain("<string>com.speedtape.collector</string>");
     expect(xml).toContain("/Users/tushar/Library/Logs/speedtape.out.log");
   });
 
@@ -109,6 +110,22 @@ describe("writeAgentPlist", () => {
     expect(fs.readFileSync(plistPath, "utf8")).toContain(
       "<integer>3600</integer>",
     );
+    expect(fs.readFileSync(plistPath, "utf8")).toContain(
+      "<string>com.speedtape.collector</string>",
+    );
+    expect(
+      fs.existsSync(
+        path.join(
+          homeDir,
+          "Library",
+          "Application Support",
+          "speedtape",
+          "Speedtape.app",
+          "Contents",
+          "Info.plist",
+        ),
+      ),
+    ).toBe(true);
     fs.rmSync(homeDir, { recursive: true, force: true });
   });
 });

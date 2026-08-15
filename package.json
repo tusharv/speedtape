@@ -8,8 +8,8 @@
     "build": "next build",
     "start": "next start --hostname 0.0.0.0",
     "lint": "eslint",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "vitest run --reporter=verbose",
+    "test:watch": "vitest --reporter=verbose",
     "speedtest": "tsx scripts/run-speedtest.ts",
     "install-agent": "tsx scripts/install-agent.ts",
     "uninstall-agent": "tsx scripts/uninstall-agent.ts"

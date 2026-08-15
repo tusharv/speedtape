@@ -11,6 +11,9 @@ import {
   scheduleLabel,
   speedtestLockPath,
   legacyAgentPlistPath,
+  COLLECTOR_BUNDLE_ID,
+  collectorAppPath,
+  collectorAppExecutablePath,
 } from "@/lib/paths";
 
 const home = "/Users/tushar";
@@ -90,5 +93,15 @@ describe("paths", () => {
       ),
     );
     expect(speedtestLockPath("/tmp/custom.db")).toBe("/tmp/speedtest.lock");
+  });
+
+  it("puts the Login Items app under Application Support", () => {
+    expect(COLLECTOR_BUNDLE_ID).toBe("com.speedtape.collector");
+    expect(collectorAppPath(home, darwin)).toBe(
+      "/Users/tushar/Library/Application Support/speedtape/Speedtape.app",
+    );
+    expect(collectorAppExecutablePath(home, darwin)).toBe(
+      "/Users/tushar/Library/Application Support/speedtape/Speedtape.app/Contents/MacOS/Speedtape",
+    );
   });
 });

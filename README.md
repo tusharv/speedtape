@@ -50,6 +50,7 @@ npm run speedtest        # one-off test from the terminal
 macOS:
 
 - Plists: `~/Library/LaunchAgents/com.speedtape.speedtest.<id>.plist`
+- Login Items app: `~/Library/Application Support/speedtape/Speedtape.app` (name and icon in System Settings)
 - Logs: `~/Library/Logs/speedtape.out.log` and `.err.log`
 - Database: `~/Library/Application Support/speedtape/speedtests.db`
 
@@ -78,7 +79,7 @@ The computer must be **awake** for scheduled tests. Sleeping skips the job. Clos
 | --- | --- |
 | `npm run dev` | Landing and dashboard on this computer and the home LAN (`0.0.0.0:3000`) |
 | `npm start` | Production server after `npm run build` |
-| `npm test` | Unit tests |
+| `npm test` | Unit tests, listing each pass |
 | `npm run speedtest` | Run one test and save it |
 | `npm run install-agent` | Create Hourly if needed, or rewrite every collector |
 | `npm run uninstall-agent` | Stop every Speedtape collector |

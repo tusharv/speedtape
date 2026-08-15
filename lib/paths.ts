@@ -6,6 +6,8 @@ export const LEGACY_APP_DIR = "home-network-checker";
 export const DB_FILE = "speedtests.db";
 export const AGENT_LABEL = "com.speedtape.speedtest";
 export const LEGACY_AGENT_LABEL = "com.home-network-checker.speedtest";
+export const COLLECTOR_BUNDLE_ID = "com.speedtape.collector";
+export const COLLECTOR_APP_NAME = "Speedtape.app";
 
 export type PathOptions = {
   platform?: NodeJS.Platform;
@@ -136,5 +138,39 @@ export function legacyAgentPlistPath(
     "Library",
     "LaunchAgents",
     `${LEGACY_AGENT_LABEL}.plist`,
+  ]);
+}
+
+function dataRoot(homeDir: string, options: PathOptions = {}): string {
+  const platform = resolvePlatform(options);
+  if (platform === "win32") {
+    return joinPath("win32", [windowsAppData(homeDir, options), APP_DIR]);
+  }
+  return joinPath(platform, [
+    homeDir,
+    "Library",
+    "Application Support",
+    APP_DIR,
+  ]);
+}
+
+export function collectorAppPath(
+  homeDir = os.homedir(),
+  options: PathOptions = {},
+): string {
+  const platform = resolvePlatform(options);
+  return joinPath(platform, [dataRoot(homeDir, options), COLLECTOR_APP_NAME]);
+}
+
+export function collectorAppExecutablePath(
+  homeDir = os.homedir(),
+  options: PathOptions = {},
+): string {
+  const platform = resolvePlatform(options);
+  return joinPath(platform, [
+    collectorAppPath(homeDir, options),
+    "Contents",
+    "MacOS",
+    "Speedtape",
   ]);
 }

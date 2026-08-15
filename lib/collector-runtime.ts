@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { defaultLaunchd, type LaunchdCtl } from "@/lib/agent";
+import { removeCollectorApp } from "@/lib/collector-app";
 import { writeAgentPlist } from "@/lib/launchd";
 import {
   AGENT_LABEL,
@@ -98,6 +99,7 @@ export function launchdCollectorRuntime(
       launchd.unload(AGENT_LABEL, agentPlistPath(homeDir));
       launchd.unload(LEGACY_AGENT_LABEL, legacyAgentPlistPath(homeDir));
       for (const id of ids) uninstall(id);
+      removeCollectorApp(homeDir);
     },
   };
 }
