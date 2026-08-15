@@ -3,9 +3,13 @@ import { describe, expect, it, vi } from "vitest";
 import {
   COPY_FEEDBACK_MS,
   LandingCommands,
+  MAC_COMMANDS,
+  WINDOWS_BUILD_TOOLS_NOTE,
+  WINDOWS_COMMANDS,
   copyCommand,
   copyFeedbackReducer,
   createCopyRequestTracker,
+  detectSetupOs,
   initialCopyFeedbackState,
 } from "@/app/components/landing-commands";
 
@@ -18,7 +22,31 @@ describe("LandingCommands", () => {
     expect(html).toContain("Install agent");
     expect(html).toContain("Start dashboard");
     expect(html).toContain("Copy command");
+    expect(html).toContain('role="tablist"');
+    expect(html).toContain("Mac");
+    expect(html).toContain("Windows");
+    expect(html).toContain("brew tap teamookla/speedtest");
+    expect(html).toContain("brew install speedtest");
+    expect(html).not.toContain(WINDOWS_COMMANDS[0].command);
     expect(html).toMatch(/<span[^>]*aria-live="polite"[^>]*><\/span>/);
+  });
+
+  it("detects Windows from the user agent and keeps Mac as the default", () => {
+    expect(detectSetupOs("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")).toBe(
+      "windows",
+    );
+    expect(detectSetupOs("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15)")).toBe(
+      "mac",
+    );
+  });
+
+  it("keeps a Windows CLI command and build-tools note", () => {
+    expect(WINDOWS_COMMANDS[0].command).toBe(
+      "winget install -e --id Ookla.Speedtest.CLI",
+    );
+    expect(WINDOWS_BUILD_TOOLS_NOTE.toLowerCase()).toContain(
+      "visual studio c++ build tools",
+    );
   });
 
   it("uses an 1800ms feedback duration", () => {

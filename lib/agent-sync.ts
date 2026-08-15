@@ -2,14 +2,17 @@ import fs from "node:fs";
 import path from "node:path";
 import type Database from "better-sqlite3";
 import type { LaunchdCtl } from "@/lib/agent";
-import { writeAgentPlist } from "@/lib/launchd";
+import {
+  defaultCollectorRuntime,
+  launchdCollectorRuntime,
+  unloadWarning,
+  type CollectorRuntime,
+} from "@/lib/collector-runtime";
 import {
   AGENT_LABEL,
   LEGACY_AGENT_LABEL,
   agentPlistPath,
-  labeledAgentPlistPath,
   legacyAgentPlistPath,
-  scheduleLabel,
 } from "@/lib/paths";
 import {
   cadenceLine,
@@ -17,7 +20,6 @@ import {
   deleteSchedule,
   insertSchedule,
   listSchedules,
-  toPlistSchedule,
   type ScheduleInput,
   type ScheduleRow,
 } from "@/lib/schedules";
@@ -25,26 +27,96 @@ import {
 export type AgentSyncOptions = {
   homeDir: string;
   db: Database.Database;
-  launchd: LaunchdCtl;
+  launchd?: LaunchdCtl;
+  runtime?: CollectorRuntime;
+  platform?: NodeJS.Platform;
   projectRoot: string;
   nodePath: string;
   tsxPath: string;
   pathEnv: string;
 };
 
-export function agentRuntimePaths(projectRoot = process.cwd()): {
+function collectorFor(options: AgentSyncOptions): CollectorRuntime {
+  if (options.runtime) return options.runtime;
+  if (options.launchd) {
+    return launchdCollectorRuntime({
+      homeDir: options.homeDir,
+      launchd: options.launchd,
+      projectRoot: options.projectRoot,
+      nodePath: options.nodePath,
+      tsxPath: options.tsxPath,
+      pathEnv: options.pathEnv,
+    });
+  }
+  return defaultCollectorRuntime({
+    homeDir: options.homeDir,
+    platform: options.platform,
+    projectRoot: options.projectRoot,
+    nodePath: options.nodePath,
+    tsxPath: options.tsxPath,
+    pathEnv: options.pathEnv,
+  });
+}
+
+export type AgentRuntimePathOptions = {
+  platform?: NodeJS.Platform;
+  pathEnv?: string;
+  programFiles?: string;
+  localAppData?: string;
+};
+
+export function agentRuntimePaths(
+  projectRoot = process.cwd(),
+  options: AgentRuntimePathOptions = {},
+): {
   projectRoot: string;
   nodePath: string;
   tsxPath: string;
   pathEnv: string;
 } {
-  const extras = ["/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin"];
-  const current = process.env.PATH?.split(":") ?? [];
+  const platform = options.platform ?? process.platform;
+  const join = platform === "win32" ? path.win32.join : path.posix.join;
+  const delimiter = platform === "win32" ? ";" : ":";
+  const extras =
+    platform === "win32"
+      ? [
+          join(
+            options.programFiles ??
+              process.env.ProgramFiles ??
+              "C:\\Program Files",
+            "Ookla",
+            "Speedtest CLI",
+          ),
+          join(
+            options.localAppData ??
+              process.env.LOCALAPPDATA ??
+              join(
+                process.env.USERPROFILE ?? "C:\\Users\\Default",
+                "AppData",
+                "Local",
+              ),
+            "Microsoft",
+            "WinGet",
+            "Links",
+          ),
+          join(
+            options.programFiles ??
+              process.env.ProgramFiles ??
+              "C:\\Program Files",
+            "nodejs",
+          ),
+        ]
+      : ["/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin"];
+  const current = (options.pathEnv ?? process.env.PATH ?? "").split(
+    delimiter,
+  );
   return {
     projectRoot,
     nodePath: process.execPath,
-    tsxPath: path.join(projectRoot, "node_modules", "tsx", "dist", "cli.mjs"),
-    pathEnv: [...new Set([...extras, ...current])].join(":"),
+    tsxPath: join(projectRoot, "node_modules", "tsx", "dist", "cli.mjs"),
+    pathEnv: [...new Set([...extras, ...current.filter(Boolean)])].join(
+      delimiter,
+    ),
   };
 }
 
@@ -52,23 +124,8 @@ function removePlist(plistPath: string): void {
   if (fs.existsSync(plistPath)) fs.unlinkSync(plistPath);
 }
 
-function writeAndLoad(
-  options: AgentSyncOptions,
-  row: ScheduleRow,
-): void {
-  const plistPath = writeAgentPlist({
-    homeDir: options.homeDir,
-    projectRoot: options.projectRoot,
-    nodePath: options.nodePath,
-    tsxPath: options.tsxPath,
-    pathEnv: options.pathEnv,
-    id: row.id,
-    schedule: toPlistSchedule(row),
-  });
-  options.launchd.load(plistPath);
-}
-
 export function importLegacyHourlyIfNeeded(options: AgentSyncOptions): void {
+  if (!options.launchd) return;
   const unlabeled = agentPlistPath(options.homeDir);
   const present =
     fs.existsSync(unlabeled) || options.launchd.isLoaded(AGENT_LABEL);
@@ -85,16 +142,18 @@ export function importLegacyHourlyIfNeeded(options: AgentSyncOptions): void {
     kind: "interval",
     intervalSeconds: 3600,
   });
-  writeAndLoad(options, row);
+  collectorFor(options).install(row);
 }
 
 export function installSpeedtapeAgents(options: AgentSyncOptions): void {
-  const legacyPlist = legacyAgentPlistPath(options.homeDir);
-  options.launchd.unload(LEGACY_AGENT_LABEL, legacyPlist);
-  removePlist(legacyPlist);
+  if (options.launchd) {
+    const legacyPlist = legacyAgentPlistPath(options.homeDir);
+    options.launchd.unload(LEGACY_AGENT_LABEL, legacyPlist);
+    removePlist(legacyPlist);
+    importLegacyHourlyIfNeeded(options);
+  }
 
-  importLegacyHourlyIfNeeded(options);
-
+  const runtime = collectorFor(options);
   const rows = listSchedules(options.db);
   if (rows.length === 0) {
     const row = insertSchedule(options.db, {
@@ -102,47 +161,39 @@ export function installSpeedtapeAgents(options: AgentSyncOptions): void {
       kind: "interval",
       intervalSeconds: 3600,
     });
-    writeAndLoad(options, row);
+    runtime.install(row);
     return;
   }
 
   for (const row of rows) {
-    options.launchd.unload(
-      scheduleLabel(row.id),
-      labeledAgentPlistPath(options.homeDir, row.id),
-    );
-    writeAndLoad(options, row);
+    runtime.uninstall(row.id);
+    runtime.install(row);
   }
 }
 
 export function uninstallSpeedtapeAgents(options: {
   homeDir: string;
   db: Database.Database;
-  launchd: LaunchdCtl;
+  launchd?: LaunchdCtl;
+  runtime?: CollectorRuntime;
+  platform?: NodeJS.Platform;
+  projectRoot?: string;
+  nodePath?: string;
+  tsxPath?: string;
+  pathEnv?: string;
 }): void {
-  const agentsDir = path.join(options.homeDir, "Library", "LaunchAgents");
-  const names = fs.existsSync(agentsDir)
-    ? fs.readdirSync(agentsDir)
-    : [];
-  for (const name of names) {
-    if (
-      !name.startsWith(`${AGENT_LABEL}.plist`) &&
-      !name.startsWith(`${AGENT_LABEL}.`) &&
-      name !== `${LEGACY_AGENT_LABEL}.plist`
-    ) {
-      continue;
-    }
-    if (!name.endsWith(".plist")) continue;
-    const label = name.slice(0, -".plist".length);
-    const plistPath = path.join(agentsDir, name);
-    options.launchd.unload(label, plistPath);
-    removePlist(plistPath);
-  }
-  options.launchd.unload(AGENT_LABEL, agentPlistPath(options.homeDir));
-  options.launchd.unload(
-    LEGACY_AGENT_LABEL,
-    legacyAgentPlistPath(options.homeDir),
-  );
+  const runtime = collectorFor({
+    homeDir: options.homeDir,
+    db: options.db,
+    launchd: options.launchd,
+    runtime: options.runtime,
+    platform: options.platform,
+    projectRoot: options.projectRoot ?? "",
+    nodePath: options.nodePath ?? "",
+    tsxPath: options.tsxPath ?? "",
+    pathEnv: options.pathEnv ?? "",
+  });
+  runtime.uninstallAll(listSchedules(options.db).map((row) => row.id));
   deleteAllSchedules(options.db);
 }
 
@@ -153,14 +204,13 @@ export type AddAgentResult =
 export function addScheduledAgent(
   options: AgentSyncOptions & { input: ScheduleInput },
 ): AddAgentResult {
+  const runtime = collectorFor(options);
   const row = insertSchedule(options.db, options.input);
-  const plistPath = labeledAgentPlistPath(options.homeDir, row.id);
   try {
-    writeAndLoad(options, row);
+    runtime.install(row);
     return { ok: true, row };
   } catch (err) {
-    options.launchd.unload(scheduleLabel(row.id), plistPath);
-    removePlist(plistPath);
+    runtime.uninstall(row.id);
     deleteSchedule(options.db, row.id);
     const message = err instanceof Error ? err.message : String(err);
     return { ok: false, error: message };
@@ -172,22 +222,30 @@ export type RemoveAgentResult = { ok: true; warning?: string };
 export function removeScheduledAgent(options: {
   homeDir: string;
   db: Database.Database;
-  launchd: LaunchdCtl;
+  launchd?: LaunchdCtl;
+  runtime?: CollectorRuntime;
+  platform?: NodeJS.Platform;
+  projectRoot?: string;
+  nodePath?: string;
+  tsxPath?: string;
+  pathEnv?: string;
   id: number;
 }): RemoveAgentResult {
-  const plistPath = labeledAgentPlistPath(options.homeDir, options.id);
-  const unloaded = options.launchd.unload(
-    scheduleLabel(options.id),
-    plistPath,
-  );
-  removePlist(plistPath);
+  const runtime = collectorFor({
+    homeDir: options.homeDir,
+    db: options.db,
+    launchd: options.launchd,
+    runtime: options.runtime,
+    platform: options.platform,
+    projectRoot: options.projectRoot ?? "",
+    nodePath: options.nodePath ?? "",
+    tsxPath: options.tsxPath ?? "",
+    pathEnv: options.pathEnv ?? "",
+  });
+  const unloaded = runtime.uninstall(options.id);
   deleteSchedule(options.db, options.id);
   if (!unloaded) {
-    return {
-      ok: true,
-      warning:
-        "Removed the collector. Check launchctl list if the old job is still loaded.",
-    };
+    return { ok: true, warning: unloadWarning(runtime.kind) };
   }
   return { ok: true };
 }
@@ -199,9 +257,10 @@ export type ConfigAgent = ScheduleRow & {
 
 export function loadConfigAgents(options: AgentSyncOptions): ConfigAgent[] {
   importLegacyHourlyIfNeeded(options);
+  const runtime = collectorFor(options);
   return listSchedules(options.db).map((row) => ({
     ...row,
     cadence: cadenceLine(row),
-    loaded: options.launchd.isLoaded(scheduleLabel(row.id)),
+    loaded: runtime.isLoaded(row.id),
   }));
 }

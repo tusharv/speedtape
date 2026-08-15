@@ -1,5 +1,7 @@
+import os from "node:os";
 import { downsampleChart, type ChartPoint } from "@/lib/chart";
-import { countLoadedAgents, defaultLaunchd } from "@/lib/agent";
+import { agentRuntimePaths } from "@/lib/agent-sync";
+import { defaultCollectorRuntime } from "@/lib/collector-runtime";
 import {
   getLatest,
   getSpeedTest,
@@ -12,7 +14,6 @@ import {
   type Range,
   type Summary,
 } from "@/lib/db";
-import { scheduleLabel } from "@/lib/paths";
 import type { ArchiveQuery } from "@/lib/runs";
 import { listSchedules } from "@/lib/schedules";
 import { buildSpeedTape, type TapeCell } from "@/lib/tape";
@@ -30,8 +31,11 @@ export type DashboardData = {
 
 export function loadDashboard(range: Range, now = new Date()): DashboardData {
   return withDatabase((db) => {
+    const runtime = defaultCollectorRuntime({
+      homeDir: os.homedir(),
+      ...agentRuntimePaths(),
+    });
     const tapeSource = listSpeedTests(db, "24h", now);
-    const labels = listSchedules(db).map((row) => scheduleLabel(row.id));
     return {
       range,
       latest: getLatest(db),
@@ -39,7 +43,8 @@ export function loadDashboard(range: Range, now = new Date()): DashboardData {
       tape: buildSpeedTape(tapeSource, now),
       chart: downsampleChart(listChartPoints(db, range, now)),
       preview: listRecentSpeedTests(db, range, now),
-      agentsLoaded: countLoadedAgents(labels, defaultLaunchd().isLoaded),
+      agentsLoaded: listSchedules(db).filter((row) => runtime.isLoaded(row.id))
+        .length,
     };
   });
 }

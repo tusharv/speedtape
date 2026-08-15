@@ -1,15 +1,22 @@
 import os from "node:os";
-import { defaultLaunchd } from "@/lib/agent";
-import { uninstallSpeedtapeAgents } from "@/lib/agent-sync";
+import {
+  agentRuntimePaths,
+  uninstallSpeedtapeAgents,
+} from "@/lib/agent-sync";
+import { defaultCollectorRuntime } from "@/lib/collector-runtime";
 import { withDatabase } from "@/lib/db";
 import { prepareDatabasePath } from "@/lib/migrate";
 
 prepareDatabasePath();
 withDatabase((db) => {
+  const runtimePaths = agentRuntimePaths();
   uninstallSpeedtapeAgents({
     homeDir: os.homedir(),
     db,
-    launchd: defaultLaunchd(),
+    runtime: defaultCollectorRuntime({
+      homeDir: os.homedir(),
+      ...runtimePaths,
+    }),
   });
 });
 console.log("Removed Speedtape collectors.");

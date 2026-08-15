@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import type { LaunchdCtl } from "@/lib/agent";
 import {
   addScheduledAgent,
+  agentRuntimePaths,
   importLegacyHourlyIfNeeded,
   installSpeedtapeAgents,
   removeScheduledAgent,
@@ -52,6 +53,44 @@ const paths = {
   tsxPath: "/Users/tushar/proj/node_modules/tsx/dist/cli.mjs",
   pathEnv: "/usr/bin",
 };
+
+describe("agentRuntimePaths", () => {
+  it("joins PATH with colons and Homebrew dirs on macOS", () => {
+    const runtime = agentRuntimePaths("/Users/tushar/proj", {
+      platform: "darwin",
+      pathEnv: "/usr/bin:/bin",
+    });
+    expect(runtime.pathEnv.split(":")).toEqual(
+      expect.arrayContaining([
+        "/opt/homebrew/bin",
+        "/usr/local/bin",
+        "/usr/bin",
+        "/bin",
+      ]),
+    );
+    expect(runtime.tsxPath).toBe(
+      "/Users/tushar/proj/node_modules/tsx/dist/cli.mjs",
+    );
+  });
+
+  it("joins PATH with semicolons and Ookla dirs on Windows", () => {
+    const runtime = agentRuntimePaths("C:\\Users\\tushar\\proj", {
+      platform: "win32",
+      pathEnv: "C:\\Windows\\System32",
+      programFiles: "C:\\Program Files",
+      localAppData: "C:\\Users\\tushar\\AppData\\Local",
+    });
+    const parts = runtime.pathEnv.split(";");
+    expect(parts).toContain("C:\\Program Files\\Ookla\\Speedtest CLI");
+    expect(parts).toContain(
+      "C:\\Users\\tushar\\AppData\\Local\\Microsoft\\WinGet\\Links",
+    );
+    expect(parts).toContain("C:\\Windows\\System32");
+    expect(runtime.tsxPath).toBe(
+      "C:\\Users\\tushar\\proj\\node_modules\\tsx\\dist\\cli.mjs",
+    );
+  });
+});
 
 describe("importLegacyHourlyIfNeeded", () => {
   it("turns the unlabeled hourly plist into a Hourly schedule", () => {
@@ -272,6 +311,31 @@ describe("removeScheduledAgent", () => {
     expect(result.warning).toMatch(/launchctl/i);
     expect(listSchedules(db)).toEqual([]);
     expect(fs.existsSync(labeledAgentPlistPath(homeDir, row.id))).toBe(false);
+    db.close();
+  });
+
+  it("warns about Task Scheduler when a Windows job did not unload", () => {
+    const homeDir = tempHome();
+    const db = openDatabase(path.join(homeDir, "speedtests.db"));
+    const row = insertSchedule(db, {
+      name: "Hourly",
+      kind: "interval",
+      intervalSeconds: 3600,
+    });
+    const result = removeScheduledAgent({
+      homeDir,
+      db,
+      runtime: {
+        kind: "schtasks",
+        isLoaded: () => false,
+        install: () => {},
+        uninstall: () => false,
+        uninstallAll: () => {},
+      },
+      id: row.id,
+    });
+    expect(result.ok).toBe(true);
+    expect(result.warning).toMatch(/Task Scheduler/i);
     db.close();
   });
 });

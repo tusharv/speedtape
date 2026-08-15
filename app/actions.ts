@@ -2,12 +2,12 @@
 
 import os from "node:os";
 import { revalidatePath } from "next/cache";
-import { defaultLaunchd } from "@/lib/agent";
 import {
   addScheduledAgent,
   agentRuntimePaths,
   removeScheduledAgent,
 } from "@/lib/agent-sync";
+import { defaultCollectorRuntime } from "@/lib/collector-runtime";
 import { loadArchive } from "@/lib/dashboard";
 import { withDatabase } from "@/lib/db";
 import { recordSpeedtest } from "@/lib/record";
@@ -47,11 +47,15 @@ export async function addAgent(raw: {
 }) {
   const parsed = parseAgentInput(raw);
   if (!parsed.ok) return parsed;
+  const runtime = defaultCollectorRuntime({
+    homeDir: os.homedir(),
+    ...agentRuntimePaths(),
+  });
   const result = withDatabase((db) =>
     addScheduledAgent({
       homeDir: os.homedir(),
       db,
-      launchd: defaultLaunchd(),
+      runtime,
       ...agentRuntimePaths(),
       input: parsed.value,
     }),
@@ -65,7 +69,10 @@ export async function removeAgent(id: number) {
     removeScheduledAgent({
       homeDir: os.homedir(),
       db,
-      launchd: defaultLaunchd(),
+      runtime: defaultCollectorRuntime({
+        homeDir: os.homedir(),
+        ...agentRuntimePaths(),
+      }),
       id,
     }),
   );

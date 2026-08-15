@@ -50,7 +50,7 @@ afterEach(() => {
 
 describe("defaultDbPath", () => {
   it("stores the database under Application Support", () => {
-    expect(defaultDbPath("/Users/tushar")).toBe(
+    expect(defaultDbPath("/Users/tushar", { platform: "darwin" })).toBe(
       "/Users/tushar/Library/Application Support/speedtape/speedtests.db",
     );
   });

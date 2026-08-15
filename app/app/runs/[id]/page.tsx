@@ -2,8 +2,9 @@ import { connection } from "next/server";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { RunCard } from "@/app/components/run-card";
-import { PageShell, SiteNav } from "@/app/components/site-nav";
+import { ArrowLeftIcon } from "@phosphor-icons/react/ssr";
+import { RunPass } from "@/app/components/run-pass";
+import { PageShell, SiteHeader } from "@/app/components/site-nav";
 import { formatTime } from "@/app/components/stats";
 import { loadRun } from "@/lib/dashboard";
 import { archiveHref, formatRunId, parseRunId } from "@/lib/runs";
@@ -20,7 +21,7 @@ export async function generateMetadata({
   const test = loadRun(id);
   if (!test) return { title: "Run not found" };
   return {
-    title: `Run ${formatRunId(id)}`,
+    title: `Line pass ${formatRunId(id)}`,
     description: `Speed test ${formatRunId(id)} at ${formatTime(test.testedAt)}`,
   };
 }
@@ -37,17 +38,7 @@ export default async function RunDetailPage({
 
   return (
     <PageShell>
-      <header className="flex flex-col gap-4 border-b border-hairline pb-6 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="font-display text-4xl font-semibold text-paper sm:text-6xl">
-            Run {formatRunId(test.id)}
-          </h1>
-          <p className="mt-2 max-w-md text-sm text-muted">
-            Full reading from {formatTime(test.testedAt)}.
-          </p>
-        </div>
-        <SiteNav current="runs" />
-      </header>
+      <SiteHeader current="runs" />
       <div className="flex flex-col gap-4">
         <Link
           href={archiveHref({
@@ -56,11 +47,12 @@ export default async function RunDetailPage({
             ping: false,
             sort: "newest",
           })}
-          className="inline-flex w-fit items-center border border-hairline px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-muted hover:border-copper hover:text-paper"
+          className="run-pass-chrome inline-flex w-fit items-center gap-1.5 border border-hairline px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-muted transition-[transform,color,border-color] hover:border-copper hover:text-paper active:translate-y-px"
         >
+          <ArrowLeftIcon size={14} weight="regular" aria-hidden />
           All runs
         </Link>
-        <RunCard test={test} />
+        <RunPass test={test} />
       </div>
     </PageShell>
   );

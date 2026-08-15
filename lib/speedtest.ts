@@ -4,7 +4,13 @@ import type { SpeedTestRecord } from "@/lib/types";
 
 export { formatSpeedtestError } from "@/lib/speedtest-error";
 
-export const SPEEDTEST_BIN = "speedtest";
+export function speedtestBin(
+  platform: NodeJS.Platform = process.platform,
+): string {
+  return platform === "win32" ? "speedtest.exe" : "speedtest";
+}
+
+export const SPEEDTEST_BIN = speedtestBin();
 export const SPEEDTEST_ARGS = [
   "--format=json",
   "--accept-license",
@@ -119,7 +125,7 @@ export async function collectSpeedtest(options?: {
   const testedAt = now().toISOString();
 
   try {
-    const result = await spawnFn(SPEEDTEST_BIN, SPEEDTEST_ARGS);
+    const result = await spawnFn(speedtestBin(), SPEEDTEST_ARGS);
     if (result.code !== 0) {
       const detail = result.stderr.trim() || result.stdout.trim() || `exit ${result.code}`;
       return errorRecord(detail, testedAt);

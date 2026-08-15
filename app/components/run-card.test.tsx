@@ -41,4 +41,14 @@ describe("RunCard", () => {
     expect(html).toContain("Ping");
     expect(html).toContain("h-full");
   });
+
+  it("carries ticket-stock marks so a run reads as a stub", () => {
+    const html = renderToStaticMarkup(
+      <RunCard test={failed("Cannot open socket")} />,
+    );
+
+    expect(html).toContain("run-card-ticket");
+    expect(html).toContain("ST-0014");
+    expect(html).toContain("data-ticket-tape");
+  });
 });

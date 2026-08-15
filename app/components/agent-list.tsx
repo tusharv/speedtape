@@ -24,7 +24,7 @@ export function AgentList({ agents }: { agents: AgentListItem[] }) {
           No collectors yet
         </h2>
         <p className="mt-2 max-w-lg text-sm text-muted">
-          Add an agent below so this Mac keeps running tests on a schedule.
+          Add an agent below so this computer keeps running tests on a schedule.
         </p>
       </section>
     );
@@ -33,7 +33,7 @@ export function AgentList({ agents }: { agents: AgentListItem[] }) {
   return (
     <section className="rounded-lg border border-hairline bg-raised px-4 py-5 sm:px-6">
       <h2 className="text-[11px] uppercase tracking-[0.12em] text-muted">
-        Agents on this Mac
+        Agents on this computer
       </h2>
       {warning ? (
         <p className="mt-3 border border-fail/40 bg-fail/10 px-4 py-3 text-sm text-fail">

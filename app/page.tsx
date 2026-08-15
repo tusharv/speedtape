@@ -1,25 +1,31 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
+  GaugeIcon,
+  GithubLogoIcon,
+} from "@phosphor-icons/react/ssr";
+import {
   BrandLockup,
   BrandMark,
 } from "@/app/components/brand-lockup";
 import { LandingCommands } from "@/app/components/landing-commands";
 import { LandingTape } from "@/app/components/landing-tape";
+import { SiteHeader } from "@/app/components/site-nav";
 import { landingTapeCells } from "@/lib/landing-tape";
 import { GITHUB_URL, LICENSE_LABEL } from "@/lib/site";
 
 const dashboardHref = "/app";
+const icon = { size: 15, weight: "regular" as const, "aria-hidden": true };
 
 const primaryCta =
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg border border-copper bg-copper px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.16)] outline-none transition-[transform,background-color] hover:bg-paper hover:text-ink active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink";
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-copper bg-copper px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.16)] outline-none transition-[transform,background-color] hover:bg-paper hover:text-ink active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink";
 const secondaryCta =
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg border border-hairline px-3 py-2 text-[11px] font-medium uppercase tracking-[0.1em] text-paper outline-none transition-[transform,border-color,color] hover:border-copper hover:text-copper active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:px-4 sm:text-xs";
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-hairline px-3 py-2 text-[11px] font-medium uppercase tracking-[0.1em] text-paper outline-none transition-[transform,border-color,color] hover:border-copper hover:text-copper active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:px-4 sm:text-xs";
 
 const systemFacts = [
   {
-    title: "This Mac only",
-    body: "Collectors are LaunchAgents on one machine, not a site you leave open.",
+    title: "This computer only",
+    body: "Collectors are LaunchAgents on macOS or Task Scheduler on Windows, not a site you leave open.",
   },
   {
     title: "Ookla Speedtest CLI",
@@ -54,25 +60,28 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
 
   return (
     <div className="mx-auto flex min-h-dvh w-full min-w-0 max-w-7xl flex-col overflow-x-clip px-4 sm:px-8 lg:px-10">
-      <header className="flex min-h-16 flex-wrap items-center justify-between gap-3 border-b border-hairline py-4">
-        <BrandLockup />
-        <nav
-          aria-label="Landing"
-          className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto"
-        >
-          <a
-            href={GITHUB_URL}
-            target="_blank"
-            rel="noreferrer"
-            className={secondaryCta}
+      <SiteHeader
+        nav={
+          <nav
+            aria-label="Landing"
+            className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto"
           >
-            View on GitHub
-          </a>
-          <Link href={dashboardHref} className={primaryCta}>
-            Open dashboard
-          </Link>
-        </nav>
-      </header>
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noreferrer"
+              className={secondaryCta}
+            >
+              <GithubLogoIcon {...icon} />
+              View on GitHub
+            </a>
+            <Link href={dashboardHref} className={primaryCta}>
+              <GaugeIcon {...icon} />
+              Open dashboard
+            </Link>
+          </nav>
+        }
+      />
 
       <main className="flex min-w-0 flex-1 flex-col">
         <section className="grid min-w-0 gap-10 py-12 md:grid-cols-[minmax(0,0.76fr)_minmax(0,1.24fr)] md:items-end md:gap-10 md:py-16 lg:gap-16">
@@ -84,11 +93,12 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
               Know your line.
             </h1>
             <p className="mt-5 max-w-[38ch] text-base leading-7 text-muted sm:text-lg">
-              A continuous record of download, upload, and ping from the Mac in
-              your house.
+              A continuous record of download, upload, and ping from the
+              computer in your house.
             </p>
             <div className="mt-7">
               <Link href={dashboardHref} className={primaryCta}>
+                <GaugeIcon {...icon} />
                 Open dashboard
               </Link>
             </div>
@@ -113,8 +123,8 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
               How it runs
             </h2>
             <p className="mt-3 max-w-[36ch] text-sm leading-6 text-muted">
-              Click a command to copy it. Then open the dashboard on this Mac or
-              the LAN IP.
+              Click a command to copy it. Then open the dashboard on this
+              computer or the LAN IP.
             </p>
           </div>
           <div className="min-w-0 rounded-lg border border-hairline bg-panel px-5 sm:px-6">
@@ -126,11 +136,11 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
           <div className="relative overflow-hidden rounded-lg border border-hairline bg-panel p-6 sm:p-8">
             <BrandMark size="lg" className="mb-16 opacity-90 sm:mb-24" />
             <h2 className="max-w-[18ch] font-display text-3xl font-semibold leading-[1.05] tracking-[-0.04em] text-paper sm:text-4xl md:text-5xl">
-              Close the dashboard. The Mac keeps the record.
+              Close the dashboard. This computer keeps the record.
             </h2>
             <p className="mt-5 max-w-[50ch] text-sm leading-6 text-muted">
-              macOS only. Official Ookla Speedtest CLI. Not a test inside the
-              browser.
+              macOS and Windows. Official Ookla Speedtest CLI. Not a test inside
+              the browser.
             </p>
           </div>
 

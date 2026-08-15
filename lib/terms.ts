@@ -21,9 +21,9 @@ export const TERMS = {
   range24h: "Samples from the last 24 hours.",
   range7d: "Samples from the last 7 days.",
   range30d: "Samples from the last 30 days.",
-  rangeAll: "Every sample stored on this Mac.",
+  rangeAll: "Every sample stored on this computer.",
   agent:
-    "A collector on this Mac that runs a speed test on a schedule even when the dashboard is closed.",
+    "A collector on this computer that runs a speed test on a schedule even when the dashboard is closed.",
   run: "One speed test. Each hourly sample gets its own number.",
 } as const;
 

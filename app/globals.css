@@ -51,14 +51,12 @@
 
 html {
   background: var(--ink);
-  overflow-x: clip;
 }
 
 body {
   background: var(--ink);
   color: var(--paper);
   font-family: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
-  overflow-x: clip;
 }
 
 ::selection {
@@ -130,7 +128,275 @@ body {
 }
 
 .term-tip:hover .term-tip-bubble,
-.term-tip:focus-visible .term-tip-bubble {
+.term-tip:focus-visible .term-tip-bubble,
+.term-tip-bubble[data-open="true"] {
   opacity: 1;
   visibility: visible;
+}
+
+.term-tip-bubble[data-portal="true"] {
+  left: auto;
+  bottom: auto;
+  transform: none;
+}
+
+.run-pass {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--hairline) 80%, transparent),
+    0 18px 50px color-mix(in oklab, var(--paper) 12%, transparent);
+}
+
+.run-pass-microprint {
+  overflow: hidden;
+  margin: 0;
+  padding: 0.2rem 0.75rem 0.28rem;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.42rem;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0.55;
+}
+
+.run-pass-sprocket {
+  width: 0.7rem;
+  flex-shrink: 0;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      var(--copper) 0 0.28rem,
+      transparent 0.28rem 0.72rem
+    );
+  opacity: 0.55;
+}
+
+.run-pass-route-line {
+  width: 1px;
+  height: 1.1rem;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--copper) 0 3px,
+    transparent 3px 6px
+  );
+}
+
+.run-pass-reg {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+  color: var(--muted);
+}
+
+.run-pass-reg::before,
+.run-pass-reg::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+.run-pass-reg::before {
+  width: 10px;
+  height: 1px;
+}
+
+.run-pass-reg::after {
+  width: 1px;
+  height: 10px;
+}
+
+.run-pass-reg-tl {
+  top: 8px;
+  left: 8px;
+}
+
+.run-pass-reg-tr {
+  top: 8px;
+  right: 8px;
+}
+
+.run-pass-reg-tr::before {
+  right: 0;
+}
+
+.run-pass-reg-tr::after {
+  right: 0;
+}
+
+.run-pass-reg-bl {
+  bottom: 8px;
+  left: 8px;
+}
+
+.run-pass-reg-bl::before {
+  bottom: 0;
+}
+
+.run-pass-reg-bl::after {
+  bottom: 0;
+}
+
+.run-pass-reg-br {
+  bottom: 8px;
+  right: 8px;
+}
+
+.run-pass-reg-br::before {
+  right: 0;
+  bottom: 0;
+}
+
+.run-pass-reg-br::after {
+  right: 0;
+  bottom: 0;
+}
+
+.run-pass-foil {
+  height: 5px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--copper) 0 8px,
+    var(--amber) 8px 12px,
+    var(--copper) 12px 18px
+  );
+  opacity: 0.7;
+}
+
+.run-pass-stub-rail {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 5px;
+  pointer-events: none;
+}
+
+.run-pass-guilloche {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image: repeating-radial-gradient(
+    circle at 50% 22%,
+    transparent 0 9px,
+    color-mix(in oklab, var(--copper) 22%, transparent) 9px 10px
+  );
+}
+
+.run-card-ticket {
+  background-image: repeating-linear-gradient(
+    -18deg,
+    transparent,
+    transparent 12px,
+    color-mix(in oklab, var(--copper) 8%, transparent) 12px,
+    color-mix(in oklab, var(--copper) 8%, transparent) 13px
+  );
+}
+
+.run-card-ticket-void {
+  background-image: repeating-linear-gradient(
+    -18deg,
+    transparent,
+    transparent 12px,
+    color-mix(in oklab, var(--fail) 10%, transparent) 12px,
+    color-mix(in oklab, var(--fail) 10%, transparent) 13px
+  );
+}
+
+.run-card-ticket::before {
+  content: "";
+  position: absolute;
+  inset: 7px 7px 7px 11px;
+  border: 1px solid var(--hairline);
+  pointer-events: none;
+}
+
+.run-card-tear {
+  height: 1px;
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--hairline) 0 5px,
+    transparent 5px 9px
+  );
+}
+
+.run-pass::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='80' height='80' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+}
+
+.run-pass > * {
+  position: relative;
+  z-index: 1;
+}
+
+.run-pass-perf-y {
+  position: relative;
+  width: 1.15rem;
+  flex-shrink: 0;
+  background-image: radial-gradient(
+    circle at center,
+    var(--ink) 3px,
+    transparent 3.2px
+  );
+  background-position: center top;
+  background-repeat: repeat-y;
+  background-size: 100% 10px;
+  border-left: 1px dashed var(--hairline);
+  border-right: 1px dashed var(--hairline);
+}
+
+.run-pass-perf-y::before,
+.run-pass-perf-y::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--ink);
+  transform: translateX(-50%);
+}
+
+.run-pass-perf-y::before {
+  top: -7px;
+}
+
+.run-pass-perf-y::after {
+  bottom: -7px;
+}
+
+.run-pass-perf-x {
+  height: 1.15rem;
+  background-image: radial-gradient(
+    circle at center,
+    var(--ink) 3px,
+    transparent 3.2px
+  );
+  background-position: left center;
+  background-repeat: repeat-x;
+  background-size: 10px 100%;
+  border-top: 1px dashed var(--hairline);
+  border-bottom: 1px dashed var(--hairline);
+}
+
+@media print {
+  .run-pass-chrome,
+  .run-pass-print,
+  header {
+    display: none !important;
+  }
+
+  .run-pass {
+    box-shadow: none;
+    break-inside: avoid;
+  }
 }

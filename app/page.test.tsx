@@ -22,8 +22,9 @@ describe("Speedtape landing page", () => {
     expect(html).toContain("Local network monitor");
     expect(html).toContain('aria-label="24 hour signal"');
     expect(html).toContain("How it runs");
-    expect(html).toContain("Close the dashboard. The Mac keeps the record.");
-    expect(html).toContain("This Mac only");
+    expect(html).toContain("Close the dashboard. This computer keeps the record.");
+    expect(html).toContain("This computer only");
+    expect(html).toContain("macOS and Windows");
     expect(html).toContain("SQLite on disk");
     expect(html).toContain('href="/app"');
     expect(html).toContain("View on GitHub");

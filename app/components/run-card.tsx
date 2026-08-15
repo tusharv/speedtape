@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { formatMbps, formatMs, formatTime } from "@/app/components/stats";
+import { TapeMark, passSerial } from "@/app/components/tape-mark";
 import { TermTip } from "@/app/components/term-tip";
 import { formatRunId, runCardId } from "@/lib/runs";
 import { formatSpeedtestError } from "@/lib/speedtest-error";
@@ -85,13 +86,22 @@ export function RunCard({ test }: { test: SpeedTestRow }) {
   const failed = test.error !== null;
   const when = formatTime(test.testedAt);
   const runLabel = formatRunId(test.id);
+  const serial = passSerial(test.id);
 
   return (
     <article
       id={runCardId(test.id)}
       aria-label={`Run ${test.id}, ${failed ? "failed" : "ok"}, ${when}`}
-      className="group relative flex h-full min-w-0 scroll-mt-6 flex-col overflow-x-clip border border-hairline bg-panel py-4 pl-5 pr-4 transition-colors hover:border-copper"
+      className={`run-card-ticket group relative flex h-full min-w-0 scroll-mt-6 flex-col border border-hairline bg-panel px-5 py-5 pl-6 transition-colors hover:border-copper ${
+        failed ? "run-card-ticket-void" : ""
+      }`}
     >
+      <span
+        aria-hidden
+        className={`absolute inset-x-0 top-0 h-1 ${
+          failed ? "bg-fail" : "bg-copper"
+        }`}
+      />
       <span
         aria-hidden
         className={`absolute inset-y-0 left-0 w-0.75 ${
@@ -101,6 +111,7 @@ export function RunCard({ test }: { test: SpeedTestRow }) {
 
       <header className="flex flex-wrap items-center justify-between gap-2">
         <p className="inline-flex items-center gap-1.5 text-xs text-muted">
+          <TapeMark className="h-3.5 w-3.5" />
           <ClockIcon {...iconProps} />
           <time dateTime={test.testedAt}>{when}</time>
         </p>
@@ -109,12 +120,12 @@ export function RunCard({ test }: { test: SpeedTestRow }) {
             <TermTip term="run">{runLabel}</TermTip>
           </p>
           {failed ? (
-            <p className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.16em] text-fail">
+            <p className="inline-flex items-center gap-1 border border-fail/40 px-1.5 py-0.5 text-[11px] uppercase tracking-[0.16em] text-fail">
               <WarningCircleIcon {...iconProps} />
               <TermTip term="failed">Failed</TermTip>
             </p>
           ) : (
-            <p className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.16em] text-up">
+            <p className="inline-flex items-center gap-1 border border-up/40 px-1.5 py-0.5 text-[11px] uppercase tracking-[0.16em] text-up">
               <CheckCircleIcon {...iconProps} />
               <TermTip term="ok">Ok</TermTip>
             </p>
@@ -178,6 +189,12 @@ export function RunCard({ test }: { test: SpeedTestRow }) {
           </Meta>
         </div>
       )}
+      <div className="mt-3 flex items-center justify-between gap-2">
+        <span className="run-card-tear min-w-0 flex-1" aria-hidden="true" />
+        <p className="shrink-0 font-mono text-[9px] tracking-[0.16em] text-muted">
+          {serial}
+        </p>
+      </div>
     </article>
   );
 }

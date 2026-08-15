@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useReducer, useRef } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import {
   CheckIcon,
   CopyIcon,
@@ -9,24 +9,40 @@ import {
 
 const icon = { size: 15, weight: "regular" as const, "aria-hidden": true };
 
-const COMMANDS = [
+export type SetupOs = "mac" | "windows";
+
+const SHARED_COMMANDS = [
+  { name: "Install dependencies", command: "npm install" },
+  { name: "Install agent", command: "npm run install-agent" },
+  { name: "Start dashboard", command: "npm run dev" },
+] as const;
+
+export const MAC_COMMANDS = [
   {
     name: "Install CLI",
     command: "brew tap teamookla/speedtest && brew install speedtest",
   },
-  {
-    name: "Install dependencies",
-    command: "npm install",
-  },
-  {
-    name: "Install agent",
-    command: "npm run install-agent",
-  },
-  {
-    name: "Start dashboard",
-    command: "npm run dev",
-  },
+  ...SHARED_COMMANDS,
 ] as const;
+
+export const WINDOWS_COMMANDS = [
+  {
+    name: "Install CLI",
+    command: "winget install -e --id Ookla.Speedtest.CLI",
+  },
+  ...SHARED_COMMANDS,
+] as const;
+
+export const WINDOWS_BUILD_TOOLS_NOTE =
+  "Visual Studio C++ Build Tools are required so npm can compile better-sqlite3.";
+
+export function detectSetupOs(userAgent: string): SetupOs {
+  return /windows/i.test(userAgent) ? "windows" : "mac";
+}
+
+function commandsFor(os: SetupOs) {
+  return os === "windows" ? WINDOWS_COMMANDS : MAC_COMMANDS;
+}
 
 export const COPY_FEEDBACK_MS = 1800;
 
@@ -102,12 +118,17 @@ export function copyFeedbackReducer(
 }
 
 export function LandingCommands() {
+  const [os, setOs] = useState<SetupOs>("mac");
   const [copyState, dispatchCopyState] = useReducer(
     copyFeedbackReducer,
     initialCopyFeedbackState,
   );
   const copyRequests = useRef(createCopyRequestTracker());
   const feedbackTimeout = useRef<number | null>(null);
+
+  useEffect(() => {
+    setOs(detectSetupOs(navigator.userAgent));
+  }, []);
 
   useEffect(
     () => () => {
@@ -119,86 +140,137 @@ export function LandingCommands() {
     [],
   );
 
-  return (
-    <ul className="min-w-0 divide-y divide-hairline">
-      {COMMANDS.map((item) => {
-        const result =
-          copyState.feedback?.name === item.name
-            ? copyState.feedback.result
-            : null;
-        const feedback =
-          result === "copied"
-            ? "Copied"
-            : result === "failed"
-              ? "Copy failed"
-              : "";
+  function selectOs(next: SetupOs) {
+    if (next === os) return;
+    copyRequests.current.invalidate();
+    if (feedbackTimeout.current !== null) {
+      window.clearTimeout(feedbackTimeout.current);
+      feedbackTimeout.current = null;
+    }
+    dispatchCopyState({
+      type: "reset",
+      requestId: copyState.latestRequestId,
+    });
+    setOs(next);
+  }
 
-        return (
-          <li key={item.name}>
-            <button
-              type="button"
-              onClick={async () => {
-                const copyRequest = copyRequests.current.start();
-                if (feedbackTimeout.current !== null) {
-                  window.clearTimeout(feedbackTimeout.current);
-                  feedbackTimeout.current = null;
-                }
-                dispatchCopyState({ type: "start", requestId: copyRequest });
-                const nextResult = await copyCommand(
-                  navigator.clipboard?.writeText?.bind(navigator.clipboard),
-                  item.command,
-                );
-                if (!copyRequests.current.isCurrent(copyRequest)) {
-                  return;
-                }
-                dispatchCopyState({
-                  type: "settle",
-                  requestId: copyRequest,
-                  name: item.name,
-                  result: nextResult,
-                });
-                feedbackTimeout.current = window.setTimeout(() => {
+  const commands = commandsFor(os);
+  const tabClass = (selected: boolean) =>
+    `rounded-lg px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.1em] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-panel ${
+      selected ? "border border-copper text-copper" : "border border-transparent text-muted hover:text-paper"
+    }`;
+
+  return (
+    <div>
+      <div
+        role="tablist"
+        aria-label="Setup operating system"
+        className="flex gap-2 border-b border-hairline py-4"
+      >
+        <button
+          type="button"
+          role="tab"
+          aria-selected={os === "mac"}
+          className={tabClass(os === "mac")}
+          onClick={() => selectOs("mac")}
+        >
+          Mac
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={os === "windows"}
+          className={tabClass(os === "windows")}
+          onClick={() => selectOs("windows")}
+        >
+          Windows
+        </button>
+      </div>
+      <ul className="min-w-0 divide-y divide-hairline">
+        {commands.map((item) => {
+          const result =
+            copyState.feedback?.name === item.name
+              ? copyState.feedback.result
+              : null;
+          const feedback =
+            result === "copied"
+              ? "Copied"
+              : result === "failed"
+                ? "Copy failed"
+                : "";
+
+          return (
+            <li key={`${os}-${item.name}`}>
+              <button
+                type="button"
+                onClick={async () => {
+                  const copyRequest = copyRequests.current.start();
+                  if (feedbackTimeout.current !== null) {
+                    window.clearTimeout(feedbackTimeout.current);
+                    feedbackTimeout.current = null;
+                  }
+                  dispatchCopyState({ type: "start", requestId: copyRequest });
+                  const nextResult = await copyCommand(
+                    navigator.clipboard?.writeText?.bind(navigator.clipboard),
+                    item.command,
+                  );
                   if (!copyRequests.current.isCurrent(copyRequest)) {
                     return;
                   }
-                  dispatchCopyState({ type: "reset", requestId: copyRequest });
-                  feedbackTimeout.current = null;
-                }, COPY_FEEDBACK_MS);
-              }}
-              className="group flex w-full min-w-0 flex-col items-start gap-3 py-5 text-left outline-none transition-[color,transform] hover:text-copper active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-panel"
-            >
-              <span className="flex w-full items-center justify-between gap-4">
-                <span className="flex items-center gap-2 text-sm font-medium text-paper group-hover:text-copper">
-                  {result === "copied" ? (
-                    <CheckIcon {...icon} />
-                  ) : result === "failed" ? (
-                    <WarningCircleIcon {...icon} />
-                  ) : (
-                    <CopyIcon {...icon} />
-                  )}
-                  {item.name}
+                  dispatchCopyState({
+                    type: "settle",
+                    requestId: copyRequest,
+                    name: item.name,
+                    result: nextResult,
+                  });
+                  feedbackTimeout.current = window.setTimeout(() => {
+                    if (!copyRequests.current.isCurrent(copyRequest)) {
+                      return;
+                    }
+                    dispatchCopyState({ type: "reset", requestId: copyRequest });
+                    feedbackTimeout.current = null;
+                  }, COPY_FEEDBACK_MS);
+                }}
+                className="group flex w-full min-w-0 flex-col items-start gap-3 py-5 text-left outline-none transition-[color,transform] hover:text-copper active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-panel"
+              >
+                <span className="flex w-full items-center justify-between gap-4">
+                  <span className="flex items-center gap-2 text-sm font-medium text-paper group-hover:text-copper">
+                    {result === "copied" ? (
+                      <CheckIcon {...icon} />
+                    ) : result === "failed" ? (
+                      <WarningCircleIcon {...icon} />
+                    ) : (
+                      <CopyIcon {...icon} />
+                    )}
+                    {item.name}
+                  </span>
+                  <span
+                    aria-live="polite"
+                    className={`shrink-0 font-mono text-[10px] uppercase tracking-[0.1em] ${
+                      result === "failed"
+                        ? "text-fail"
+                        : result === "copied"
+                          ? "text-copper"
+                          : "sr-only"
+                    }`}
+                  >
+                    {feedback}
+                  </span>
+                  <span className="sr-only">Copy command</span>
                 </span>
-                <span
-                  aria-live="polite"
-                  className={`shrink-0 font-mono text-[10px] uppercase tracking-[0.1em] ${
-                    result === "failed"
-                      ? "text-fail"
-                      : result === "copied"
-                        ? "text-copper"
-                        : "sr-only"
-                  }`}
-                >
-                  {feedback}
+                <span className="min-w-0 break-all font-mono text-[11px] leading-5 text-muted sm:text-xs sm:leading-6">
+                  {item.command}
                 </span>
-                <span className="sr-only">Copy command</span>
-              </span>
-              <span className="min-w-0 break-all font-mono text-[11px] leading-5 text-muted sm:text-xs sm:leading-6">
-                {item.command}
-              </span>
-            </button>
-          </li>
-        );
-      })}
-    </ul>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      {os === "windows" ? (
+        <p className="py-5 text-xs leading-5 text-muted">
+          {WINDOWS_BUILD_TOOLS_NOTE}
+        </p>
+      ) : null}
+    </div>
   );
 }

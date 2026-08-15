@@ -5,8 +5,9 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LandingCommands } from "@/app/components/landing-commands";
 
-const INSTALL_CLI_COMMAND =
+const MAC_INSTALL_CLI =
   "brew tap teamookla/speedtest && brew install speedtest";
+const WINDOWS_INSTALL_CLI = "winget install -e --id Ookla.Speedtest.CLI";
 const reactActGlobal = globalThis as typeof globalThis & {
   IS_REACT_ACT_ENVIRONMENT: boolean;
 };
@@ -63,6 +64,10 @@ describe("LandingCommands client behavior", () => {
       navigator,
       "clipboard",
     );
+    Object.defineProperty(navigator, "userAgent", {
+      configurable: true,
+      value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+    });
     container = document.createElement("div");
     document.body.append(container);
     root = createRoot(container);
@@ -103,7 +108,7 @@ describe("LandingCommands client behavior", () => {
       await Promise.resolve();
     });
 
-    expect(writeText).toHaveBeenCalledWith(INSTALL_CLI_COMMAND);
+    expect(writeText).toHaveBeenCalledWith(MAC_INSTALL_CLI);
     expect(region.textContent).toBe("Copied");
 
     act(() => {
@@ -180,7 +185,7 @@ describe("LandingCommands client behavior", () => {
       await second.promise;
       await Promise.resolve();
     });
-    expect(writeText).toHaveBeenNthCalledWith(1, INSTALL_CLI_COMMAND);
+    expect(writeText).toHaveBeenNthCalledWith(1, MAC_INSTALL_CLI);
     expect(writeText).toHaveBeenNthCalledWith(2, "npm run dev");
     expect(liveRegion(firstButton).textContent).toBe("");
     expect(liveRegion(secondButton).textContent).toBe("Copied");
@@ -212,5 +217,29 @@ describe("LandingCommands client behavior", () => {
       1800,
     );
     expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("copies the Windows CLI command after selecting Windows", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    setClipboard(writeText);
+    const windowsTab = Array.from(
+      container.querySelectorAll('[role="tab"]'),
+    ).find((candidate) => candidate.textContent === "Windows");
+    if (!(windowsTab instanceof HTMLButtonElement)) {
+      throw new Error("Windows tab not found");
+    }
+
+    act(() => {
+      windowsTab.click();
+    });
+
+    const button = buttonNamed("Install CLI");
+    await act(async () => {
+      button.click();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(writeText).toHaveBeenCalledWith(WINDOWS_INSTALL_CLI);
   });
 });

@@ -79,7 +79,7 @@ export function RunArchive({
       <div>
         <h2 className="font-display text-2xl text-paper">Archive</h2>
         <p className="mt-1 text-xs text-muted">
-          Every sample on this Mac. Slow down and high ping use the all-time
+          Every sample on this computer. Slow down and high ping use the all-time
           average.
         </p>
       </div>

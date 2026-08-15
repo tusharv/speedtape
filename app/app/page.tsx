@@ -2,7 +2,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { HistoryRuns } from "@/app/components/history-runs";
 import { RunTestButton } from "@/app/components/run-test-button";
-import { PageShell, SiteNav } from "@/app/components/site-nav";
+import { PageIntro, PageShell, SiteHeader } from "@/app/components/site-nav";
 import { SpeedChart } from "@/app/components/speed-chart";
 import { SpeedTape } from "@/app/components/speed-tape";
 import {
@@ -39,18 +39,10 @@ export default async function Home({
 
   return (
     <PageShell>
-      <header className="flex flex-col gap-4 border-b border-hairline pb-6 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="font-display text-4xl font-semibold text-paper sm:text-6xl">
-            Speedtape
-          </h1>
-          <p className="mt-2 max-w-md text-sm text-muted">
-            Download, upload, and ping for this network. Scheduled samples stay
-            on the Mac even when this page is closed.
-          </p>
-        </div>
-        <div className="flex flex-col items-start gap-3 sm:items-end">
-          <SiteNav current="home" />
+      <SiteHeader current="home" />
+      <PageIntro
+        title="Dashboard"
+        extra={
           <div className="text-left text-xs text-muted sm:text-right">
             <p>
               <TermTip term="agent">
@@ -70,8 +62,11 @@ export default async function Home({
               Last reading {formatTime(data.latest?.testedAt)}
             </p>
           </div>
-        </div>
-      </header>
+        }
+      >
+        Download, upload, and ping for this network. Scheduled samples stay on
+        this computer even when this page is closed.
+      </PageIntro>
 
       {empty ? (
         <section className="rounded-lg border border-dashed border-hairline bg-panel px-6 py-10">

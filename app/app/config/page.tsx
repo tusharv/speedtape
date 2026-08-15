@@ -2,9 +2,9 @@ import os from "node:os";
 import { connection } from "next/server";
 import { AddAgentForm } from "@/app/components/add-agent-form";
 import { AgentList } from "@/app/components/agent-list";
-import { PageShell, SiteNav } from "@/app/components/site-nav";
-import { defaultLaunchd } from "@/lib/agent";
+import { PageIntro, PageShell, SiteHeader } from "@/app/components/site-nav";
 import { agentRuntimePaths, loadConfigAgents } from "@/lib/agent-sync";
+import { defaultCollectorRuntime } from "@/lib/collector-runtime";
 import { withDatabase } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +12,7 @@ export const runtime = "nodejs";
 
 export const metadata = {
   title: "Config",
-  description: "Add or remove Speedtape collectors on this Mac",
+  description: "Add or remove Speedtape collectors on this computer",
 };
 
 export default async function ConfigPage() {
@@ -21,30 +21,26 @@ export default async function ConfigPage() {
     loadConfigAgents({
       homeDir: os.homedir(),
       db,
-      launchd: defaultLaunchd(),
+      runtime: defaultCollectorRuntime({
+        homeDir: os.homedir(),
+        ...agentRuntimePaths(),
+      }),
       ...agentRuntimePaths(),
     }),
   );
 
   return (
     <PageShell>
-      <header className="flex flex-col gap-4 border-b border-hairline pb-6 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="font-display text-4xl font-semibold text-paper sm:text-6xl">
-            Config
-          </h1>
-          <p className="mt-2 max-w-md text-sm text-muted">
-            Add or remove collectors on this Mac. Each one runs a speed test on
-            its own schedule.
-          </p>
-        </div>
-        <SiteNav current="config" />
-      </header>
+      <SiteHeader current="config" />
+      <PageIntro title="Config">
+        Add or remove collectors on this computer. Each one runs a speed test on
+        its own schedule.
+      </PageIntro>
       <AgentList agents={agents} />
       <AddAgentForm />
       <p className="text-xs text-muted">
-        This Mac must be awake for a scheduled test to run. Sleeping skips the
-        job.
+        This computer must be awake for a scheduled test to run. Sleeping skips
+        the job.
       </p>
     </PageShell>
   );

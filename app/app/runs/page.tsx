@@ -1,6 +1,6 @@
 import { connection } from "next/server";
 import { RunArchive } from "@/app/components/run-archive";
-import { PageShell, SiteNav } from "@/app/components/site-nav";
+import { PageIntro, PageShell, SiteHeader } from "@/app/components/site-nav";
 import { loadArchive } from "@/lib/dashboard";
 import { parseArchiveQuery } from "@/lib/runs";
 
@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 
 export const metadata = {
   title: "Runs",
-  description: "Every speed test stored on this Mac",
+  description: "Every speed test stored on this computer",
 };
 
 function firstString(value: string | string[] | undefined): string | undefined {
@@ -29,18 +29,10 @@ export default async function RunsPage({ searchParams }: PageProps<"/app/runs">)
 
   return (
     <PageShell>
-      <header className="flex flex-col gap-4 border-b border-hairline pb-6 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="font-display text-4xl font-semibold text-paper sm:text-6xl">
-            All runs
-          </h1>
-          <p className="mt-2 max-w-md text-sm text-muted">
-            Scroll for older samples. Open a row for jitter, loss, server, and
-            ISP.
-          </p>
-        </div>
-        <SiteNav current="runs" />
-      </header>
+      <SiteHeader current="runs" />
+      <PageIntro title="All runs">
+        Scroll for older samples. Open a row for jitter, loss, server, and ISP.
+      </PageIntro>
       <RunArchive
         key={`${query.status}-${query.slow}-${query.ping}-${query.sort}`}
         query={query}

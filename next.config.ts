@@ -5,7 +5,7 @@ const lanOrigins = lanDevOrigins();
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ["better-sqlite3"],
-  // Dev-only: other devices on Wi-Fi load JS/HMR from this Mac's LAN IP,
+  // Dev-only: other devices on Wi-Fi load JS/HMR from this computer's LAN IP,
   // which Next.js treats as cross-origin unless we allow it.
   allowedDevOrigins: lanOrigins,
   experimental: {

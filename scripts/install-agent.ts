@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { defaultLaunchd } from "@/lib/agent";
+import { defaultCollectorRuntime } from "@/lib/collector-runtime";
 import { agentRuntimePaths, installSpeedtapeAgents } from "@/lib/agent-sync";
 import { withDatabase } from "@/lib/db";
 import { prepareDatabasePath } from "@/lib/migrate";
@@ -19,10 +19,13 @@ withDatabase((db) => {
   installSpeedtapeAgents({
     homeDir: os.homedir(),
     db,
-    launchd: defaultLaunchd(),
+    runtime: defaultCollectorRuntime({
+      homeDir: os.homedir(),
+      ...runtime,
+    }),
     ...runtime,
   });
 });
 console.log("Installed Speedtape collectors.");
 console.log("Add or remove schedules at /app/config, or run npm run uninstall-agent.");
-console.log("Tests run while this Mac is awake.");
+console.log("Tests run while this computer is awake.");

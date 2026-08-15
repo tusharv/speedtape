@@ -4,6 +4,7 @@ import {
   collectSpeedtest,
   formatSpeedtestError,
   parseSpeedtestJson,
+  speedtestBin,
 } from "@/lib/speedtest";
 
 const fixture = {
@@ -21,6 +22,14 @@ const fixture = {
     country: "US",
   },
 };
+
+describe("speedtestBin", () => {
+  it("uses speedtest.exe on Windows and speedtest elsewhere", () => {
+    expect(speedtestBin("win32")).toBe("speedtest.exe");
+    expect(speedtestBin("darwin")).toBe("speedtest");
+    expect(speedtestBin("linux")).toBe("speedtest");
+  });
+});
 
 describe("bandwidthToMbps", () => {
   it("converts Ookla bytes-per-second to megabits per second", () => {
