@@ -33,7 +33,7 @@ export function SpeedChart({
 }) {
   if (points.length === 0) {
     return (
-      <div className="flex h-72 items-center justify-center border border-dashed border-hairline bg-panel px-6 text-center text-sm text-muted">
+      <div className="flex h-72 items-center justify-center rounded-lg border border-dashed border-hairline bg-panel px-6 text-center text-sm leading-6 text-muted">
         No readings in this range yet.
       </div>
     );
@@ -44,45 +44,60 @@ export function SpeedChart({
       className={
         embedded
           ? "h-64 min-w-0"
-          : "h-64 min-w-0 overflow-x-clip border border-hairline bg-panel px-1 py-4 sm:h-72 sm:px-4"
+          : "h-72 min-w-0 overflow-x-clip rounded-lg border border-hairline bg-panel px-3 py-5 sm:h-80 sm:px-5"
       }
     >
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={points} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-          <CartesianGrid stroke="#3d342b" strokeDasharray="3 6" />
+        <LineChart
+          data={points}
+          margin={{ top: 12, right: 16, left: 8, bottom: 8 }}
+        >
+          <CartesianGrid stroke="var(--hairline)" strokeDasharray="3 6" />
           <XAxis
             dataKey="time"
             tickFormatter={(value: string) => formatTick(value, range)}
-            tick={{ fill: "#8a7d6e", fontSize: 11 }}
-            axisLine={{ stroke: "#3d342b" }}
+            tick={{
+              fill: "var(--muted)",
+              fontSize: 11,
+              fontFamily: "var(--font-sans)",
+            }}
+            axisLine={{ stroke: "var(--hairline)" }}
             tickLine={false}
             minTickGap={28}
           />
           <YAxis
             yAxisId="speed"
-            tick={{ fill: "#8a7d6e", fontSize: 11 }}
+            tick={{
+              fill: "var(--muted)",
+              fontSize: 11,
+              fontFamily: "var(--font-sans)",
+            }}
             axisLine={false}
             tickLine={false}
-            width={48}
+            width={52}
             unit="M"
           />
           <YAxis
             yAxisId="ping"
             orientation="right"
-            tick={{ fill: "#8a7d6e", fontSize: 11 }}
+            tick={{
+              fill: "var(--muted)",
+              fontSize: 11,
+              fontFamily: "var(--font-sans)",
+            }}
             axisLine={false}
             tickLine={false}
-            width={40}
+            width={44}
             unit="ms"
           />
           <Tooltip
             contentStyle={{
-              background: "#1a1714",
-              border: "1px solid #3d342b",
-              borderRadius: 0,
-              fontFamily: "var(--font-mono)",
+              background: "var(--raised)",
+              border: "1px solid var(--hairline)",
+              borderRadius: 8,
+              fontFamily: "var(--font-sans)",
               fontSize: 12,
-              color: "#e8dcc8",
+              color: "var(--paper)",
             }}
             labelFormatter={(value) =>
               new Date(String(value)).toLocaleString()
@@ -94,7 +109,12 @@ export function SpeedChart({
             }}
           />
           <Legend
-            wrapperStyle={{ fontSize: 12, color: "#8a7d6e" }}
+            wrapperStyle={{
+              fontSize: 12,
+              color: "var(--muted)",
+              fontFamily: "var(--font-sans)",
+              paddingTop: 12,
+            }}
             formatter={(value) =>
               value === "download" ? (
                 <TermTip term="download">Down</TermTip>
@@ -109,7 +129,7 @@ export function SpeedChart({
             yAxisId="speed"
             type="monotone"
             dataKey="download"
-            stroke="#d4894a"
+            stroke="var(--copper)"
             strokeWidth={2}
             dot={false}
             connectNulls
@@ -118,7 +138,7 @@ export function SpeedChart({
             yAxisId="speed"
             type="monotone"
             dataKey="upload"
-            stroke="#7d9a86"
+            stroke="var(--amber)"
             strokeWidth={2}
             dot={false}
             connectNulls
@@ -127,7 +147,7 @@ export function SpeedChart({
             yAxisId="ping"
             type="monotone"
             dataKey="ping"
-            stroke="#e8b86d"
+            stroke="var(--muted)"
             strokeWidth={1}
             strokeDasharray="4 4"
             dot={false}

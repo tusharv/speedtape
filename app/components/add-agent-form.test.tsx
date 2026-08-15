@@ -10,6 +10,7 @@ describe("AddAgentForm", () => {
   it("asks for a name, interval or clock times, and Add agent", () => {
     const html = renderToStaticMarkup(<AddAgentForm />);
     expect(html).toContain("Name");
+    expect(html).toContain("font-sans");
     expect(html).toContain("Interval");
     expect(html).toContain("Clock times");
     expect(html).toContain("Add agent");

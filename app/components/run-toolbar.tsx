@@ -16,6 +16,7 @@ import {
 } from "@phosphor-icons/react/ssr";
 import type { ArchiveQuery, RunSort, RunStatus } from "@/lib/runs";
 import { TermTip } from "@/app/components/term-tip";
+import { kicker } from "@/app/components/chrome";
 
 const icon = { size: 14, weight: "regular" as const, "aria-hidden": true };
 
@@ -33,7 +34,7 @@ const SORTS: { value: RunSort; label: string }[] = [
 ];
 
 const selectClass =
-  "w-full appearance-none border border-hairline bg-panel py-2 pl-9 pr-8 text-sm text-paper outline-none [color-scheme:dark] hover:border-copper focus:border-copper";
+  "w-full min-w-0 appearance-none rounded-lg border border-hairline bg-panel py-2.5 pl-10 pr-10 font-sans text-sm leading-5 text-paper outline-none [color-scheme:inherit] hover:border-copper focus:border-copper";
 
 function StatusIcon({ status }: { status: RunStatus }) {
   if (status === "ok") return <CheckCircleIcon {...icon} className="text-up" />;
@@ -70,9 +71,9 @@ export function RunToolbar({
   }
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      <label className="flex flex-col gap-1.5">
-        <span className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.16em] text-muted">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <label className="flex min-w-0 flex-col gap-2">
+        <span className={`inline-flex items-center gap-1.5 ${kicker}`}>
           <FunnelIcon {...icon} />
           Status
         </span>
@@ -98,8 +99,8 @@ export function RunToolbar({
         </span>
       </label>
 
-      <label className="flex flex-col gap-1.5">
-        <span className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.16em] text-muted">
+      <label className="flex min-w-0 flex-col gap-2">
+        <span className={`inline-flex items-center gap-1.5 ${kicker}`}>
           <SortAscendingIcon {...icon} />
           Sort
         </span>
@@ -121,8 +122,8 @@ export function RunToolbar({
         </span>
       </label>
 
-      <fieldset className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
-        <legend className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.16em] text-muted">
+      <fieldset className="flex min-w-0 flex-col gap-2 sm:col-span-2 lg:col-span-1">
+        <legend className={`inline-flex items-center gap-1.5 ${kicker}`}>
           <FadersIcon {...icon} />
           Problems
         </legend>
@@ -133,7 +134,7 @@ export function RunToolbar({
                 ? "Show runs slower than the all-time average"
                 : "Needs a download average"
             }
-            className={`inline-flex items-center gap-2 border bg-panel px-3 py-2 text-sm ${
+            className={`inline-flex min-w-0 items-center gap-2 rounded-lg border bg-panel px-3 py-2.5 text-sm ${
               slowEnabled
                 ? "cursor-pointer border-hairline text-paper hover:border-copper"
                 : "cursor-not-allowed border-hairline text-muted opacity-40"
@@ -155,7 +156,7 @@ export function RunToolbar({
                 ? "Show runs with ping above the all-time average"
                 : "Needs a ping average"
             }
-            className={`inline-flex items-center gap-2 border bg-panel px-3 py-2 text-sm ${
+            className={`inline-flex min-w-0 items-center gap-2 rounded-lg border bg-panel px-3 py-2.5 text-sm ${
               pingEnabled
                 ? "cursor-pointer border-hairline text-paper hover:border-copper"
                 : "cursor-not-allowed border-hairline text-muted opacity-40"

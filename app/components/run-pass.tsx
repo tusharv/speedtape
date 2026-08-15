@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import { PrinterIcon } from "@phosphor-icons/react/ssr";
+import { ghostBtn, kicker } from "@/app/components/chrome";
 import { formatMbps, formatMs, formatTime } from "@/app/components/stats";
 import { TapeMark, passSerial } from "@/app/components/tape-mark";
 import { formatRunId } from "@/lib/runs";
@@ -46,7 +47,7 @@ function PassField({
       onClick={() => onInspect(term)}
       onMouseEnter={() => onInspect(term)}
       onFocus={() => onInspect(term)}
-      className={`min-w-0 rounded-sm border px-2 py-2 transition-[transform,background-color,border-color] active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-panel ${
+      className={`min-w-0 rounded-lg border px-3 py-2.5 transition-[transform,background-color,border-color] active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-panel ${
         align === "center" ? "text-center" : "text-left"
       } ${
         active
@@ -54,11 +55,9 @@ function PassField({
           : "border-transparent hover:border-hairline hover:bg-copper/5"
       }`}
     >
-      <span className="block font-mono text-[9px] uppercase tracking-[0.22em] text-muted">
-        {label}
-      </span>
+      <span className={`block ${kicker}`}>{label}</span>
       <span
-        className={`mt-1 block wrap-break-word leading-tight text-paper ${
+        className={`mt-1.5 block wrap-break-word leading-tight text-paper ${
           size === "ticket"
             ? "font-mono text-sm sm:text-base"
             : "font-display text-xl sm:text-2xl"
@@ -106,12 +105,12 @@ export function RunPass({ test }: { test: SpeedTestRow }) {
   const [active, setActive] = useState<TermKey>(statusTerm === "failed" ? "failed" : "download");
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       <div className="run-pass-print flex justify-end">
         <button
           type="button"
           onClick={() => window.print()}
-          className="inline-flex items-center gap-1.5 border border-hairline px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-muted transition-[transform,color,border-color] hover:border-copper hover:text-paper active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copper"
+          className={ghostBtn}
         >
           <PrinterIcon {...printIcon} />
           Print
@@ -120,7 +119,7 @@ export function RunPass({ test }: { test: SpeedTestRow }) {
 
       <article
         aria-label={`Line pass ${test.id}, ${failed ? "void" : "cleared"}, ${when}`}
-        className="run-pass relative flex flex-col overflow-visible border border-hairline bg-panel md:flex-row"
+        className="run-pass relative flex flex-col overflow-hidden rounded-lg border border-hairline bg-panel md:flex-row"
       >
         <div className="relative flex min-w-0 flex-1">
           <div className="run-pass-sprocket hidden sm:block" aria-hidden="true" />
@@ -130,7 +129,7 @@ export function RunPass({ test }: { test: SpeedTestRow }) {
               failed ? "bg-fail text-ink" : "bg-copper text-ink"
             }`}
           >
-            <div className="flex flex-wrap items-end justify-between gap-3 px-4 py-3 sm:px-5">
+            <div className="flex flex-wrap items-end justify-between gap-4 px-5 py-4 sm:px-6">
               <div className="flex items-end gap-2.5">
                 <TapeMark tone="ink" className="mb-0.5 h-5 w-5" />
                 <div>
@@ -155,23 +154,13 @@ export function RunPass({ test }: { test: SpeedTestRow }) {
             </p>
           </header>
 
-          <div className="relative px-3 py-4 sm:px-4">
+          <div className="relative px-4 py-5 sm:px-5">
             <span className="run-pass-reg run-pass-reg-tl" aria-hidden="true" />
             <span className="run-pass-reg run-pass-reg-tr" aria-hidden="true" />
             <span className="run-pass-reg run-pass-reg-bl" aria-hidden="true" />
             <span className="run-pass-reg run-pass-reg-br" aria-hidden="true" />
-            <p
-              aria-hidden="true"
-              className={`pointer-events-none absolute right-4 top-3 rotate-[-11deg] border-2 px-2.5 py-0.5 font-display text-lg uppercase tracking-[0.22em] sm:right-6 sm:text-xl ${
-                failed
-                  ? "border-fail text-fail"
-                  : "border-up text-up"
-              }`}
-            >
-              {failed ? "Void" : "Cleared"}
-            </p>
 
-            <div className="grid grid-cols-2 gap-1 border-b border-hairline pb-3 pr-20 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center sm:pr-28">
+            <div className="grid grid-cols-1 gap-3 border-b border-hairline pb-4 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center">
               <PassField
                 term="isp"
                 label="From"
@@ -199,7 +188,7 @@ export function RunPass({ test }: { test: SpeedTestRow }) {
               />
             </div>
 
-            <div className="grid grid-cols-3 gap-1 border-b border-hairline py-3">
+            <div className="grid grid-cols-1 gap-3 border-b border-hairline py-4 sm:grid-cols-3">
               <PassField
                 term="run"
                 label="Issued"
@@ -226,7 +215,7 @@ export function RunPass({ test }: { test: SpeedTestRow }) {
               />
             </div>
 
-            <div className="grid grid-cols-3 gap-1 py-3 sm:grid-cols-5">
+            <div className="grid grid-cols-2 gap-3 py-4 sm:grid-cols-5">
               <PassField
                 term="download"
                 label="Down"
@@ -293,26 +282,24 @@ export function RunPass({ test }: { test: SpeedTestRow }) {
             </div>
 
             {failed ? (
-              <p className="border-t border-fail/30 pt-3 text-sm leading-6 text-fail">
+              <p className="border-t border-fail/30 pt-4 text-sm leading-6 text-fail">
                 {formatSpeedtestError(test.error ?? "")}
               </p>
             ) : null}
 
-            <div className="mt-1 border-t border-hairline pt-3">
-              <p className="font-mono text-[9px] uppercase tracking-[0.22em] text-muted">
-                Remarks
-              </p>
+            <div className="mt-1 border-t border-hairline pt-4">
+              <p className={kicker}>Remarks</p>
               <p
                 aria-live="polite"
-                className="mt-1 min-h-16 font-mono text-[11px] leading-5 text-paper"
+                className="mt-2 min-h-16 font-mono text-[11px] leading-5 text-paper"
               >
                 {termText(active)}
               </p>
             </div>
 
-            <div className="mt-4 border-t border-dashed border-hairline pt-3">
-              <div className="run-pass-foil mb-3" aria-hidden="true" />
-              <div className="flex items-end justify-between gap-3">
+            <div className="mt-4 border-t border-dashed border-hairline pt-4">
+              <div className="run-pass-foil mb-4" aria-hidden="true" />
+              <div className="flex items-end justify-between gap-4">
                 <PassBars test={test} />
                 <p className="shrink-0 font-mono text-[10px] tracking-[0.18em] text-muted">
                   {serial}
@@ -330,7 +317,7 @@ export function RunPass({ test }: { test: SpeedTestRow }) {
         <div className="run-pass-perf-y hidden md:block" aria-hidden="true" />
 
         <aside
-          className={`relative flex flex-row items-stretch justify-between gap-3 px-4 py-4 md:w-40 md:flex-col md:justify-between ${
+          className={`relative flex flex-row items-stretch justify-between gap-4 px-5 py-5 md:w-44 md:flex-col md:justify-between ${
             failed ? "bg-fail/5" : "bg-copper/5"
           }`}
         >
@@ -345,10 +332,8 @@ export function RunPass({ test }: { test: SpeedTestRow }) {
             aria-hidden="true"
           />
           <div className="relative">
-            <p className="font-mono text-[9px] uppercase tracking-[0.22em] text-muted">
-              Pass
-            </p>
-            <p className="mt-1 font-display text-2xl leading-none text-paper">
+            <p className={kicker}>Pass</p>
+            <p className="mt-2 font-display text-2xl leading-tight text-paper">
               {runLabel}
             </p>
             <p
@@ -359,7 +344,7 @@ export function RunPass({ test }: { test: SpeedTestRow }) {
               {failed ? "Void" : "Cleared"}
             </p>
           </div>
-          <div className="relative grid grid-cols-3 gap-2 md:grid-cols-1">
+          <div className="relative grid grid-cols-3 gap-3 md:grid-cols-1">
             <PassField
               term="download"
               label="Down"

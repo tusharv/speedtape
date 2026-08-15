@@ -1,3 +1,4 @@
+import { kicker, sectionTitle } from "@/app/components/chrome";
 import { formatMbps } from "@/app/components/stats";
 import { TermTip } from "@/app/components/term-tip";
 import {
@@ -24,36 +25,36 @@ export function SpeedTape({ cells }: { cells: TapeCell[] }) {
   return (
     <section
       aria-label="Last 24 hours of download by time of day"
-      className="min-w-0 overflow-x-clip rounded-lg border border-hairline bg-panel px-4 py-5 sm:px-6"
+      className="min-w-0 overflow-x-clip rounded-lg border border-hairline bg-panel px-5 py-6 sm:px-6"
     >
-      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
-        <h2 className="min-w-0 font-display text-2xl text-paper">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
+        <h2 className={`min-w-0 ${sectionTitle}`}>
           <TermTip term="range24h">24hr History</TermTip>
         </h2>
-        <p className="min-w-0 text-[11px] uppercase leading-tight tracking-[0.18em] text-muted sm:shrink sm:text-right">
+        <p className={`min-w-0 leading-snug sm:shrink sm:text-right ${kicker}`}>
           <TermTip term="download">Avg download</TermTip>
           {" · one bar per hour"}
         </p>
       </div>
-      <div className="flex min-w-0">
+      <div className="flex min-w-0 gap-0">
         {groups.map((group, index) => (
           <div
             key={`${group.part}-${group.startIndex}`}
-            className={`@container min-w-0 overflow-hidden ${index > 0 ? "border-l border-hairline pl-1.5" : ""}`}
+            className={`@container min-w-0 overflow-hidden px-1.5 sm:px-2 ${index > 0 ? "border-l border-hairline" : "pl-0"}`}
             style={{ flexGrow: group.count, flexBasis: 0 }}
           >
-            <p className="break-words text-[10px] leading-tight uppercase tracking-wider text-muted">
+            <p className="min-h-8 break-words text-[10px] leading-snug uppercase tracking-wide text-muted">
               {DAY_PART_LABELS[group.part]}
             </p>
-            <p className="mt-1 font-display text-[clamp(0.75rem,38cqw,1.5rem)] leading-none text-copper">
+            <p className="mt-2 font-display text-[clamp(0.75rem,38cqw,1.5rem)] leading-tight text-copper">
               {formatMbps(group.avgDownloadMbps)}
             </p>
             {group.avgDownloadMbps !== null ? (
-              <p className="mt-0.5 font-mono text-[10px] leading-tight tracking-normal text-muted">
+              <p className="mt-1 font-mono text-[10px] leading-tight tracking-normal text-muted">
                 Mbps
               </p>
             ) : null}
-            <div className="mt-3 flex h-20 items-end gap-px">
+            <div className="mt-4 flex h-20 items-end gap-px">
               {group.cells.map((cell, cellIndex) => {
                 const isCurrent =
                   group.startIndex + cellIndex === currentIndex;
@@ -70,7 +71,7 @@ export function SpeedTape({ cells }: { cells: TapeCell[] }) {
           </div>
         ))}
       </div>
-      <div className="mt-2 flex justify-between text-[10px] uppercase tracking-wider text-muted">
+      <div className="mt-3 flex justify-between text-[10px] uppercase tracking-wide text-muted">
         <span>24h ago</span>
         <span>now</span>
       </div>

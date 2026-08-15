@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { ghostBtn, kicker, panel, sectionTitle } from "@/app/components/chrome";
 import { removeAgent } from "@/app/actions";
 
 export type AgentListItem = {
@@ -20,10 +21,10 @@ export function AgentList({ agents }: { agents: AgentListItem[] }) {
   if (agents.length === 0) {
     return (
       <section className="rounded-lg border border-dashed border-hairline bg-panel px-6 py-8">
-        <h2 className="font-display text-2xl font-semibold text-paper">
+        <h2 className={sectionTitle}>
           No collectors yet
         </h2>
-        <p className="mt-2 max-w-lg text-sm text-muted">
+        <p className="mt-3 max-w-lg text-sm leading-6 text-muted">
           Add an agent below so this computer keeps running tests on a schedule.
         </p>
       </section>
@@ -31,24 +32,24 @@ export function AgentList({ agents }: { agents: AgentListItem[] }) {
   }
 
   return (
-    <section className="rounded-lg border border-hairline bg-raised px-4 py-5 sm:px-6">
-      <h2 className="text-[11px] uppercase tracking-[0.12em] text-muted">
+    <section className={panel}>
+      <h2 className={kicker}>
         Agents on this computer
       </h2>
       {warning ? (
-        <p className="mt-3 border border-fail/40 bg-fail/10 px-4 py-3 text-sm text-fail">
+        <p className="mt-4 border border-fail/40 bg-fail/10 px-4 py-3 text-sm text-fail">
           {warning}
         </p>
       ) : null}
-      <ul className="mt-3 divide-y divide-hairline">
+      <ul className="mt-4 divide-y divide-hairline">
         {agents.map((agent) => (
           <li
             key={agent.id}
-            className="flex flex-wrap items-center justify-between gap-3 py-3"
+            className="flex flex-wrap items-center justify-between gap-4 py-4"
           >
             <div className="min-w-0 flex-1">
               <p className="break-words font-semibold text-paper">{agent.name}</p>
-              <p className="break-words font-mono text-xs text-muted">
+              <p className="mt-1 break-words font-mono text-xs leading-5 text-muted">
                 {agent.cadence}
                 {" · "}
                 <span className={agent.loaded ? "text-up" : "text-fail"}>
@@ -59,7 +60,7 @@ export function AgentList({ agents }: { agents: AgentListItem[] }) {
             <button
               type="button"
               disabled={pending && pendingId === agent.id}
-              className="shrink-0 border border-hairline px-3 py-1 text-xs uppercase tracking-[0.16em] text-fail hover:border-fail disabled:opacity-60"
+              className={`${ghostBtn} shrink-0 text-fail hover:border-fail disabled:opacity-60`}
               onClick={() => {
                 setWarning(null);
                 setPendingId(agent.id);

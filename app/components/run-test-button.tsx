@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { primaryBtn } from "@/app/components/chrome";
 import { runTestNow } from "@/app/actions";
 import { formatSpeedtestError } from "@/lib/speedtest-error";
 
@@ -29,7 +30,7 @@ export function RunTestButton() {
             router.refresh();
           });
         }}
-        className="border border-copper bg-copper px-4 py-2 text-xs uppercase tracking-[0.16em] text-white hover:bg-amber disabled:cursor-wait disabled:opacity-60"
+        className={primaryBtn}
       >
         {pending ? "Testing line…" : "Run test now"}
       </button>

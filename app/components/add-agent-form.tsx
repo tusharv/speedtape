@@ -3,6 +3,14 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { addAgent } from "@/app/actions";
+import {
+  chip,
+  chipClass,
+  field,
+  kicker,
+  panel,
+  primaryBtn,
+} from "@/app/components/chrome";
 import { INTERVAL_PRESETS } from "@/lib/schedule-presets";
 
 const WEEKDAYS = [
@@ -14,9 +22,6 @@ const WEEKDAYS = [
   { day: 5, label: "Fri" },
   { day: 6, label: "Sat" },
 ] as const;
-
-const chip =
-  "border px-3 py-1 text-[11px] uppercase tracking-[0.16em]";
 
 export function AddAgentForm() {
   const router = useRouter();
@@ -31,7 +36,7 @@ export function AddAgentForm() {
 
   return (
     <form
-      className="flex flex-col gap-4 rounded-lg border border-hairline bg-raised px-4 py-5 sm:px-6"
+      className={`flex flex-col gap-5 ${panel}`}
       onSubmit={(event) => {
         event.preventDefault();
         setError(null);
@@ -52,49 +57,39 @@ export function AddAgentForm() {
         });
       }}
     >
-      <h2 className="text-[11px] uppercase tracking-[0.12em] text-muted">
-        Add agent
-      </h2>
-      <label className="flex flex-col gap-2">
+      <h2 className={kicker}>Add agent</h2>
+      <label className="flex max-w-xs flex-col gap-2">
         <span className="text-sm text-paper">Name</span>
         <input
           value={name}
           onChange={(event) => setName(event.target.value)}
           autoComplete="off"
-          className="max-w-xs w-full min-w-0 border border-hairline bg-panel px-3 py-2 text-sm text-paper outline-none focus:border-copper"
+          className={field}
         />
       </label>
-      <div className="flex flex-wrap gap-1">
+      <div className="flex flex-wrap gap-2">
         <button
           type="button"
-          className={`${chip} ${
-            kind === "interval"
-              ? "border-copper bg-copper text-white"
-              : "border-hairline text-muted hover:border-copper hover:text-paper"
-          }`}
+          className={chipClass(kind === "interval")}
           onClick={() => setKind("interval")}
         >
           Interval
         </button>
         <button
           type="button"
-          className={`${chip} ${
-            kind === "clock"
-              ? "border-copper bg-copper text-white"
-              : "border-hairline text-muted hover:border-copper hover:text-paper"
-          }`}
+          className={chipClass(kind === "clock")}
           onClick={() => setKind("clock")}
         >
           Clock times
         </button>
       </div>
       {kind === "interval" ? (
-        <div className="flex flex-wrap gap-1">
+        <div className="flex flex-wrap gap-2">
           {INTERVAL_PRESETS.map((preset) => (
             <button
               key={preset.seconds}
               type="button"
-              className={`border px-2 py-1 text-xs ${
+              className={`${chip} ${
                 intervalSeconds === preset.seconds
                   ? "border-copper text-copper"
                   : "border-hairline text-muted hover:border-copper hover:text-paper"
@@ -106,10 +101,10 @@ export function AddAgentForm() {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-4">
           <ul className="flex flex-col gap-2">
             {times.map((time) => (
-              <li key={time} className="flex items-center gap-2 font-mono text-sm">
+              <li key={time} className="flex items-center gap-3 font-mono text-sm">
                 <span>{time}</span>
                 <button
                   type="button"
@@ -123,14 +118,14 @@ export function AddAgentForm() {
               </li>
             ))}
           </ul>
-          <div className="flex flex-wrap items-end gap-2">
-            <label className="flex flex-col gap-2">
+          <div className="flex flex-wrap items-end gap-3">
+            <label className="flex min-w-0 flex-col gap-2">
               <span className="text-sm text-paper">Time</span>
               <input
                 type="time"
                 value={timeDraft}
                 onChange={(event) => setTimeDraft(event.target.value)}
-                className="w-full max-w-[10rem] border border-hairline bg-panel px-3 py-2 text-sm text-paper outline-none focus:border-copper"
+                className={`${field} max-w-44`}
               />
             </label>
             <button
@@ -148,7 +143,7 @@ export function AddAgentForm() {
               Add time
             </button>
           </div>
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-2">
             {WEEKDAYS.map((item) => {
               const on = weekdays.includes(item.day);
               return (
@@ -183,7 +178,7 @@ export function AddAgentForm() {
       <button
         type="submit"
         disabled={pending}
-        className="w-fit border border-copper bg-copper px-4 py-2 text-xs uppercase tracking-[0.16em] text-white hover:bg-amber disabled:cursor-wait disabled:opacity-60"
+        className={primaryBtn}
       >
         {pending ? "Adding…" : "Add agent"}
       </button>

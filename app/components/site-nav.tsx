@@ -6,33 +6,23 @@ import {
   StackIcon,
 } from "@phosphor-icons/react/ssr";
 import { BrandLockup } from "@/app/components/brand-lockup";
+import { chipClass } from "@/app/components/chrome";
 import { archiveHref, configHref, homeHref } from "@/lib/runs";
 
 const icon = { size: 14, weight: "regular" as const, "aria-hidden": true };
 
-const tab =
-  "inline-flex items-center gap-1.5 border px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] sm:px-3 sm:tracking-[0.16em]";
-
 const headerBar =
-  "flex min-h-16 flex-wrap items-center justify-between gap-3 border-b border-hairline py-4";
+  "flex min-h-16 flex-wrap items-center justify-between gap-4 border-b border-hairline py-4";
 
 export type SiteNavCurrent = "home" | "runs" | "config";
 
-function tabClass(active: boolean) {
-  return `${tab} ${
-    active
-      ? "border-copper bg-copper text-white"
-      : "border-hairline text-muted hover:border-copper hover:text-paper"
-  }`;
-}
-
 export function SiteNav({ current }: { current: SiteNavCurrent }) {
   return (
-    <nav aria-label="Site" className="flex flex-wrap items-center gap-1">
+    <nav aria-label="Site" className="flex flex-wrap items-center gap-2">
       <Link
         href={homeHref("24h")}
         aria-current={current === "home" ? "page" : undefined}
-        className={tabClass(current === "home")}
+        className={chipClass(current === "home")}
       >
         <GaugeIcon {...icon} />
         Dashboard
@@ -45,7 +35,7 @@ export function SiteNav({ current }: { current: SiteNavCurrent }) {
           sort: "newest",
         })}
         aria-current={current === "runs" ? "page" : undefined}
-        className={tabClass(current === "runs")}
+        className={chipClass(current === "runs")}
       >
         <StackIcon {...icon} />
         Runs
@@ -53,7 +43,7 @@ export function SiteNav({ current }: { current: SiteNavCurrent }) {
       <Link
         href={configHref()}
         aria-current={current === "config" ? "page" : undefined}
-        className={tabClass(current === "config")}
+        className={chipClass(current === "config")}
       >
         <GearSixIcon {...icon} />
         Config
@@ -87,21 +77,21 @@ export function PageIntro({
   extra?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-      <div>
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
+      <div className="min-w-0">
         <h1 className="font-display text-3xl font-semibold tracking-[-0.03em] text-paper sm:text-4xl">
           {title}
         </h1>
-        <p className="mt-2 max-w-md text-sm text-muted">{children}</p>
+        <p className="mt-3 max-w-md text-sm leading-6 text-muted">{children}</p>
       </div>
-      {extra}
+      {extra ? <div className="shrink-0">{extra}</div> : null}
     </div>
   );
 }
 
 export function PageShell({ children }: { children: ReactNode }) {
   return (
-    <div className="mx-auto flex w-full min-w-0 max-w-5xl flex-1 flex-col gap-8 px-4 pb-10 sm:px-8">
+    <div className="mx-auto flex w-full min-w-0 max-w-5xl flex-1 flex-col gap-10 px-5 pb-12 sm:px-8">
       {children}
     </div>
   );

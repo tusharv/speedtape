@@ -18,9 +18,9 @@ const dashboardHref = "/app";
 const icon = { size: 15, weight: "regular" as const, "aria-hidden": true };
 
 const primaryCta =
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-copper bg-copper px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.16)] outline-none transition-[transform,background-color] hover:bg-paper hover:text-ink active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink";
+  "inline-flex w-full items-center justify-center gap-2 rounded-lg border border-copper bg-copper px-4 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.12em] text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.16)] outline-none transition-[transform,background-color] hover:bg-paper hover:text-ink active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:w-auto sm:whitespace-nowrap";
 const secondaryCta =
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-hairline px-3 py-2 text-[11px] font-medium uppercase tracking-[0.1em] text-paper outline-none transition-[transform,border-color,color] hover:border-copper hover:text-copper active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:px-4 sm:text-xs";
+  "inline-flex w-full items-center justify-center gap-2 rounded-lg border border-hairline px-3 py-2 text-center text-[11px] font-medium uppercase tracking-[0.1em] text-paper outline-none transition-[transform,border-color,color] hover:border-copper hover:text-copper active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:w-auto sm:whitespace-nowrap sm:px-4 sm:text-xs";
 
 const systemFacts = [
   {
@@ -64,7 +64,7 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
         nav={
           <nav
             aria-label="Landing"
-            className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto"
+            className="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:flex-row sm:items-center"
           >
             <a
               href={GITHUB_URL}
@@ -107,7 +107,7 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
           <div
             aria-label="24 hour signal"
             role="group"
-            className="min-w-0 rounded-lg border border-hairline bg-panel p-4 shadow-[0_28px_80px_-54px_rgba(15,118,110,0.7)] sm:p-6"
+            className="min-w-0 rounded-lg border border-hairline bg-panel p-5 shadow-[0_28px_80px_-54px_rgba(15,118,110,0.7)] sm:p-6"
           >
             <div className="mb-5 flex items-center justify-between gap-4 border-b border-hairline pb-4 font-mono text-[10px] uppercase tracking-[0.12em] text-muted">
               <span>24 hour signal</span>
@@ -144,11 +144,11 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
             </p>
           </div>
 
-          <dl className="grid content-start sm:grid-cols-2">
+          <dl className="grid content-start gap-x-8 sm:grid-cols-2">
             {systemFacts.map((fact) => (
               <div
                 key={fact.title}
-                className="border-t border-hairline py-6 sm:min-h-40 sm:px-5"
+                className="border-t border-hairline py-6 sm:min-h-40 sm:px-2"
               >
                 <dt className="font-medium text-paper">{fact.title}</dt>
                 <dd className="mt-2 text-sm leading-6 text-muted">{fact.body}</dd>
@@ -158,8 +158,8 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
         </section>
       </main>
 
-      <footer className="flex flex-col gap-5 border-t border-hairline py-7 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4">
+      <footer className="flex flex-col gap-5 border-t border-hairline py-8 text-xs leading-5 text-muted sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-4">
           <BrandLockup markSize="sm" className="text-sm" />
           <p>{LICENSE_LABEL}</p>
         </div>

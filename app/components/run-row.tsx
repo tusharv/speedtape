@@ -13,7 +13,7 @@ export function RunRow({ test }: { test: SpeedTestRow }) {
     <Link
       href={runDetailHref(test.id)}
       aria-label={`Run ${test.id}, ${failed ? "failed" : "ok"}, ${when}`}
-      className="flex flex-col gap-2 border border-hairline bg-panel px-4 py-3 hover:border-copper sm:flex-row sm:items-center sm:gap-4"
+      className="flex flex-col gap-3 rounded-lg border border-hairline bg-panel px-4 py-4 hover:border-copper sm:flex-row sm:items-center sm:gap-5"
     >
       <p className="w-16 shrink-0 font-mono text-[11px] text-copper">
         <TermTip term="run">{formatRunId(test.id)}</TermTip>

@@ -40,7 +40,7 @@ describe("Speedtape landing page", () => {
     });
     const html = renderToStaticMarkup(page);
 
-    expect(html).toContain("grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto");
+    expect(html).toContain("flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:flex-row sm:items-center");
     expect(html).toContain(
       "md:grid-cols-[minmax(0,0.76fr)_minmax(0,1.24fr)]",
     );

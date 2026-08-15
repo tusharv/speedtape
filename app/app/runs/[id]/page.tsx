@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeftIcon } from "@phosphor-icons/react/ssr";
+import { ghostBtn } from "@/app/components/chrome";
 import { RunPass } from "@/app/components/run-pass";
 import { PageShell, SiteHeader } from "@/app/components/site-nav";
 import { formatTime } from "@/app/components/stats";
@@ -47,7 +48,7 @@ export default async function RunDetailPage({
             ping: false,
             sort: "newest",
           })}
-          className="run-pass-chrome inline-flex w-fit items-center gap-1.5 border border-hairline px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-muted transition-[transform,color,border-color] hover:border-copper hover:text-paper active:translate-y-px"
+          className={`run-pass-chrome ${ghostBtn}`}
         >
           <ArrowLeftIcon size={14} weight="regular" aria-hidden />
           All runs

@@ -165,7 +165,7 @@ export function LandingCommands() {
       <div
         role="tablist"
         aria-label="Setup operating system"
-        className="flex gap-2 border-b border-hairline py-4"
+        className="flex flex-wrap gap-2 border-b border-hairline py-4"
       >
         <button
           type="button"
@@ -231,7 +231,7 @@ export function LandingCommands() {
                     feedbackTimeout.current = null;
                   }, COPY_FEEDBACK_MS);
                 }}
-                className="group flex w-full min-w-0 flex-col items-start gap-3 py-5 text-left outline-none transition-[color,transform] hover:text-copper active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-panel"
+                className="group flex w-full min-w-0 flex-col items-start gap-3 py-6 text-left outline-none transition-[color,transform] hover:text-copper active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-panel"
               >
                 <span className="flex w-full items-center justify-between gap-4">
                   <span className="flex items-center gap-2 text-sm font-medium text-paper group-hover:text-copper">

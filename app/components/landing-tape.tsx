@@ -90,10 +90,10 @@ export function LandingTape({ cells }: { cells: TapeCell[] }) {
   }
 
   return (
-    <div className="flex min-w-0 flex-col gap-4 overflow-x-clip">
+    <div className="flex min-w-0 flex-col gap-5 overflow-x-clip">
       <p
         id={labelId}
-        className="flex min-w-0 flex-col gap-0.5 font-mono text-sm text-paper sm:flex-row sm:flex-wrap sm:gap-x-3 sm:text-base"
+        className="flex min-w-0 flex-col gap-1 font-mono text-sm leading-6 text-paper sm:flex-row sm:flex-wrap sm:gap-x-4 sm:text-base"
       >
         {selected ? <HourReadout cell={selected} /> : null}
       </p>
@@ -114,10 +114,10 @@ export function LandingTape({ cells }: { cells: TapeCell[] }) {
         {groups.map((group, groupIndex) => (
           <div
             key={`${group.part}-${group.startIndex}`}
-            className={`flex min-w-0 flex-col justify-end overflow-hidden ${groupIndex > 0 ? "border-l border-hairline pl-1.5" : ""}`}
+            className={`flex min-w-0 flex-col justify-end overflow-hidden px-1.5 sm:px-2 ${groupIndex > 0 ? "border-l border-hairline" : "pl-0"}`}
             style={{ flexGrow: group.count, flexBasis: 0 }}
           >
-            <p className="mb-2 break-words text-[10px] leading-tight uppercase tracking-wider text-muted">
+            <p className="mb-3 min-h-8 break-words text-[10px] leading-snug uppercase tracking-wide text-muted">
               {DAY_PART_LABELS[group.part]}
             </p>
             <div className="flex h-28 items-end gap-px sm:h-44">
@@ -139,7 +139,7 @@ export function LandingTape({ cells }: { cells: TapeCell[] }) {
           </div>
         ))}
       </div>
-      <div className="flex justify-between font-mono text-[10px] uppercase tracking-wider text-muted">
+      <div className="flex justify-between font-mono text-[10px] uppercase tracking-wide text-muted">
         <span>24h ago</span>
         <span>now</span>
       </div>

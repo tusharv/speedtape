@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { chipClass, kicker } from "@/app/components/chrome";
 import { TermTip } from "@/app/components/term-tip";
 import { RANGE_LABELS, RANGES } from "@/lib/range";
 import { homeHref } from "@/lib/runs";
@@ -38,13 +39,13 @@ function Stat({
   unitTerm: TermKey;
 }) {
   return (
-    <div className="border border-hairline bg-panel px-4 py-4">
-      <p className="text-[11px] uppercase tracking-[0.2em] text-muted">
+    <div className="min-w-0 rounded-lg border border-hairline bg-panel px-5 py-5">
+      <p className={kicker}>
         <TermTip term={term}>{label}</TermTip>
       </p>
-      <p className="mt-2 font-display text-4xl leading-none text-amber sm:text-5xl">
-        {value}
-        <span className="ml-2 font-mono text-sm tracking-normal text-muted">
+      <p className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1 font-display text-4xl leading-tight text-amber sm:text-5xl">
+        <span>{value}</span>
+        <span className="font-mono text-sm font-normal tracking-normal text-muted">
           <TermTip term={unitTerm}>{unit}</TermTip>
         </span>
       </p>
@@ -66,11 +67,11 @@ function Triple({
   unitTerm: TermKey;
 }) {
   return (
-    <div>
-      <p className="text-[11px] uppercase tracking-[0.18em] text-muted">
+    <div className="min-w-0">
+      <p className={kicker}>
         <TermTip term={term}>{label}</TermTip>
       </p>
-      <p className="mt-1 text-sm text-paper">
+      <p className="mt-2 text-sm leading-6 text-paper">
         {formatMbps(stats.min)} / {formatMbps(stats.avg)} / {formatMbps(stats.max)}{" "}
         <span className="text-muted">
           <TermTip term={unitTerm}>{unit}</TermTip>
@@ -89,18 +90,14 @@ const RANGE_TERMS: Record<Range, TermKey> = {
 
 export function RangeTabs({ range }: { range: Range }) {
   return (
-    <nav aria-label="History range" className="flex flex-wrap gap-1">
+    <nav aria-label="History range" className="flex flex-wrap gap-2">
       {RANGES.map((value) => {
         const active = value === range;
         return (
           <Link
             key={value}
             href={homeHref(value)}
-            className={`border px-3 py-1 text-[11px] uppercase tracking-[0.16em] ${
-              active
-                ? "border-copper bg-copper text-white"
-                : "border-hairline text-muted hover:border-copper hover:text-paper"
-            }`}
+            className={chipClass(active)}
           >
             <TermTip term={RANGE_TERMS[value]}>{RANGE_LABELS[value]}</TermTip>
           </Link>

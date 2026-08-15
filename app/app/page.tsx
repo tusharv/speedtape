@@ -70,8 +70,8 @@ export default async function Home({
 
       {empty ? (
         <section className="rounded-lg border border-dashed border-hairline bg-panel px-6 py-10">
-          <h2 className="font-display text-3xl font-semibold text-paper">No readings yet</h2>
-          <p className="mt-3 max-w-lg text-sm leading-6 text-muted">
+          <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-paper">No readings yet</h2>
+          <p className="mt-4 max-w-lg text-sm leading-6 text-muted">
             Run a test now, or open{" "}
             <Link href={configHref()} className="text-copper hover:underline">
               Config
@@ -96,7 +96,7 @@ export default async function Home({
         </p>
       ) : null}
 
-      <section className="grid gap-3 sm:grid-cols-3">
+      <section className="grid gap-4 sm:grid-cols-3">
         <Stat
           label="Down"
           value={formatMbps(latestOk?.downloadMbps ?? null)}
@@ -120,11 +120,11 @@ export default async function Home({
         />
       </section>
 
-      <section className="flex min-w-0 flex-col gap-4 rounded-lg border border-hairline bg-raised px-4 py-5 sm:px-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="font-display text-2xl font-semibold text-paper">History</h2>
-            <p className="mt-1 text-xs text-muted">
+      <section className="flex min-w-0 flex-col gap-6 rounded-lg border border-hairline bg-raised px-5 py-6 sm:px-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+          <div className="min-w-0">
+            <h2 className="font-display text-2xl font-semibold tracking-[-0.03em] text-paper">History</h2>
+            <p className="mt-2 text-xs leading-5 text-muted">
               <TermTip term="minAvgMax">Min / avg / max</TermTip> from successful
               tests in this range
             </p>
@@ -155,7 +155,7 @@ export default async function Home({
           />
         </div>
         <SpeedChart points={data.chart} range={range} />
-        <div className="flex flex-col gap-3 border-t border-hairline pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 border-t border-hairline pt-5 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-muted">
             {data.latest?.isp ? (
               <>

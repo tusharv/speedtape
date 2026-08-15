@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ghostBtn, panel, sectionTitle } from "@/app/components/chrome";
 import { loadMoreRuns } from "@/app/actions";
 import { RunRow } from "@/app/components/run-row";
 import { RunToolbar } from "@/app/components/run-toolbar";
@@ -75,10 +76,10 @@ export function RunArchive({
   }, [hasMore, query, rows.length]);
 
   return (
-    <section className="flex flex-col gap-4 border border-hairline bg-raised px-4 py-5 sm:px-6">
+    <section className={`flex flex-col gap-5 ${panel}`}>
       <div>
-        <h2 className="font-display text-2xl text-paper">Archive</h2>
-        <p className="mt-1 text-xs text-muted">
+        <h2 className={sectionTitle}>Archive</h2>
+        <p className="mt-2 text-xs leading-5 text-muted">
           Every sample on this computer. Slow down and high ping use the all-time
           average.
         </p>
@@ -93,8 +94,8 @@ export function RunArchive({
       />
 
       {loadedTotal === 0 ? (
-        <div className="flex flex-col gap-3 border border-dashed border-hairline bg-panel px-4 py-6">
-          <p className="text-sm text-muted">
+        <div className="flex flex-col gap-3 rounded-lg border border-dashed border-hairline bg-panel px-5 py-6">
+          <p className="text-sm leading-6 text-muted">
             {filtersOn
               ? "No runs match these filters."
               : "No readings yet."}
@@ -112,21 +113,21 @@ export function RunArchive({
                   }),
                 )
               }
-              className="inline-flex w-fit items-center border border-hairline px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-muted hover:border-copper hover:text-paper"
+              className={ghostBtn}
             >
               Clear filters
             </button>
           ) : null}
         </div>
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {rows.map((test) => (
             <RunRow key={test.id} test={test} />
           ))}
         </div>
       )}
 
-      <div className="flex flex-col gap-2 border-t border-hairline pt-4">
+      <div className="flex flex-col gap-2 border-t border-hairline pt-5">
         <p className="text-xs text-muted">
           {loadedTotal === 0
             ? "0 of 0"

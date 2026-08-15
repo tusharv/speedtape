@@ -49,17 +49,17 @@ function Metric({
 }) {
   return (
     <div className="min-w-0">
-      <p className="inline-flex min-w-0 items-center gap-1 text-[10px] uppercase tracking-[0.08em] text-muted sm:gap-1.5 sm:text-[11px] sm:tracking-[0.16em]">
-        <Icon {...iconProps} />
+      <p className="inline-flex min-w-0 items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.12em] text-muted">
+        <Icon {...iconProps} className="shrink-0" />
         <TermTip term={term}>{label}</TermTip>
       </p>
       <p
-        className={`mt-2 break-words font-display text-2xl leading-none sm:text-3xl ${
+        className={`mt-2 flex flex-wrap items-baseline gap-x-1 gap-y-1 break-words font-display text-xl leading-tight sm:text-3xl ${
           accent ? "text-amber" : "text-paper"
         }`}
       >
-        {value}
-        <span className="ml-1 font-mono text-xs tracking-normal text-muted">
+        <span>{value}</span>
+        <span className="font-mono text-xs font-normal tracking-normal text-muted">
           <TermTip term={unitTerm}>{unit}</TermTip>
         </span>
       </p>
@@ -92,7 +92,7 @@ export function RunCard({ test }: { test: SpeedTestRow }) {
     <article
       id={runCardId(test.id)}
       aria-label={`Run ${test.id}, ${failed ? "failed" : "ok"}, ${when}`}
-      className={`run-card-ticket group relative flex h-full min-w-0 scroll-mt-6 flex-col border border-hairline bg-panel px-5 py-5 pl-6 transition-colors hover:border-copper ${
+      className={`run-card-ticket group relative flex h-full min-w-0 scroll-mt-6 flex-col overflow-hidden rounded-lg border border-hairline bg-panel px-5 py-6 pl-7 transition-colors hover:border-copper ${
         failed ? "run-card-ticket-void" : ""
       }`}
     >
@@ -109,23 +109,23 @@ export function RunCard({ test }: { test: SpeedTestRow }) {
         }`}
       />
 
-      <header className="flex flex-wrap items-center justify-between gap-2">
+      <header className="flex flex-wrap items-center justify-between gap-3">
         <p className="inline-flex items-center gap-1.5 text-xs text-muted">
           <TapeMark className="h-3.5 w-3.5" />
           <ClockIcon {...iconProps} />
           <time dateTime={test.testedAt}>{when}</time>
         </p>
-        <div className="flex items-center gap-2">
-          <p className="border border-hairline bg-raised px-2 py-0.5 font-mono text-[11px] text-copper">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="rounded-lg border border-hairline bg-raised px-2 py-1 font-mono text-[11px] text-copper">
             <TermTip term="run">{runLabel}</TermTip>
           </p>
           {failed ? (
-            <p className="inline-flex items-center gap-1 border border-fail/40 px-1.5 py-0.5 text-[11px] uppercase tracking-[0.16em] text-fail">
+            <p className="inline-flex items-center gap-1 rounded-lg border border-fail/40 px-2 py-1 text-[11px] uppercase tracking-[0.12em] text-fail">
               <WarningCircleIcon {...iconProps} />
               <TermTip term="failed">Failed</TermTip>
             </p>
           ) : (
-            <p className="inline-flex items-center gap-1 border border-up/40 px-1.5 py-0.5 text-[11px] uppercase tracking-[0.16em] text-up">
+            <p className="inline-flex items-center gap-1 rounded-lg border border-up/40 px-2 py-1 text-[11px] uppercase tracking-[0.12em] text-up">
               <CheckCircleIcon {...iconProps} />
               <TermTip term="ok">Ok</TermTip>
             </p>
@@ -133,7 +133,7 @@ export function RunCard({ test }: { test: SpeedTestRow }) {
         </div>
       </header>
 
-      <div className="mt-4 grid min-w-0 grid-cols-3 gap-2 sm:gap-3">
+      <div className="mt-5 grid min-w-0 grid-cols-3 gap-4">
         <Metric
           icon={ArrowDownIcon}
           label="Down"
@@ -161,12 +161,12 @@ export function RunCard({ test }: { test: SpeedTestRow }) {
         />
       </div>
       {failed ? (
-        <p className="mt-auto min-w-0 break-words border-t border-hairline pt-3 text-sm leading-6 text-fail">
+        <p className="mt-auto min-w-0 break-words border-t border-hairline pt-4 text-sm leading-6 text-fail">
           {formatSpeedtestError(test.error ?? "")}
         </p>
       ) : (
-        <div className="mt-auto flex flex-col gap-2 border-t border-hairline pt-3">
-          <div className="flex flex-wrap gap-x-4 gap-y-1">
+        <div className="mt-auto flex flex-col gap-3 border-t border-hairline pt-4">
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
             <Meta icon={WaveSineIcon}>
               <TermTip term="jitter">Jitter</TermTip>{" "}
               {formatMs(test.jitterMs)}{" "}
@@ -189,7 +189,7 @@ export function RunCard({ test }: { test: SpeedTestRow }) {
           </Meta>
         </div>
       )}
-      <div className="mt-3 flex items-center justify-between gap-2">
+      <div className="mt-4 flex items-center justify-between gap-3">
         <span className="run-card-tear min-w-0 flex-1" aria-hidden="true" />
         <p className="shrink-0 font-mono text-[9px] tracking-[0.16em] text-muted">
           {serial}
