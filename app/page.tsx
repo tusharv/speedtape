@@ -24,20 +24,39 @@ const secondaryCta =
 
 const systemFacts = [
   {
+    title: "Peak and off-peak",
+    body: "Collectors fire on an interval or at clock times, so busy evenings and quiet mornings both land in the record.",
+  },
+  {
+    title: "CSV for your ISP",
+    body: "Export every sample as a spreadsheet. Share it, chart it, or keep it with the ticket.",
+  },
+  {
+    title: "Failed runs stay",
+    body: "When a test cannot finish, the tape keeps the gap. Open the run to see when the line went down and when it came back.",
+  },
+  {
     title: "This computer only",
-    body: "Collectors are LaunchAgents on macOS or Task Scheduler on Windows, not a site you leave open.",
-  },
-  {
-    title: "Ookla Speedtest CLI",
-    body: "The same official CLI you run in Terminal. The browser never runs the test.",
-  },
-  {
-    title: "SQLite on disk",
     body: "Samples never leave this house. Phones on the same Wi-Fi can still watch the tape.",
   },
+] as const;
+
+const ispSteps = [
   {
-    title: "Tape, chart, runs",
-    body: "A day strip, history, and every test kept, on the schedule you set.",
+    title: "Baseline the day",
+    body: "Sample across one day, including hours when everyone is online and hours when they are not. A collector does this while you sleep.",
+  },
+  {
+    title: "Keep testing after you call",
+    body: "Providers often need a week of independent results, not a single screenshot. Stay on the schedule until the ticket closes.",
+  },
+  {
+    title: "Export CSV",
+    body: "Download the house record as a spreadsheet you can attach, chart, or print. Each run also has its own line pass.",
+  },
+  {
+    title: "Mark the outage",
+    body: "Failed samples stay in the tape. Open one to see when the line went down and when it came back.",
   },
 ] as const;
 
@@ -93,8 +112,8 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
               Know your line.
             </h1>
             <p className="mt-5 max-w-[38ch] text-base leading-7 text-muted sm:text-lg">
-              A continuous record of download, upload, and ping from the
-              computer in your house.
+              Scheduled tests across peak and off-peak hours. Evidence you can
+              take to your ISP.
             </p>
             <div className="mt-7">
               <Link href={dashboardHref} className={primaryCta}>
@@ -132,11 +151,29 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
           </div>
         </section>
 
+        <section className="border-t border-hairline py-14 md:py-20">
+          <h2 className="max-w-[18ch] font-display text-3xl font-semibold tracking-[-0.035em] text-paper md:text-4xl">
+            Show your provider the record.
+          </h2>
+          <p className="mt-3 max-w-[54ch] text-sm leading-6 text-muted">
+            One slow test is easy to dismiss. A week of independent samples,
+            on-peak and off-peak, is harder to ignore.
+          </p>
+          <ol className="mt-10 grid gap-x-10 gap-y-8 sm:grid-cols-2">
+            {ispSteps.map((step) => (
+              <li key={step.title} className="border-t border-hairline pt-5">
+                <h3 className="font-medium text-paper">{step.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-muted">{step.body}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
         <section className="grid gap-8 border-t border-hairline py-14 md:py-20 lg:grid-cols-[minmax(0,1.04fr)_minmax(0,0.96fr)] lg:gap-14">
           <div className="relative overflow-hidden rounded-lg border border-hairline bg-panel p-6 sm:p-8">
             <BrandMark size="lg" className="mb-16 opacity-90 sm:mb-24" />
             <h2 className="max-w-[18ch] font-display text-3xl font-semibold leading-[1.05] tracking-[-0.04em] text-paper sm:text-4xl md:text-5xl">
-              Close the dashboard. This computer keeps the record.
+              Close the dashboard. This computer keeps testing.
             </h2>
             <p className="mt-5 max-w-[50ch] text-sm leading-6 text-muted">
               macOS and Windows. Official Ookla Speedtest CLI. Not a test inside

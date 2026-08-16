@@ -27,15 +27,8 @@ export async function runTestNow() {
 }
 
 export async function loadMoreRuns(query: ArchiveQuery & { offset: number }) {
-  return loadArchive(
-    {
-      status: query.status,
-      slow: query.slow,
-      ping: query.ping,
-      sort: query.sort,
-    },
-    query.offset,
-  );
+  const { offset, ...archiveQuery } = query;
+  return loadArchive(archiveQuery, offset);
 }
 
 export async function addAgent(raw: {

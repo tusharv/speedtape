@@ -20,12 +20,18 @@ describe("Speedtape landing page", () => {
 
     expect(html).toContain("Know your line.");
     expect(html).toContain("Local network monitor");
+    expect(html).toContain("Evidence you can take to your ISP");
+    expect(html).toContain("peak and off-peak");
     expect(html).toContain('aria-label="24 hour signal"');
     expect(html).toContain("How it runs");
-    expect(html).toContain("Close the dashboard. This computer keeps the record.");
+    expect(html).toContain("Show your provider the record.");
+    expect(html).toContain("Export CSV");
+    expect(html).toContain("Mark the outage");
+    expect(html).toContain("Close the dashboard. This computer keeps testing.");
+    expect(html).toContain("CSV for your ISP");
+    expect(html).toContain("Failed runs stay");
     expect(html).toContain("This computer only");
     expect(html).toContain("macOS and Windows");
-    expect(html).toContain("SQLite on disk");
     expect(html).toContain('href="/app"');
     expect(html).toContain("View on GitHub");
     expect(html).toContain("MIT");
@@ -70,7 +76,7 @@ describe("Speedtape landing page", () => {
     const html = renderToStaticMarkup(page);
 
     expect(html.match(/<h1/g) ?? []).toHaveLength(1);
-    expect(html.match(/<h2/g) ?? []).toHaveLength(2);
+    expect(html.match(/<h2/g) ?? []).toHaveLength(3);
     expect(html.match(/<nav/g) ?? []).toHaveLength(2);
     expect(html.match(/href="\/app"/g) ?? []).toHaveLength(3);
   });

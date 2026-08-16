@@ -178,7 +178,7 @@ export default async function Home({
       </section>
 
       {data.preview.length > 0 ? (
-        <HistoryRuns tests={data.preview} />
+        <HistoryRuns tests={data.preview} range={range} />
       ) : null}
     </PageShell>
   );

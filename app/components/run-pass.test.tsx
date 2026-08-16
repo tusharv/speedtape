@@ -81,4 +81,68 @@ describe("RunPass", () => {
     expect(html).toContain(termText("failed"));
     expect(html).not.toContain("{&quot;error&quot;");
   });
+
+  it("shows when a failed run went down and when it came back", () => {
+    const html = renderToStaticMarkup(
+      <RunPass
+        test={failedRun('{"error":"Cannot open socket"}')}
+        outage={{
+          wentDownAt: "2026-08-13T02:00:00.000Z",
+          restoredAt: "2026-08-13T05:48:00.000Z",
+        }}
+      />,
+    );
+
+    expect(html).toContain("Went down");
+    expect(html).toContain("Restored");
+    expect(html).toContain('dateTime="2026-08-13T02:00:00.000Z"');
+    expect(html).toContain('dateTime="2026-08-13T05:48:00.000Z"');
+    expect(html).toContain("3h 48m");
+    expect(html).toContain(termText("wentDown"));
+  });
+
+  it("says still down when the outage has not restored", () => {
+    const html = renderToStaticMarkup(
+      <RunPass
+        test={failedRun("timeout")}
+        outage={{
+          wentDownAt: "2026-08-13T02:00:00.000Z",
+          restoredAt: null,
+        }}
+      />,
+    );
+
+    expect(html).toContain("Still down");
+    expect(html).not.toContain("3h 48m");
+  });
+
+  it("puts a sparkline between the barcode and serial", () => {
+    const neighbors = [
+      { ...okRun(), id: 41, testedAt: "2026-08-13T17:30:27.045Z" },
+      okRun(),
+      { ...okRun(), id: 43, testedAt: "2026-08-13T19:30:27.045Z" },
+    ];
+    const html = renderToStaticMarkup(
+      <RunPass test={okRun()} neighbors={neighbors} />,
+    );
+    const barcode = html.indexOf("flex h-9 items-end gap-px");
+    expect(barcode).toBeGreaterThan(-1);
+    const footer = html.slice(barcode);
+    const spark = footer.indexOf('data-sparkline="true"');
+    const serial = footer.indexOf("ST-0042");
+    const valid = footer.indexOf("Valid for this sample only. Keep with the house record.");
+    expect(spark).toBeGreaterThan(-1);
+    expect(serial).toBeGreaterThan(spark);
+    expect(valid).toBeGreaterThan(serial);
+    expect(html).not.toContain("Nearby runs");
+    expect(html).not.toContain("Last 5 runs");
+  });
+
+  it("hides nearby runs when this is the only sample", () => {
+    const html = renderToStaticMarkup(
+      <RunPass test={okRun()} neighbors={[okRun()]} />,
+    );
+    expect(html).toContain("Valid for this sample only. Keep with the house record.");
+    expect(html).not.toContain("Nearby runs");
+  });
 });

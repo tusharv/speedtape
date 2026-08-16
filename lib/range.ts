@@ -9,6 +9,6 @@ export const RANGE_LABELS: Record<Range, string> = {
   all: "All",
 };
 
-export function parseRange(value: string | undefined): Range {
-  return RANGES.includes(value as Range) ? (value as Range) : "24h";
+export function parseRange(value: string | undefined, fallback: Range = "24h"): Range {
+  return RANGES.includes(value as Range) ? (value as Range) : fallback;
 }

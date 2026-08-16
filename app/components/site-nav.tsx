@@ -7,7 +7,7 @@ import {
 } from "@phosphor-icons/react/ssr";
 import { BrandLockup } from "@/app/components/brand-lockup";
 import { chipClass } from "@/app/components/chrome";
-import { archiveHref, configHref, homeHref } from "@/lib/runs";
+import { DEFAULT_ARCHIVE_QUERY, archiveHref, configHref, homeHref } from "@/lib/runs";
 
 const icon = { size: 14, weight: "regular" as const, "aria-hidden": true };
 
@@ -28,12 +28,7 @@ export function SiteNav({ current }: { current: SiteNavCurrent }) {
         Dashboard
       </Link>
       <Link
-        href={archiveHref({
-          status: "all",
-          slow: false,
-          ping: false,
-          sort: "newest",
-        })}
+        href={archiveHref(DEFAULT_ARCHIVE_QUERY)}
         aria-current={current === "runs" ? "page" : undefined}
         className={chipClass(current === "runs")}
       >

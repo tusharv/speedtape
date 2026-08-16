@@ -20,6 +20,9 @@ export default async function RunsPage({ searchParams }: PageProps<"/app/runs">)
   await connection();
   const params = await searchParams;
   const query = parseArchiveQuery({
+    range: firstString(params.range),
+    from: firstString(params.from),
+    to: firstString(params.to),
     status: firstString(params.status),
     slow: firstString(params.slow),
     ping: firstString(params.ping),
@@ -31,10 +34,11 @@ export default async function RunsPage({ searchParams }: PageProps<"/app/runs">)
     <PageShell>
       <SiteHeader current="runs" />
       <PageIntro title="All runs">
-        Scroll for older samples. Open a row for jitter, loss, server, and ISP.
+        Pick start and end days, then Save CSV to share those days with your
+        ISP. Open a row for jitter, loss, outage times, and nearby runs.
       </PageIntro>
       <RunArchive
-        key={`${query.status}-${query.slow}-${query.ping}-${query.sort}`}
+        key={`${query.range}-${query.from}-${query.to}-${query.status}-${query.slow}-${query.ping}-${query.sort}`}
         query={query}
         summary={data.summary}
         initialRows={data.rows}

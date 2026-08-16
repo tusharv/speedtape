@@ -71,7 +71,7 @@ The computer must be **awake** for scheduled tests. Sleeping skips the job. Clos
 
 ## Dashboard
 
-`/app` shows the latest download, upload, and ping, a 24-hour speed tape, a history chart (24h / 7d / 30d / all), and a Runs list of each sample. `/app/config` adds and removes collectors. Filter Runs by status, slow download, or high ping (relative to the range average). Sort newest, oldest, slowest download, or highest ping. Failed tests are stored as error rows so gaps stay visible.
+`/app` shows the latest download, upload, and ping, a 24-hour speed tape, a history chart (24h / 7d / 30d / all), and a Runs list of each sample. `/app/runs` is the archive: pick start and end days, or a 24h / 7d / 30d window, then filter by status, slow download, or high ping, and Save CSV for that window. `/app/config` adds and removes collectors. Sort newest, oldest, slowest download, or highest ping. Failed tests are stored as error rows so gaps stay visible. Open a failed run to see when the line went down and when it came back.
 
 ## Scripts
 

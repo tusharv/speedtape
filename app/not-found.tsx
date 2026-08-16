@@ -2,7 +2,7 @@ import Link from "next/link";
 import { GaugeIcon, StackIcon } from "@phosphor-icons/react/ssr";
 import { chipClass } from "@/app/components/chrome";
 import { PageIntro, PageShell, SiteHeader } from "@/app/components/site-nav";
-import { archiveHref, homeHref } from "@/lib/runs";
+import { DEFAULT_ARCHIVE_QUERY, archiveHref, homeHref } from "@/lib/runs";
 
 const icon = { size: 14, weight: "regular" as const, "aria-hidden": true };
 
@@ -22,12 +22,7 @@ export default function NotFound() {
           Home
         </Link>
         <Link
-          href={archiveHref({
-            status: "all",
-            slow: false,
-            ping: false,
-            sort: "newest",
-          })}
+          href={archiveHref(DEFAULT_ARCHIVE_QUERY)}
           className={chipClass(false)}
         >
           <StackIcon {...icon} />

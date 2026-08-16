@@ -2,13 +2,17 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { FileCsvIcon } from "@phosphor-icons/react/ssr";
 import { ghostBtn, panel, sectionTitle } from "@/app/components/chrome";
 import { loadMoreRuns } from "@/app/actions";
 import { RunRow } from "@/app/components/run-row";
 import { RunToolbar } from "@/app/components/run-toolbar";
+import { RangeTabs } from "@/app/components/stats";
 import type { Summary } from "@/lib/db";
 import {
+  DEFAULT_ARCHIVE_QUERY,
   archiveHref,
+  exportHref,
   type ArchiveQuery,
 } from "@/lib/runs";
 import type { SpeedTestRow } from "@/lib/types";
@@ -34,7 +38,12 @@ export function RunArchive({
   const pingEnabled = summary.ping.avg !== null;
   const hasMore = rows.length < loadedTotal;
   const filtersOn =
-    query.status !== "all" || query.slow || query.ping;
+    query.range !== "all" ||
+    query.from !== null ||
+    query.to !== null ||
+    query.status !== "all" ||
+    query.slow ||
+    query.ping;
 
   useEffect(() => {
     const node = sentinelRef.current;
@@ -47,10 +56,7 @@ export function RunArchive({
         setLoading(true);
         void loadMoreRuns({
           offset: rows.length,
-          status: query.status,
-          slow: query.slow,
-          ping: query.ping,
-          sort: query.sort,
+          ...query,
         }).then((next) => {
           setRows((current) => {
             if (next.rows.length === 0) {
@@ -77,13 +83,27 @@ export function RunArchive({
 
   return (
     <section className={`flex flex-col gap-5 ${panel}`}>
-      <div>
-        <h2 className={sectionTitle}>Archive</h2>
-        <p className="mt-2 text-xs leading-5 text-muted">
-          Every sample on this computer. Slow down and high ping use the all-time
-          average.
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
+        <div className="min-w-0">
+          <h2 className={sectionTitle}>Archive</h2>
+          <p className="mt-2 text-xs leading-5 text-muted">
+            Samples in this window. Pick start and end days, or use 24h / 7d /
+            30d. Slow down and high ping use this range average. Save CSV to
+            share those days with your ISP.
+          </p>
+        </div>
+        <a href={exportHref(query)} className={ghostBtn}>
+          <FileCsvIcon size={14} weight="regular" aria-hidden />
+          Save CSV
+        </a>
       </div>
+      <RangeTabs
+        range={query.from || query.to ? null : query.range}
+        label="Archive range"
+        hrefFor={(range) =>
+          archiveHref({ ...query, range, from: null, to: null })
+        }
+      />
       <RunToolbar
         query={query}
         slowEnabled={slowEnabled}
@@ -106,9 +126,7 @@ export function RunArchive({
               onClick={() =>
                 router.replace(
                   archiveHref({
-                    status: "all",
-                    slow: false,
-                    ping: false,
+                    ...DEFAULT_ARCHIVE_QUERY,
                     sort: query.sort,
                   }),
                 )

@@ -1,10 +1,17 @@
 import Link from "next/link";
+import { FileCsvIcon } from "@phosphor-icons/react/ssr";
 import { ghostBtn, panel, sectionTitle } from "@/app/components/chrome";
 import { RunCard } from "@/app/components/run-card";
-import { archiveHref, runDetailHref } from "@/lib/runs";
-import type { SpeedTestRow } from "@/lib/types";
+import { DEFAULT_ARCHIVE_QUERY, archiveHref, exportHref, runDetailHref } from "@/lib/runs";
+import type { Range, SpeedTestRow } from "@/lib/types";
 
-export function HistoryRuns({ tests }: { tests: SpeedTestRow[] }) {
+export function HistoryRuns({
+  tests,
+  range,
+}: {
+  tests: SpeedTestRow[];
+  range: Range;
+}) {
   return (
     <section className={`flex flex-col gap-5 ${panel}`}>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
@@ -14,17 +21,29 @@ export function HistoryRuns({ tests }: { tests: SpeedTestRow[] }) {
             Latest samples in this range. Open a card for the full reading.
           </p>
         </div>
-        <Link
-          href={archiveHref({
-            status: "all",
-            slow: false,
-            ping: false,
-            sort: "newest",
-          })}
-          className={ghostBtn}
-        >
-          All runs
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <a
+            href={exportHref({
+              range,
+              from: null,
+              to: null,
+              status: "all",
+              slow: false,
+              ping: false,
+              sort: "newest",
+            })}
+            className={ghostBtn}
+          >
+            <FileCsvIcon size={14} weight="regular" aria-hidden />
+            Save CSV
+          </a>
+          <Link
+            href={archiveHref(DEFAULT_ARCHIVE_QUERY)}
+            className={ghostBtn}
+          >
+            All runs
+          </Link>
+        </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         {tests.map((test) => (

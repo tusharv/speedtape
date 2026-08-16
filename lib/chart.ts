@@ -1,4 +1,7 @@
+import type { SpeedTestRow } from "@/lib/types";
+
 export const CHART_MAX_POINTS = 96;
+export const NEIGHBOR_RUN_LIMIT = 5;
 
 export type ChartPoint = {
   time: string;
@@ -27,4 +30,26 @@ export function downsampleChart(
     buckets[index] = point;
   }
   return buckets.filter((point): point is ChartPoint => point !== undefined);
+}
+
+export function neighborRuns(
+  previousNewestFirst: SpeedTestRow[],
+  current: SpeedTestRow,
+  nextOldestFirst: SpeedTestRow[],
+  limit = NEIGHBOR_RUN_LIMIT,
+): SpeedTestRow[] {
+  return [
+    ...previousNewestFirst.slice(0, limit).reverse(),
+    current,
+    ...nextOldestFirst.slice(0, limit),
+  ];
+}
+
+export function runsToChartPoints(rows: SpeedTestRow[]): ChartPoint[] {
+  return rows.map((row) => ({
+    time: row.testedAt,
+    download: row.downloadMbps,
+    upload: row.uploadMbps,
+    ping: row.pingMs,
+  }));
 }

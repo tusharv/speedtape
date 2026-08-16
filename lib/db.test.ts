@@ -8,6 +8,9 @@ import {
   getSpeedTest,
   insertSpeedTest,
   listChartPoints,
+  listOutageContext,
+  listPreviousSpeedTests,
+  listNextSpeedTests,
   listRecentSpeedTests,
   listSpeedTests,
   listSpeedTestsPage,
@@ -17,6 +20,7 @@ import {
   summarizeRange,
   type SpeedTestRecord,
 } from "@/lib/db";
+import { PREVIOUS_RUN_LIMIT } from "@/lib/outage";
 
 const tmpDirs: string[] = [];
 
@@ -319,6 +323,85 @@ describe("speed test database", () => {
         upload: 20,
         ping: 8,
       },
+    ]);
+    db.close();
+  });
+
+  it("lists the five previous runs newest first", () => {
+    const db = openDatabase(tempDbPath());
+    const inserted = [];
+    for (let hour = 1; hour <= 8; hour += 1) {
+      inserted.push(
+        insertSpeedTest(
+          db,
+          sample({
+            testedAt: `2026-08-13T${String(hour).padStart(2, "0")}:00:00.000Z`,
+            downloadMbps: hour,
+          }),
+        ),
+      );
+    }
+    const current = inserted[7];
+    if (!current) throw new Error("expected current run");
+    const previous = listPreviousSpeedTests(db, current);
+    expect(previous).toHaveLength(PREVIOUS_RUN_LIMIT);
+    expect(previous.map((row) => row.downloadMbps)).toEqual([7, 6, 5, 4, 3]);
+
+    const mid = inserted[2];
+    if (!mid) throw new Error("expected mid run");
+    const next = listNextSpeedTests(db, mid);
+    expect(next).toHaveLength(PREVIOUS_RUN_LIMIT);
+    expect(next.map((row) => row.downloadMbps)).toEqual([4, 5, 6, 7, 8]);
+    db.close();
+  });
+
+  it("loads the outage streak around a failed run", () => {
+    const db = openDatabase(tempDbPath());
+    insertSpeedTest(
+      db,
+      sample({ testedAt: "2026-08-13T01:00:00.000Z", downloadMbps: 100 }),
+    );
+    insertSpeedTest(
+      db,
+      sample({
+        testedAt: "2026-08-13T02:00:00.000Z",
+        downloadMbps: null,
+        uploadMbps: null,
+        pingMs: null,
+        error: "timeout",
+      }),
+    );
+    const current = insertSpeedTest(
+      db,
+      sample({
+        testedAt: "2026-08-13T03:00:00.000Z",
+        downloadMbps: null,
+        uploadMbps: null,
+        pingMs: null,
+        error: "timeout",
+      }),
+    );
+    insertSpeedTest(
+      db,
+      sample({
+        testedAt: "2026-08-13T04:00:00.000Z",
+        downloadMbps: null,
+        uploadMbps: null,
+        pingMs: null,
+        error: "timeout",
+      }),
+    );
+    insertSpeedTest(
+      db,
+      sample({ testedAt: "2026-08-13T05:00:00.000Z", downloadMbps: 90 }),
+    );
+
+    const context = listOutageContext(db, current);
+    expect(context.map((row) => row.testedAt)).toEqual([
+      "2026-08-13T02:00:00.000Z",
+      "2026-08-13T03:00:00.000Z",
+      "2026-08-13T04:00:00.000Z",
+      "2026-08-13T05:00:00.000Z",
     ]);
     db.close();
   });

@@ -7,8 +7,8 @@ import { ghostBtn } from "@/app/components/chrome";
 import { RunPass } from "@/app/components/run-pass";
 import { PageShell, SiteHeader } from "@/app/components/site-nav";
 import { formatTime } from "@/app/components/stats";
-import { loadRun } from "@/lib/dashboard";
-import { archiveHref, formatRunId, parseRunId } from "@/lib/runs";
+import { loadRun, loadRunDetail } from "@/lib/dashboard";
+import { DEFAULT_ARCHIVE_QUERY, archiveHref, formatRunId, parseRunId } from "@/lib/runs";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -34,26 +34,25 @@ export default async function RunDetailPage({
   const { id: rawId } = await params;
   const id = parseRunId(rawId);
   if (id === null) notFound();
-  const test = loadRun(id);
-  if (!test) notFound();
+  const detail = loadRunDetail(id);
+  if (!detail) notFound();
 
   return (
     <PageShell>
       <SiteHeader current="runs" />
       <div className="flex flex-col gap-4">
         <Link
-          href={archiveHref({
-            status: "all",
-            slow: false,
-            ping: false,
-            sort: "newest",
-          })}
+          href={archiveHref(DEFAULT_ARCHIVE_QUERY)}
           className={`run-pass-chrome ${ghostBtn}`}
         >
           <ArrowLeftIcon size={14} weight="regular" aria-hidden />
           All runs
         </Link>
-        <RunPass test={test} />
+        <RunPass
+          test={detail.test}
+          outage={detail.outage}
+          neighbors={detail.neighbors}
+        />
       </div>
     </PageShell>
   );

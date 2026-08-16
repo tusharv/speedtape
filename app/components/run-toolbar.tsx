@@ -3,6 +3,7 @@
 import type { ChangeEvent } from "react";
 import {
   ArrowDownIcon,
+  CalendarBlankIcon,
   CaretDownIcon,
   CheckCircleIcon,
   ClockCounterClockwiseIcon,
@@ -14,6 +15,7 @@ import {
   StackIcon,
   WarningCircleIcon,
 } from "@phosphor-icons/react/ssr";
+import { formatDay } from "@/lib/days";
 import type { ArchiveQuery, RunSort, RunStatus } from "@/lib/runs";
 import { TermTip } from "@/app/components/term-tip";
 import { kicker } from "@/app/components/chrome";
@@ -32,6 +34,9 @@ const SORTS: { value: RunSort; label: string }[] = [
   { value: "slowest-down", label: "Slowest download" },
   { value: "highest-ping", label: "Highest ping" },
 ];
+
+const dateClass =
+  "w-full min-w-0 rounded-lg border border-hairline bg-panel px-3 py-2.5 font-sans text-sm leading-5 text-paper outline-none [color-scheme:inherit] hover:border-copper focus:border-copper";
 
 const selectClass =
   "w-full min-w-0 appearance-none rounded-lg border border-hairline bg-panel py-2.5 pl-10 pr-10 font-sans text-sm leading-5 text-paper outline-none [color-scheme:inherit] hover:border-copper focus:border-copper";
@@ -70,8 +75,45 @@ export function RunToolbar({
     onUpdate({ sort: event.target.value as RunSort });
   }
 
+  function onDay(key: "from" | "to", value: string) {
+    onUpdate({ [key]: value === "" ? null : value, range: "all" });
+  }
+
+  const today = formatDay();
+
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="flex flex-col gap-4">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="flex min-w-0 flex-col gap-2">
+          <span className={`inline-flex items-center gap-1.5 ${kicker}`}>
+            <CalendarBlankIcon {...icon} />
+            Start date
+          </span>
+          <input
+            type="date"
+            value={query.from ?? ""}
+            max={query.to ?? today}
+            onChange={(event) => onDay("from", event.target.value)}
+            className={dateClass}
+          />
+        </label>
+        <label className="flex min-w-0 flex-col gap-2">
+          <span className={`inline-flex items-center gap-1.5 ${kicker}`}>
+            <CalendarBlankIcon {...icon} />
+            End date
+          </span>
+          <input
+            type="date"
+            value={query.to ?? ""}
+            min={query.from ?? undefined}
+            max={today}
+            onChange={(event) => onDay("to", event.target.value)}
+            className={dateClass}
+          />
+        </label>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <label className="flex min-w-0 flex-col gap-2">
         <span className={`inline-flex items-center gap-1.5 ${kicker}`}>
           <FunnelIcon {...icon} />
@@ -131,7 +173,7 @@ export function RunToolbar({
           <label
             title={
               slowEnabled
-                ? "Show runs slower than the all-time average"
+                ? "Show runs slower than this range average"
                 : "Needs a download average"
             }
             className={`inline-flex min-w-0 items-center gap-2 rounded-lg border bg-panel px-3 py-2.5 text-sm ${
@@ -153,7 +195,7 @@ export function RunToolbar({
           <label
             title={
               pingEnabled
-                ? "Show runs with ping above the all-time average"
+                ? "Show runs with ping above this range average"
                 : "Needs a ping average"
             }
             className={`inline-flex min-w-0 items-center gap-2 rounded-lg border bg-panel px-3 py-2.5 text-sm ${
@@ -174,6 +216,7 @@ export function RunToolbar({
           </label>
         </div>
       </fieldset>
+      </div>
     </div>
   );
 }

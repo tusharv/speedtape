@@ -3,8 +3,11 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { PrinterIcon } from "@phosphor-icons/react/ssr";
 import { ghostBtn, kicker } from "@/app/components/chrome";
+import { SpeedChart } from "@/app/components/speed-chart";
 import { formatMbps, formatMs, formatTime } from "@/app/components/stats";
 import { TapeMark, passSerial } from "@/app/components/tape-mark";
+import { runsToChartPoints } from "@/lib/chart";
+import { formatOutageDuration, type OutageWindow } from "@/lib/outage";
 import { formatRunId } from "@/lib/runs";
 import { formatSpeedtestError } from "@/lib/speedtest-error";
 import { APP_NAME } from "@/lib/site";
@@ -96,13 +99,23 @@ function PassBars({ test }: { test: SpeedTestRow }) {
   );
 }
 
-export function RunPass({ test }: { test: SpeedTestRow }) {
+export function RunPass({
+  test,
+  outage = null,
+  neighbors = [],
+}: {
+  test: SpeedTestRow;
+  outage?: OutageWindow | null;
+  neighbors?: SpeedTestRow[];
+}) {
   const failed = test.error !== null;
   const when = formatTime(test.testedAt);
   const runLabel = formatRunId(test.id);
   const serial = passSerial(test.id);
   const statusTerm: TermKey = failed ? "failed" : "ok";
-  const [active, setActive] = useState<TermKey>(statusTerm === "failed" ? "failed" : "download");
+  const [active, setActive] = useState<TermKey>(
+    outage ? "wentDown" : statusTerm === "failed" ? "failed" : "download",
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -215,6 +228,50 @@ export function RunPass({ test }: { test: SpeedTestRow }) {
               />
             </div>
 
+            {outage ? (
+              <div className="grid grid-cols-1 gap-3 border-b border-hairline py-4 sm:grid-cols-3">
+                <PassField
+                  term="wentDown"
+                  label="Went down"
+                  value={
+                    <time dateTime={outage.wentDownAt}>
+                      {formatTime(outage.wentDownAt)}
+                    </time>
+                  }
+                  active={active === "wentDown"}
+                  onInspect={setActive}
+                  size="ticket"
+                />
+                <PassField
+                  term="restored"
+                  label="Restored"
+                  value={
+                    outage.restoredAt ? (
+                      <time dateTime={outage.restoredAt}>
+                        {formatTime(outage.restoredAt)}
+                      </time>
+                    ) : (
+                      "Still down"
+                    )
+                  }
+                  active={active === "restored"}
+                  onInspect={setActive}
+                  size="ticket"
+                />
+                <PassField
+                  term="outage"
+                  label="Outage"
+                  value={formatOutageDuration(
+                    outage.wentDownAt,
+                    outage.restoredAt,
+                  )}
+                  active={active === "outage"}
+                  onInspect={setActive}
+                  size="ticket"
+                />
+              </div>
+            ) : null}
+
             <div className="grid grid-cols-2 gap-3 py-4 sm:grid-cols-5">
               <PassField
                 term="download"
@@ -299,9 +356,21 @@ export function RunPass({ test }: { test: SpeedTestRow }) {
 
             <div className="mt-4 border-t border-dashed border-hairline pt-4">
               <div className="run-pass-foil mb-4" aria-hidden="true" />
-              <div className="flex items-end justify-between gap-4">
+              <div className="flex items-end gap-3">
                 <PassBars test={test} />
-                <p className="shrink-0 font-mono text-[10px] tracking-[0.18em] text-muted">
+                {neighbors.length >= 2 ? (
+                  <div className="min-w-0 flex-1">
+                    <SpeedChart
+                      points={runsToChartPoints(neighbors)}
+                      range="24h"
+                      highlightTime={test.testedAt}
+                      sparkline
+                    />
+                  </div>
+                ) : (
+                  <div className="min-w-0 flex-1" />
+                )}
+                <p className="shrink-0 pb-px font-mono text-[10px] tracking-[0.18em] text-muted">
                   {serial}
                 </p>
               </div>

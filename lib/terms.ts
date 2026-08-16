@@ -25,6 +25,12 @@ export const TERMS = {
   agent:
     "A collector on this computer that runs a speed test on a schedule even when the dashboard is closed.",
   run: "One speed test. Each hourly sample gets its own number.",
+  wentDown:
+    "The first failed sample in this stretch of downtime. That is when the line dropped.",
+  restored:
+    "The first successful sample after the line came back. Empty means it is still down.",
+  outage:
+    "How long the line stayed down, from the first failed sample to the first successful one.",
 } as const;
 
 export type TermKey = keyof typeof TERMS;

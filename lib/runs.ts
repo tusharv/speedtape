@@ -1,4 +1,5 @@
 import type { Summary } from "@/lib/db";
+import { orderedDays, parseDay } from "@/lib/days";
 import { parseRange } from "@/lib/range";
 import type { Range, SpeedTestRow } from "@/lib/types";
 
@@ -6,14 +7,26 @@ export type RunStatus = "all" | "ok" | "failed";
 export type RunSort = "newest" | "oldest" | "slowest-down" | "highest-ping";
 
 export type ArchiveQuery = {
+  range: Range;
+  from: string | null;
+  to: string | null;
   status: RunStatus;
   slow: boolean;
   ping: boolean;
   sort: RunSort;
 };
 
+export const DEFAULT_ARCHIVE_QUERY: ArchiveQuery = {
+  range: "all",
+  from: null,
+  to: null,
+  status: "all",
+  slow: false,
+  ping: false,
+  sort: "newest",
+};
+
 export type RunQuery = ArchiveQuery & {
-  range: Range;
   page: number;
 };
 
@@ -27,6 +40,8 @@ export const PAGE_SIZE = 24;
 
 export type RunSearchParams = {
   range?: string;
+  from?: string;
+  to?: string;
   status?: string;
   slow?: string;
   ping?: string;
@@ -59,7 +74,12 @@ export function parseRunQuery(params: RunSearchParams): RunQuery {
 }
 
 export function parseArchiveQuery(params: RunSearchParams): ArchiveQuery {
+  const days = orderedDays(parseDay(params.from), parseDay(params.to));
+  const customDays = days.from !== null || days.to !== null;
   return {
+    range: customDays ? "all" : parseRange(params.range, "all"),
+    from: days.from,
+    to: days.to,
     status: parseStatus(params.status),
     slow: params.slow === "1",
     ping: params.ping === "1",
@@ -111,14 +131,28 @@ export function configHref(): string {
   return "/app/config";
 }
 
-export function archiveHref(query: ArchiveQuery): string {
+function archiveSearch(query: ArchiveQuery): string {
   const params = new URLSearchParams();
+  if (query.from) params.set("from", query.from);
+  if (query.to) params.set("to", query.to);
+  if (!query.from && !query.to && query.range !== "all") {
+    params.set("range", query.range);
+  }
   if (query.status !== "all") params.set("status", query.status);
   if (query.slow) params.set("slow", "1");
   if (query.ping) params.set("ping", "1");
   if (query.sort !== "newest") params.set("sort", query.sort);
-  const qs = params.toString();
+  return params.toString();
+}
+
+export function archiveHref(query: ArchiveQuery): string {
+  const qs = archiveSearch(query);
   return qs ? `/app/runs?${qs}` : "/app/runs";
+}
+
+export function exportHref(query: ArchiveQuery): string {
+  const qs = archiveSearch(query);
+  return qs ? `/app/runs/export?${qs}` : "/app/runs/export";
 }
 
 export function runDetailHref(id: number): string {

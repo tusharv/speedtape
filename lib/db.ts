@@ -2,7 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 import Database from "better-sqlite3";
 import type { ChartPoint } from "@/lib/chart";
+import { dayEndExclusiveIso, dayStartIso, orderedDays } from "@/lib/days";
 import { prepareDatabasePath } from "@/lib/migrate";
+import { PREVIOUS_RUN_LIMIT } from "@/lib/outage";
 import { defaultDbPath } from "@/lib/paths";
 import type { Range, SpeedTestRecord, SpeedTestRow } from "@/lib/types";
 
@@ -130,12 +132,122 @@ export function getSpeedTest(
   return row ? mapRow(row) : null;
 }
 
+function afterRowSql(row: SpeedTestRow): { sql: string; params: unknown[] } {
+  return {
+    sql: `(tested_at > ? OR (tested_at = ? AND id > ?))`,
+    params: [row.testedAt, row.testedAt, row.id],
+  };
+}
+
+function beforeRowSql(row: SpeedTestRow): { sql: string; params: unknown[] } {
+  return {
+    sql: `(tested_at < ? OR (tested_at = ? AND id < ?))`,
+    params: [row.testedAt, row.testedAt, row.id],
+  };
+}
+
+export function listPreviousSpeedTests(
+  db: Database.Database,
+  current: SpeedTestRow,
+  limit = PREVIOUS_RUN_LIMIT,
+): SpeedTestRow[] {
+  const before = beforeRowSql(current);
+  const rows = db
+    .prepare(
+      `SELECT * FROM speed_tests
+       WHERE ${before.sql}
+       ORDER BY tested_at DESC, id DESC
+       LIMIT ?`,
+    )
+    .all(...before.params, limit) as DbRow[];
+  return rows.map(mapRow);
+}
+
+export function listNextSpeedTests(
+  db: Database.Database,
+  current: SpeedTestRow,
+  limit = PREVIOUS_RUN_LIMIT,
+): SpeedTestRow[] {
+  const after = afterRowSql(current);
+  const rows = db
+    .prepare(
+      `SELECT * FROM speed_tests
+       WHERE ${after.sql}
+       ORDER BY tested_at ASC, id ASC
+       LIMIT ?`,
+    )
+    .all(...after.params, limit) as DbRow[];
+  return rows.map(mapRow);
+}
+
+export function listOutageContext(
+  db: Database.Database,
+  current: SpeedTestRow,
+): SpeedTestRow[] {
+  const before = beforeRowSql(current);
+  const after = afterRowSql(current);
+  const lastOk = db
+    .prepare(
+      `SELECT * FROM speed_tests
+       WHERE error IS NULL AND ${before.sql}
+       ORDER BY tested_at DESC, id DESC
+       LIMIT 1`,
+    )
+    .get(...before.params) as DbRow | undefined;
+  const firstOk = db
+    .prepare(
+      `SELECT * FROM speed_tests
+       WHERE error IS NULL AND ${after.sql}
+       ORDER BY tested_at ASC, id ASC
+       LIMIT 1`,
+    )
+    .get(...after.params) as DbRow | undefined;
+
+  const clauses: string[] = [];
+  const params: unknown[] = [];
+  if (lastOk) {
+    const afterLastOk = afterRowSql(mapRow(lastOk));
+    clauses.push(afterLastOk.sql);
+    params.push(...afterLastOk.params);
+  }
+  if (firstOk) {
+    clauses.push(`(tested_at < ? OR (tested_at = ? AND id <= ?))`);
+    params.push(firstOk.tested_at, firstOk.tested_at, firstOk.id);
+  }
+  const where = clauses.length > 0 ? `WHERE ${clauses.join(" AND ")}` : "";
+  const rows = db
+    .prepare(
+      `SELECT * FROM speed_tests ${where} ORDER BY tested_at ASC, id ASC`,
+    )
+    .all(...params) as DbRow[];
+  return rows.map(mapRow);
+}
+
 export const HOME_PREVIEW_SIZE = 24;
 export const ARCHIVE_PAGE_SIZE = 50;
 
 function rangeSince(range: Range, now: Date): string | null {
   if (range === "all") return null;
   return new Date(now.getTime() - RANGE_MS[range]).toISOString();
+}
+
+export function timeBounds(opts: {
+  range: Range;
+  from: string | null;
+  to: string | null;
+  now?: Date;
+}): { since: string | null; until: string | null } {
+  if (opts.from || opts.to) {
+    const { from, to } = orderedDays(opts.from, opts.to);
+    return {
+      since: from ? dayStartIso(from) : null,
+      until: to ? dayEndExclusiveIso(to) : null,
+    };
+  }
+  return {
+    since: rangeSince(opts.range, opts.now ?? new Date()),
+    until: null,
+  };
 }
 
 export function listSpeedTests(
@@ -231,6 +343,8 @@ export function listChartPoints(
 
 export type SpeedTestPageQuery = {
   range: Range;
+  from?: string | null;
+  to?: string | null;
   status: "all" | "ok" | "failed";
   slow: boolean;
   ping: boolean;
@@ -253,10 +367,19 @@ function pageWhere(query: SpeedTestPageQuery, now: Date): {
 } {
   const clauses: string[] = [];
   const params: unknown[] = [];
-  const since = rangeSince(query.range, now);
+  const { since, until } = timeBounds({
+    range: query.range,
+    from: query.from ?? null,
+    to: query.to ?? null,
+    now,
+  });
   if (since) {
     clauses.push("tested_at >= ?");
     params.push(since);
+  }
+  if (until) {
+    clauses.push("tested_at < ?");
+    params.push(until);
   }
   if (query.status === "ok") clauses.push("error IS NULL");
   if (query.status === "failed") clauses.push("error IS NOT NULL");
@@ -367,50 +490,36 @@ type SummaryRow = {
   ping_max: number | null;
 };
 
-export function summarizeRange(
+export function summarizeWindow(
   db: Database.Database,
-  range: Range,
-  now = new Date(),
+  window: { since: string | null; until: string | null },
 ): Summary {
-  const since = rangeSince(range, now);
-  const where = since
-    ? `WHERE error IS NULL AND download_mbps IS NOT NULL AND tested_at >= ?`
-    : `WHERE error IS NULL AND download_mbps IS NOT NULL`;
-  const row = (
-    since
-      ? db
-          .prepare(
-            `SELECT
-              COUNT(*) as count,
-              MIN(download_mbps) as down_min,
-              AVG(download_mbps) as down_avg,
-              MAX(download_mbps) as down_max,
-              MIN(upload_mbps) as up_min,
-              AVG(upload_mbps) as up_avg,
-              MAX(upload_mbps) as up_max,
-              MIN(ping_ms) as ping_min,
-              AVG(ping_ms) as ping_avg,
-              MAX(ping_ms) as ping_max
-             FROM speed_tests ${where}`,
-          )
-          .get(since)
-      : db
-          .prepare(
-            `SELECT
-              COUNT(*) as count,
-              MIN(download_mbps) as down_min,
-              AVG(download_mbps) as down_avg,
-              MAX(download_mbps) as down_max,
-              MIN(upload_mbps) as up_min,
-              AVG(upload_mbps) as up_avg,
-              MAX(upload_mbps) as up_max,
-              MIN(ping_ms) as ping_min,
-              AVG(ping_ms) as ping_avg,
-              MAX(ping_ms) as ping_max
-             FROM speed_tests ${where}`,
-          )
-          .get()
-  ) as SummaryRow;
+  const clauses = ["error IS NULL AND download_mbps IS NOT NULL"];
+  const params: unknown[] = [];
+  if (window.since) {
+    clauses.push("tested_at >= ?");
+    params.push(window.since);
+  }
+  if (window.until) {
+    clauses.push("tested_at < ?");
+    params.push(window.until);
+  }
+  const row = db
+    .prepare(
+      `SELECT
+        COUNT(*) as count,
+        MIN(download_mbps) as down_min,
+        AVG(download_mbps) as down_avg,
+        MAX(download_mbps) as down_max,
+        MIN(upload_mbps) as up_min,
+        AVG(upload_mbps) as up_avg,
+        MAX(upload_mbps) as up_max,
+        MIN(ping_ms) as ping_min,
+        AVG(ping_ms) as ping_avg,
+        MAX(ping_ms) as ping_max
+       FROM speed_tests WHERE ${clauses.join(" AND ")}`,
+    )
+    .get(...params) as SummaryRow;
 
   return {
     count: Number(row.count),
@@ -430,6 +539,17 @@ export function summarizeRange(
       max: row.ping_max,
     },
   };
+}
+
+export function summarizeRange(
+  db: Database.Database,
+  range: Range,
+  now = new Date(),
+): Summary {
+  return summarizeWindow(db, {
+    since: rangeSince(range, now),
+    until: null,
+  });
 }
 
 export function withDatabase<T>(fn: (db: Database.Database) => T): T {

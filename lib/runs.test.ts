@@ -3,6 +3,7 @@ import {
   PAGE_SIZE,
   archiveHref,
   configHref,
+  exportHref,
   filterRuns,
   formatRunId,
   homeHref,
@@ -113,8 +114,11 @@ describe("parseRunQuery", () => {
 });
 
 describe("parseArchiveQuery", () => {
-  it("defaults unknown values and ignores range and page", () => {
+  it("defaults unknown values to all-time and ignores page", () => {
     expect(parseArchiveQuery({})).toEqual({
+      range: "all",
+      from: null,
+      to: null,
       status: "all",
       slow: false,
       ping: false,
@@ -122,17 +126,50 @@ describe("parseArchiveQuery", () => {
     });
     expect(
       parseArchiveQuery({
-        range: "7d",
+        range: "nope",
         status: "weird",
         page: "9",
         sort: "oldest",
         slow: "1",
       }),
     ).toEqual({
+      range: "all",
+      from: null,
+      to: null,
       status: "all",
       slow: true,
       ping: false,
       sort: "oldest",
+    });
+  });
+
+  it("reads a time window", () => {
+    expect(parseArchiveQuery({ range: "7d", status: "failed" })).toEqual({
+      range: "7d",
+      from: null,
+      to: null,
+      status: "failed",
+      slow: false,
+      ping: false,
+      sort: "newest",
+    });
+  });
+
+  it("reads start and end days and swaps them when inverted", () => {
+    expect(
+      parseArchiveQuery({
+        from: "2026-08-10",
+        to: "2026-08-01",
+        range: "7d",
+      }),
+    ).toEqual({
+      range: "all",
+      from: "2026-08-01",
+      to: "2026-08-10",
+      status: "all",
+      slow: false,
+      ping: false,
+      sort: "newest",
     });
   });
 });
@@ -182,6 +219,9 @@ describe("archiveHref", () => {
   it("omits default archive params", () => {
     expect(
       archiveHref({
+        range: "all",
+        from: null,
+        to: null,
         status: "all",
         slow: false,
         ping: false,
@@ -193,12 +233,64 @@ describe("archiveHref", () => {
   it("includes only non-default archive params", () => {
     expect(
       archiveHref({
+        range: "7d",
+        from: null,
+        to: null,
         status: "failed",
         slow: true,
         ping: true,
         sort: "oldest",
       }),
-    ).toBe("/app/runs?status=failed&slow=1&ping=1&sort=oldest");
+    ).toBe("/app/runs?range=7d&status=failed&slow=1&ping=1&sort=oldest");
+    expect(
+      archiveHref({
+        range: "all",
+        from: "2026-08-01",
+        to: "2026-08-10",
+        status: "all",
+        slow: false,
+        ping: false,
+        sort: "newest",
+      }),
+    ).toBe("/app/runs?from=2026-08-01&to=2026-08-10");
+  });
+});
+
+describe("exportHref", () => {
+  it("points at the CSV export with the same archive filters", () => {
+    expect(
+      exportHref({
+        range: "all",
+        from: null,
+        to: null,
+        status: "all",
+        slow: false,
+        ping: false,
+        sort: "newest",
+      }),
+    ).toBe("/app/runs/export");
+    expect(
+      exportHref({
+        range: "30d",
+        from: null,
+        to: null,
+        status: "failed",
+        slow: true,
+        ping: true,
+        sort: "oldest",
+      }),
+    ).toBe("/app/runs/export?range=30d&status=failed&slow=1&ping=1&sort=oldest");
+    expect(
+      exportHref({
+        range: "all",
+        from: "2026-08-01",
+        to: "2026-08-03",
+        status: "all",
+        slow: false,
+        ping: false,
+        sort: "newest",
+      }),
+    ).toBe("/app/runs/export?from=2026-08-01&to=2026-08-03");
   });
 });
 

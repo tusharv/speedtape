@@ -15,7 +15,7 @@ const mono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: APP_NAME,
-  description: "Internet speed for the house",
+  description: "House internet record. Scheduled tests you can take to your ISP.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

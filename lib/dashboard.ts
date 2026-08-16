@@ -1,19 +1,25 @@
 import os from "node:os";
-import { downsampleChart, type ChartPoint } from "@/lib/chart";
+import { downsampleChart, neighborRuns, type ChartPoint } from "@/lib/chart";
 import { agentRuntimePaths } from "@/lib/agent-sync";
 import { defaultCollectorRuntime } from "@/lib/collector-runtime";
 import {
   getLatest,
   getSpeedTest,
   listChartPoints,
+  listOutageContext,
+  listPreviousSpeedTests,
+  listNextSpeedTests,
   listRecentSpeedTests,
   listSpeedTests,
   listSpeedTestsPage,
   summarizeRange,
+  summarizeWindow,
+  timeBounds,
   withDatabase,
   type Range,
   type Summary,
 } from "@/lib/db";
+import { outageWindow, type OutageWindow } from "@/lib/outage";
 import type { ArchiveQuery } from "@/lib/runs";
 import { listSchedules } from "@/lib/schedules";
 import { buildSpeedTape, type TapeCell } from "@/lib/tape";
@@ -61,9 +67,12 @@ export function loadArchive(
   now = new Date(),
 ): ArchiveData {
   return withDatabase((db) => {
-    const summary = summarizeRange(db, "all", now);
+    const window = timeBounds({ ...query, now });
+    const summary = summarizeWindow(db, window);
     const page = listSpeedTestsPage(db, {
-      range: "all",
+      range: query.range,
+      from: query.from,
+      to: query.to,
       status: query.status,
       slow: query.slow,
       ping: query.ping,
@@ -79,4 +88,52 @@ export function loadArchive(
 
 export function loadRun(id: number): SpeedTestRow | null {
   return withDatabase((db) => getSpeedTest(db, id));
+}
+
+export type RunDetail = {
+  test: SpeedTestRow;
+  previous: SpeedTestRow[];
+  neighbors: SpeedTestRow[];
+  outage: OutageWindow | null;
+};
+
+export function loadRunDetail(id: number): RunDetail | null {
+  return withDatabase((db) => {
+    const test = getSpeedTest(db, id);
+    if (!test) return null;
+    const previous = listPreviousSpeedTests(db, test);
+    const next = listNextSpeedTests(db, test);
+    return {
+      test,
+      previous,
+      neighbors: neighborRuns(previous, test, next),
+      outage: outageWindow(test, listOutageContext(db, test)),
+    };
+  });
+}
+
+export const EXPORT_LIMIT = 100_000;
+
+export function loadArchiveExport(
+  query: ArchiveQuery,
+  now = new Date(),
+): SpeedTestRow[] {
+  return withDatabase((db) => {
+    const window = timeBounds({ ...query, now });
+    const summary = summarizeWindow(db, window);
+    return listSpeedTestsPage(db, {
+      range: query.range,
+      from: query.from,
+      to: query.to,
+      status: query.status,
+      slow: query.slow,
+      ping: query.ping,
+      sort: query.sort,
+      offset: 0,
+      limit: EXPORT_LIMIT,
+      downAvg: summary.download.avg,
+      pingAvg: summary.ping.avg,
+      now,
+    }).rows;
+  });
 }

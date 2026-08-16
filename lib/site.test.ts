@@ -5,8 +5,6 @@ describe("site", () => {
   it("names the public project", () => {
     expect(APP_NAME).toBe("Speedtape");
     expect(LICENSE_LABEL).toBe("MIT");
-    expect(GITHUB_URL).toBe(
-      "https://github.com/tusharvagela/home-network-checker",
-    );
+    expect(GITHUB_URL).toBe("https://github.com/tusharv/speedtape");
   });
 });

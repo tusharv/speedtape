@@ -88,15 +88,23 @@ const RANGE_TERMS: Record<Range, TermKey> = {
   all: "rangeAll",
 };
 
-export function RangeTabs({ range }: { range: Range }) {
+export function RangeTabs({
+  range,
+  hrefFor = homeHref,
+  label = "History range",
+}: {
+  range: Range | null;
+  hrefFor?: (range: Range) => string;
+  label?: string;
+}) {
   return (
-    <nav aria-label="History range" className="flex flex-wrap gap-2">
+    <nav aria-label={label} className="flex flex-wrap gap-2">
       {RANGES.map((value) => {
-        const active = value === range;
+        const active = range !== null && value === range;
         return (
           <Link
             key={value}
-            href={homeHref(value)}
+            href={hrefFor(value)}
             className={chipClass(active)}
           >
             <TermTip term={RANGE_TERMS[value]}>{RANGE_LABELS[value]}</TermTip>

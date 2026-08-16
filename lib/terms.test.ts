@@ -22,6 +22,9 @@ const KEYS: TermKey[] = [
   "rangeAll",
   "agent",
   "run",
+  "wentDown",
+  "restored",
+  "outage",
 ];
 
 describe("termText", () => {

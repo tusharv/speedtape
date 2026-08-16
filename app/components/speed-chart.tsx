@@ -5,6 +5,7 @@ import {
   Legend,
   Line,
   LineChart,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -22,14 +23,49 @@ function formatTick(iso: string, range: Range): string {
   return date.toLocaleDateString([], { month: "short", day: "numeric" });
 }
 
+function highlightDot(
+  color: string,
+  highlightTime?: string,
+  sparkline = false,
+) {
+  if (!highlightTime) return false;
+  return function Dot({
+    cx,
+    cy,
+    payload,
+  }: {
+    cx?: number;
+    cy?: number;
+    payload?: ChartPoint;
+  }) {
+    if (cx == null || cy == null) return null;
+    const current = payload?.time === highlightTime;
+    if (sparkline && !current) return null;
+    return (
+      <circle
+        cx={cx}
+        cy={cy}
+        r={current ? (sparkline ? 3 : 5) : 2.5}
+        fill={color}
+        stroke={current ? "var(--paper)" : color}
+        strokeWidth={current ? (sparkline ? 1 : 2) : 0}
+      />
+    );
+  };
+}
+
 export function SpeedChart({
   points,
   range,
   embedded = false,
+  sparkline = false,
+  highlightTime,
 }: {
   points: ChartPoint[];
   range: Range;
   embedded?: boolean;
+  sparkline?: boolean;
+  highlightTime?: string;
 }) {
   if (points.length === 0) {
     return (
@@ -39,56 +75,80 @@ export function SpeedChart({
     );
   }
 
+  const frame = sparkline
+    ? "h-9 min-w-0"
+    : embedded
+      ? "h-64 min-w-0"
+      : "h-72 min-w-0 overflow-x-clip rounded-lg border border-hairline bg-panel px-3 py-5 sm:h-80 sm:px-5";
+
   return (
     <div
-      className={
-        embedded
-          ? "h-64 min-w-0"
-          : "h-72 min-w-0 overflow-x-clip rounded-lg border border-hairline bg-panel px-3 py-5 sm:h-80 sm:px-5"
-      }
+      className={frame}
+      data-sparkline={sparkline ? "true" : undefined}
     >
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={points}
-          margin={{ top: 12, right: 16, left: 8, bottom: 8 }}
+          margin={
+            sparkline
+              ? { top: 6, right: 6, left: 6, bottom: 6 }
+              : { top: 12, right: 16, left: 8, bottom: 8 }
+          }
         >
-          <CartesianGrid stroke="var(--hairline)" strokeDasharray="3 6" />
+          {sparkline ? null : (
+            <CartesianGrid stroke="var(--hairline)" strokeDasharray="3 6" />
+          )}
           <XAxis
             dataKey="time"
+            hide={sparkline}
             tickFormatter={(value: string) => formatTick(value, range)}
-            tick={{
-              fill: "var(--muted)",
-              fontSize: 11,
-              fontFamily: "var(--font-sans)",
-            }}
-            axisLine={{ stroke: "var(--hairline)" }}
+            tick={
+              sparkline
+                ? false
+                : {
+                    fill: "var(--muted)",
+                    fontSize: 11,
+                    fontFamily: "var(--font-sans)",
+                  }
+            }
+            axisLine={sparkline ? false : { stroke: "var(--hairline)" }}
             tickLine={false}
             minTickGap={28}
           />
           <YAxis
             yAxisId="speed"
-            tick={{
-              fill: "var(--muted)",
-              fontSize: 11,
-              fontFamily: "var(--font-sans)",
-            }}
+            hide={sparkline}
+            tick={
+              sparkline
+                ? false
+                : {
+                    fill: "var(--muted)",
+                    fontSize: 11,
+                    fontFamily: "var(--font-sans)",
+                  }
+            }
             axisLine={false}
             tickLine={false}
-            width={52}
-            unit="M"
+            width={sparkline ? 0 : 52}
+            unit={sparkline ? undefined : "M"}
           />
           <YAxis
             yAxisId="ping"
             orientation="right"
-            tick={{
-              fill: "var(--muted)",
-              fontSize: 11,
-              fontFamily: "var(--font-sans)",
-            }}
+            hide={sparkline}
+            tick={
+              sparkline
+                ? false
+                : {
+                    fill: "var(--muted)",
+                    fontSize: 11,
+                    fontFamily: "var(--font-sans)",
+                  }
+            }
             axisLine={false}
             tickLine={false}
-            width={44}
-            unit="ms"
+            width={sparkline ? 0 : 44}
+            unit={sparkline ? undefined : "ms"}
           />
           <Tooltip
             contentStyle={{
@@ -108,40 +168,52 @@ export function SpeedChart({
               return [`${n.toFixed(1)} Mbps`, name === "download" ? "Down" : "Up"];
             }}
           />
-          <Legend
-            wrapperStyle={{
-              fontSize: 12,
-              color: "var(--muted)",
-              fontFamily: "var(--font-sans)",
-              paddingTop: 12,
-            }}
-            formatter={(value) =>
-              value === "download" ? (
-                <TermTip term="download">Down</TermTip>
-              ) : value === "upload" ? (
-                <TermTip term="upload">Up</TermTip>
-              ) : (
-                <TermTip term="ping">Ping</TermTip>
-              )
-            }
-          />
+          {highlightTime && !sparkline ? (
+            <ReferenceLine
+              x={highlightTime}
+              stroke="var(--copper)"
+              strokeDasharray="3 3"
+              ifOverflow="extendDomain"
+            />
+          ) : null}
+          {sparkline ? null : (
+            <Legend
+              wrapperStyle={{
+                fontSize: 12,
+                color: "var(--muted)",
+                fontFamily: "var(--font-sans)",
+                paddingTop: 12,
+              }}
+              formatter={(value) =>
+                value === "download" ? (
+                  <TermTip term="download">Down</TermTip>
+                ) : value === "upload" ? (
+                  <TermTip term="upload">Up</TermTip>
+                ) : (
+                  <TermTip term="ping">Ping</TermTip>
+                )
+              }
+            />
+          )}
           <Line
             yAxisId="speed"
             type="monotone"
             dataKey="download"
             stroke="var(--copper)"
-            strokeWidth={2}
-            dot={false}
-            connectNulls
+            strokeWidth={sparkline ? 1.5 : 2}
+            dot={highlightDot("var(--copper)", highlightTime, sparkline)}
+            connectNulls={!highlightTime}
+            isAnimationActive={!sparkline}
           />
           <Line
             yAxisId="speed"
             type="monotone"
             dataKey="upload"
             stroke="var(--amber)"
-            strokeWidth={2}
-            dot={false}
-            connectNulls
+            strokeWidth={sparkline ? 1.5 : 2}
+            dot={highlightDot("var(--amber)", highlightTime, sparkline)}
+            connectNulls={!highlightTime}
+            isAnimationActive={!sparkline}
           />
           <Line
             yAxisId="ping"
@@ -150,8 +222,9 @@ export function SpeedChart({
             stroke="var(--muted)"
             strokeWidth={1}
             strokeDasharray="4 4"
-            dot={false}
-            connectNulls
+            dot={highlightDot("var(--muted)", highlightTime, sparkline)}
+            connectNulls={!highlightTime}
+            isAnimationActive={!sparkline}
           />
         </LineChart>
       </ResponsiveContainer>
