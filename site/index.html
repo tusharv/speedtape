@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Speedtape</title>
+    <meta
+      name="description"
+      content="Privacy first. Zero cost. A background collector for your house internet. For developers."
+    />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="nav">
+        <a class="brand" href="https://github.com/tusharv/speedtape">
+          <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+            <rect
+              x="1.5"
+              y="1.5"
+              width="29"
+              height="29"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+            />
+            <rect x="7" y="18" width="4.5" height="7.5" fill="currentColor" />
+            <rect x="13.75" y="12" width="4.5" height="13.5" fill="currentColor" />
+            <rect x="20.5" y="7" width="4.5" height="18.5" fill="currentColor" />
+          </svg>
+          Speedtape
+        </a>
+        <a
+          class="btn btn-ghost"
+          href="https://github.com/tusharv/speedtape"
+          target="_blank"
+          rel="noreferrer"
+        >
+          View on GitHub
+        </a>
+      </header>
+
+      <main>
+        <section class="hero" aria-labelledby="hero-title">
+          <div class="hero-copy">
+            <p class="audience">For developers</p>
+            <h1 id="hero-title">Know your line.</h1>
+            <p class="lede">
+              Privacy first. Zero cost. Clone it and the collector runs in the
+              background.
+            </p>
+            <div class="hero-actions">
+              <a
+                class="btn btn-primary"
+                href="https://github.com/tusharv/speedtape"
+                target="_blank"
+                rel="noreferrer"
+              >
+                View on GitHub
+              </a>
+              <button class="btn btn-ghost" type="button" data-copy="clone">
+                Copy clone
+                <span class="sr-live" aria-live="polite"></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="printout" aria-label="24 hour signal">
+            <div class="printout-meta">
+              <span>24 hour signal</span>
+              <span>Sample</span>
+            </div>
+            <div class="tape" data-tape></div>
+            <p class="tape-readout" data-tape-readout>
+              Hover or focus a bar for the hour.
+            </p>
+          </div>
+        </section>
+
+        <section class="ink-band" aria-labelledby="closed-title">
+          <h2 id="closed-title">No account. No cloud. Close the browser.</h2>
+          <p>
+            Samples stay in SQLite on this computer. The agent keeps testing
+            while you work. Localhost is only for reports, not for the collector
+            to live.
+          </p>
+        </section>
+
+        <section class="setup" aria-labelledby="setup-title">
+          <h2 id="setup-title">Try it on this machine</h2>
+          <p class="setup-help">Click a row to copy.</p>
+          <div
+            class="os-tabs"
+            role="tablist"
+            aria-label="Setup operating system"
+          >
+            <button type="button" role="tab" data-os="mac" aria-selected="true">
+              Mac
+            </button>
+            <button
+              type="button"
+              role="tab"
+              data-os="windows"
+              aria-selected="false"
+            >
+              Windows
+            </button>
+          </div>
+          <ul class="commands" data-commands></ul>
+          <p class="windows-note" data-windows-note hidden>
+            Visual Studio C++ Build Tools are required so npm can compile
+            better-sqlite3.
+          </p>
+        </section>
+
+        <section class="isp" aria-labelledby="isp-title">
+          <h2 id="isp-title">Take a week of samples to your ISP</h2>
+          <ol class="steps">
+            <li>
+              <h3>Baseline the day</h3>
+              <p>Peak and quiet hours, on a schedule.</p>
+            </li>
+            <li>
+              <h3>Keep testing</h3>
+              <p>A ticket wants a week, not one screenshot.</p>
+            </li>
+            <li>
+              <h3>Export CSV</h3>
+              <p>Attach the house record.</p>
+            </li>
+            <li>
+              <h3>Mark the outage</h3>
+              <p>Failed hours stay on the tape.</p>
+            </li>
+          </ol>
+        </section>
+
+        <section class="facts" aria-label="House facts">
+          <article>
+            <h2>Privacy first</h2>
+            <p>Nothing leaves this computer.</p>
+          </article>
+          <article>
+            <h2>Zero cost</h2>
+            <p>MIT. No plan. No meter.</p>
+          </article>
+          <article>
+            <h2>Background job</h2>
+            <p>Localhost stays off.</p>
+          </article>
+          <article>
+            <h2>Failed runs stay</h2>
+            <p>Gaps stay visible.</p>
+          </article>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <p>
+          <span class="brand brand-foot">
+            <svg class="mark mark-sm" viewBox="0 0 32 32" aria-hidden="true">
+              <rect
+                x="1.5"
+                y="1.5"
+                width="29"
+                height="29"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.75"
+              />
+              <rect x="7" y="18" width="4.5" height="7.5" fill="currentColor" />
+              <rect x="13.75" y="12" width="4.5" height="13.5" fill="currentColor" />
+              <rect x="20.5" y="7" width="4.5" height="18.5" fill="currentColor" />
+            </svg>
+            Speedtape
+          </span>
+          <span>MIT</span>
+          <span>For developers</span>
+        </p>
+        <a href="https://github.com/tusharv/speedtape" target="_blank" rel="noreferrer">
+          GitHub
+        </a>
+      </footer>
+    </div>
+    <script type="module" src="tape.js"></script>
+  </body>
+</html>

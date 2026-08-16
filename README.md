@@ -37,6 +37,8 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) for the landing page, then Open dashboard, or go to [http://localhost:3000/app](http://localhost:3000/app). From another device on the same Wi-Fi use `http://<this-computer-lan-ip>:3000`. The dev server listens on all interfaces and allows private LAN origins so charts and **Run test now** work off-localhost.
 
+The public project page lives in `site/` and is served at [https://tusharv.github.io/speedtape/](https://tusharv.github.io/speedtape/) after GitHub Pages is set to GitHub Actions. That page is not the local dashboard.
+
 ## Collectors
 
 Open [http://localhost:3000/app/config](http://localhost:3000/app/config) to add or remove agents and set each one to an interval (15 minutes through 24 hours) or to clock times. You can also use the CLI:
