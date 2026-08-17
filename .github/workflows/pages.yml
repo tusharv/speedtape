@@ -30,15 +30,19 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Stage public files
         run: |
           mkdir -p _pages/fonts
           cp docs/index.html docs/docs.html docs/styles.css docs/tape.js docs/landing.mjs docs/favicon.svg _pages/
           cp docs/fonts/*.woff2 docs/fonts/LICENSE.txt _pages/fonts/
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/configure-pages@v6
+      # Name includes run_attempt so a job re-run does not collide with the prior artifact.
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: _pages
+          name: github-pages-${{ github.run_attempt }}
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
