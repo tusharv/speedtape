@@ -6,35 +6,21 @@ import {
   CopyIcon,
   WarningCircleIcon,
 } from "@phosphor-icons/react/ssr";
+import {
+  MAC_COMMANDS,
+  WINDOWS_BUILD_TOOLS_NOTE,
+  WINDOWS_COMMANDS,
+} from "@/lib/guide";
 
 const icon = { size: 15, weight: "regular" as const, "aria-hidden": true };
 
 export type SetupOs = "mac" | "windows";
 
-const SHARED_COMMANDS = [
-  { name: "Install dependencies", command: "npm install" },
-  { name: "Install agent", command: "npm run install-agent" },
-  { name: "Start dashboard", command: "npm run dev" },
-] as const;
-
-export const MAC_COMMANDS = [
-  {
-    name: "Install CLI",
-    command: "brew tap teamookla/speedtest && brew install speedtest",
-  },
-  ...SHARED_COMMANDS,
-] as const;
-
-export const WINDOWS_COMMANDS = [
-  {
-    name: "Install CLI",
-    command: "winget install -e --id Ookla.Speedtest.CLI",
-  },
-  ...SHARED_COMMANDS,
-] as const;
-
-export const WINDOWS_BUILD_TOOLS_NOTE =
-  "Visual Studio C++ Build Tools are required so npm can compile better-sqlite3.";
+export {
+  MAC_COMMANDS,
+  WINDOWS_BUILD_TOOLS_NOTE,
+  WINDOWS_COMMANDS,
+};
 
 export function detectSetupOs(userAgent: string): SetupOs {
   return /windows/i.test(userAgent) ? "windows" : "mac";
@@ -117,18 +103,21 @@ export function copyFeedbackReducer(
   }
 }
 
-export function LandingCommands() {
-  const [os, setOs] = useState<SetupOs>("mac");
+export function CopyCommandList({
+  commands,
+  note,
+  listKey = "commands",
+}: {
+  commands: readonly { name: string; command: string }[];
+  note?: string;
+  listKey?: string;
+}) {
   const [copyState, dispatchCopyState] = useReducer(
     copyFeedbackReducer,
     initialCopyFeedbackState,
   );
   const copyRequests = useRef(createCopyRequestTracker());
   const feedbackTimeout = useRef<number | null>(null);
-
-  useEffect(() => {
-    setOs(detectSetupOs(navigator.userAgent));
-  }, []);
 
   useEffect(
     () => () => {
@@ -140,52 +129,8 @@ export function LandingCommands() {
     [],
   );
 
-  function selectOs(next: SetupOs) {
-    if (next === os) return;
-    copyRequests.current.invalidate();
-    if (feedbackTimeout.current !== null) {
-      window.clearTimeout(feedbackTimeout.current);
-      feedbackTimeout.current = null;
-    }
-    dispatchCopyState({
-      type: "reset",
-      requestId: copyState.latestRequestId,
-    });
-    setOs(next);
-  }
-
-  const commands = commandsFor(os);
-  const tabClass = (selected: boolean) =>
-    `rounded-lg px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.1em] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-panel ${
-      selected ? "border border-copper text-copper" : "border border-transparent text-muted hover:text-paper"
-    }`;
-
   return (
     <div>
-      <div
-        role="tablist"
-        aria-label="Setup operating system"
-        className="flex flex-wrap gap-2 border-b border-hairline py-4"
-      >
-        <button
-          type="button"
-          role="tab"
-          aria-selected={os === "mac"}
-          className={tabClass(os === "mac")}
-          onClick={() => selectOs("mac")}
-        >
-          Mac
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={os === "windows"}
-          className={tabClass(os === "windows")}
-          onClick={() => selectOs("windows")}
-        >
-          Windows
-        </button>
-      </div>
       <ul className="min-w-0 divide-y divide-hairline">
         {commands.map((item) => {
           const result =
@@ -200,7 +145,7 @@ export function LandingCommands() {
                 : "";
 
           return (
-            <li key={`${os}-${item.name}`}>
+            <li key={`${listKey}-${item.name}`}>
               <button
                 type="button"
                 onClick={async () => {
@@ -266,11 +211,57 @@ export function LandingCommands() {
           );
         })}
       </ul>
-      {os === "windows" ? (
-        <p className="py-5 text-xs leading-5 text-muted">
-          {WINDOWS_BUILD_TOOLS_NOTE}
-        </p>
+      {note ? (
+        <p className="py-5 text-xs leading-5 text-muted">{note}</p>
       ) : null}
+    </div>
+  );
+}
+
+export function LandingCommands() {
+  const [os, setOs] = useState<SetupOs>("mac");
+
+  useEffect(() => {
+    setOs(detectSetupOs(navigator.userAgent));
+  }, []);
+
+  const tabClass = (selected: boolean) =>
+    `rounded-lg px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.1em] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-panel ${
+      selected ? "border border-copper text-copper" : "border border-transparent text-muted hover:text-paper"
+    }`;
+
+  return (
+    <div>
+      <div
+        role="tablist"
+        aria-label="Setup operating system"
+        className="flex flex-wrap gap-2 border-b border-hairline py-4"
+      >
+        <button
+          type="button"
+          role="tab"
+          aria-selected={os === "mac"}
+          className={tabClass(os === "mac")}
+          onClick={() => setOs("mac")}
+        >
+          Mac
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={os === "windows"}
+          className={tabClass(os === "windows")}
+          onClick={() => setOs("windows")}
+        >
+          Windows
+        </button>
+      </div>
+      <CopyCommandList
+        key={os}
+        listKey={os}
+        commands={commandsFor(os)}
+        note={os === "windows" ? WINDOWS_BUILD_TOOLS_NOTE : undefined}
+      />
     </div>
   );
 }

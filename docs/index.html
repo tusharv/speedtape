@@ -6,7 +6,7 @@
     <title>Speedtape</title>
     <meta
       name="description"
-      content="Privacy first. Zero cost. A background collector for your house internet. For developers."
+      content="House internet record. Scheduled tests you can take to your ISP."
     />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
@@ -14,41 +14,43 @@
   <body>
     <div class="page">
       <header class="nav">
-        <a class="brand" href="https://github.com/tusharv/speedtape">
-          <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
-            <rect
-              x="1.5"
-              y="1.5"
-              width="29"
-              height="29"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.75"
-            />
-            <rect x="7" y="18" width="4.5" height="7.5" fill="currentColor" />
-            <rect x="13.75" y="12" width="4.5" height="13.5" fill="currentColor" />
-            <rect x="20.5" y="7" width="4.5" height="18.5" fill="currentColor" />
-          </svg>
+        <a class="brand" href="https://github.com/tusharv/speedtape" aria-label="Speedtape home">
+          <span class="mark" data-brand-mark="true" aria-hidden="true">
+            <span data-brand-bars="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+          </span>
           Speedtape
         </a>
-        <a
-          class="btn btn-ghost"
-          href="https://github.com/tusharv/speedtape"
-          target="_blank"
-          rel="noreferrer"
-        >
-          View on GitHub
-        </a>
+        <nav aria-label="Landing">
+          <a class="btn btn-ghost" href="docs.html">Docs</a>
+          <a
+            class="btn btn-ghost"
+            href="https://github.com/tusharv/speedtape"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <svg class="icon" viewBox="0 0 256 256" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M208.31,75.68A59.78,59.78,0,0,0,202.93,28,8,8,0,0,0,196,24a59.75,59.75,0,0,0-48,24H124A59.75,59.75,0,0,0,76,24a8,8,0,0,0-6.93,4,59.78,59.78,0,0,0-5.38,47.68A58.14,58.14,0,0,0,56,104v8a56.06,56.06,0,0,0,48.44,55.47A39.8,39.8,0,0,0,96,192v8H72a24,24,0,0,1-24-24A40,40,0,0,0,8,136a8,8,0,0,0,0,16,24,24,0,0,1,24,24,40,40,0,0,0,40,40H96v16a8,8,0,0,0,16,0V192a24,24,0,0,1,48,0v40a8,8,0,0,0,16,0V192a39.8,39.8,0,0,0-8.44-24.53A56.06,56.06,0,0,0,216,112v-8A58.14,58.14,0,0,0,208.31,75.68ZM200,112a40,40,0,0,1-40,40H112a40,40,0,0,1-40-40v-8a41.74,41.74,0,0,1,6.9-22.48A8,8,0,0,0,80,73.83a43.81,43.81,0,0,1,.79-33.58,43.88,43.88,0,0,1,32.32,20.06A8,8,0,0,0,119.82,64h32.35a8,8,0,0,0,6.74-3.69,43.87,43.87,0,0,1,32.32-20.06A43.81,43.81,0,0,1,192,73.83a8.09,8.09,0,0,0,1,7.65A41.72,41.72,0,0,1,200,104Z"
+              />
+            </svg>
+            View on GitHub
+          </a>
+        </nav>
       </header>
 
       <main>
         <section class="hero" aria-labelledby="hero-title">
           <div class="hero-copy">
-            <p class="audience">For developers</p>
+            <p class="eyebrow">Local network monitor</p>
             <h1 id="hero-title">Know your line.</h1>
             <p class="lede">
-              Privacy first. Zero cost. Clone it and the collector runs in the
-              background.
+              Scheduled tests across peak and off-peak hours. Evidence you can
+              take to your ISP.
             </p>
             <div class="hero-actions">
               <a
@@ -57,130 +59,258 @@
                 target="_blank"
                 rel="noreferrer"
               >
+                <svg class="icon" viewBox="0 0 256 256" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M208.31,75.68A59.78,59.78,0,0,0,202.93,28,8,8,0,0,0,196,24a59.75,59.75,0,0,0-48,24H124A59.75,59.75,0,0,0,76,24a8,8,0,0,0-6.93,4,59.78,59.78,0,0,0-5.38,47.68A58.14,58.14,0,0,0,56,104v8a56.06,56.06,0,0,0,48.44,55.47A39.8,39.8,0,0,0,96,192v8H72a24,24,0,0,1-24-24A40,40,0,0,0,8,136a8,8,0,0,0,0,16,24,24,0,0,1,24,24,40,40,0,0,0,40,40H96v16a8,8,0,0,0,16,0V192a24,24,0,0,1,48,0v40a8,8,0,0,0,16,0V192a39.8,39.8,0,0,0-8.44-24.53A56.06,56.06,0,0,0,216,112v-8A58.14,58.14,0,0,0,208.31,75.68ZM200,112a40,40,0,0,1-40,40H112a40,40,0,0,1-40-40v-8a41.74,41.74,0,0,1,6.9-22.48A8,8,0,0,0,80,73.83a43.81,43.81,0,0,1,.79-33.58,43.88,43.88,0,0,1,32.32,20.06A8,8,0,0,0,119.82,64h32.35a8,8,0,0,0,6.74-3.69,43.87,43.87,0,0,1,32.32-20.06A43.81,43.81,0,0,1,192,73.83a8.09,8.09,0,0,0,1,7.65A41.72,41.72,0,0,1,200,104Z"
+                  />
+                </svg>
                 View on GitHub
               </a>
               <button class="btn btn-ghost" type="button" data-copy="clone">
                 Copy clone
-                <span class="sr-live" aria-live="polite"></span>
+                <span class="copy-status" aria-live="polite"></span>
               </button>
             </div>
           </div>
 
-          <div class="printout" aria-label="24 hour signal">
+          <div
+            class="printout"
+            aria-label="24 hour signal"
+            role="group"
+          >
             <div class="printout-meta">
               <span>24 hour signal</span>
-              <span>Sample</span>
+              <span>Sample data</span>
             </div>
-            <div class="tape" data-tape></div>
-            <p class="tape-readout" data-tape-readout>
-              Hover or focus a bar for the hour.
+            <div class="tape-shell" data-tape></div>
+          </div>
+        </section>
+
+        <section class="sample-runs" aria-labelledby="sample-runs-title">
+          <h2 id="sample-runs-title">Every run stays in the record.</h2>
+          <p>
+            An ok hour keeps the numbers. A failed hour keeps the gap.
+          </p>
+          <div class="sample-cards">
+            <article
+              class="run-card"
+              aria-label="Run 12, ok, Noon 12:00"
+            >
+              <span class="run-card-top" aria-hidden="true"></span>
+              <span class="run-card-rail" aria-hidden="true"></span>
+              <header>
+                <p>Noon 12:00</p>
+                <div>
+                  <p class="run-id">#12</p>
+                  <p class="run-chip run-chip-ok">Ok</p>
+                </div>
+              </header>
+              <div class="run-metrics">
+                <div>
+                  <p>Down</p>
+                  <p class="run-metric-accent">110.0 <span>Mbps</span></p>
+                </div>
+                <div>
+                  <p>Up</p>
+                  <p>12.0 <span>Mbps</span></p>
+                </div>
+                <div>
+                  <p>Ping</p>
+                  <p>9.0 <span>ms</span></p>
+                </div>
+              </div>
+              <div class="run-details">
+                <p>Jitter 2.0 ms</p>
+                <p>Loss 0.0%</p>
+                <p>This city / Local server</p>
+                <p>Home ISP</p>
+              </div>
+              <div class="run-foot">
+                <span class="run-tear" aria-hidden="true"></span>
+                <p>ST-0012</p>
+              </div>
+            </article>
+            <article
+              class="run-card run-card-void"
+              aria-label="Run 18, failed, Evening 18:00"
+            >
+              <span class="run-card-top" aria-hidden="true"></span>
+              <span class="run-card-rail" aria-hidden="true"></span>
+              <header>
+                <p>Evening 18:00</p>
+                <div>
+                  <p class="run-id">#18</p>
+                  <p class="run-chip run-chip-fail">Failed</p>
+                </div>
+              </header>
+              <div class="run-metrics">
+                <div>
+                  <p>Down</p>
+                  <p>-</p>
+                </div>
+                <div>
+                  <p>Up</p>
+                  <p>-</p>
+                </div>
+                <div>
+                  <p>Ping</p>
+                  <p>-</p>
+                </div>
+              </div>
+              <p class="run-error">Cannot open socket</p>
+              <div class="run-foot">
+                <span class="run-tear" aria-hidden="true"></span>
+                <p>ST-0018</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="setup" aria-labelledby="setup-title">
+          <div class="setup-copy">
+            <h2 id="setup-title">How it runs</h2>
+            <p>
+              Click a command to copy it. Then open the dashboard on this
+              computer or the LAN IP.
+            </p>
+          </div>
+          <div class="setup-panel">
+            <div
+              class="os-tabs"
+              role="tablist"
+              aria-label="Setup operating system"
+            >
+              <button type="button" role="tab" data-os="mac" aria-selected="true">
+                Mac
+              </button>
+              <button
+                type="button"
+                role="tab"
+                data-os="windows"
+                aria-selected="false"
+              >
+                Windows
+              </button>
+            </div>
+            <ul class="commands" data-commands></ul>
+            <p class="windows-note" data-windows-note hidden>
+              Visual Studio C++ Build Tools are required so npm can compile
+              better-sqlite3.
             </p>
           </div>
         </section>
 
-        <section class="ink-band" aria-labelledby="closed-title">
-          <h2 id="closed-title">No account. No cloud. Close the browser.</h2>
-          <p>
-            Samples stay in SQLite on this computer. The agent keeps testing
-            while you work. Localhost is only for reports, not for the collector
-            to live.
-          </p>
-        </section>
-
-        <section class="setup" aria-labelledby="setup-title">
-          <h2 id="setup-title">Try it on this machine</h2>
-          <p class="setup-help">Click a row to copy.</p>
-          <div
-            class="os-tabs"
-            role="tablist"
-            aria-label="Setup operating system"
-          >
-            <button type="button" role="tab" data-os="mac" aria-selected="true">
-              Mac
-            </button>
-            <button
-              type="button"
-              role="tab"
-              data-os="windows"
-              aria-selected="false"
-            >
-              Windows
-            </button>
-          </div>
-          <ul class="commands" data-commands></ul>
-          <p class="windows-note" data-windows-note hidden>
-            Visual Studio C++ Build Tools are required so npm can compile
-            better-sqlite3.
-          </p>
-        </section>
-
         <section class="isp" aria-labelledby="isp-title">
-          <h2 id="isp-title">Take a week of samples to your ISP</h2>
+          <h2 id="isp-title">Show your provider the record.</h2>
+          <p>
+            One slow test is easy to dismiss. A week of independent samples,
+            on-peak and off-peak, is harder to ignore.
+          </p>
           <ol class="steps">
             <li>
               <h3>Baseline the day</h3>
-              <p>Peak and quiet hours, on a schedule.</p>
+              <p>
+                Sample across one day, including hours when everyone is online
+                and hours when they are not. A collector does this while you
+                sleep.
+              </p>
             </li>
             <li>
-              <h3>Keep testing</h3>
-              <p>A ticket wants a week, not one screenshot.</p>
+              <h3>Keep testing after you call</h3>
+              <p>
+                Providers often need a week of independent results, not a
+                single screenshot. Stay on the schedule until the ticket
+                closes.
+              </p>
             </li>
             <li>
               <h3>Export CSV</h3>
-              <p>Attach the house record.</p>
+              <p>
+                Download the house record as a spreadsheet you can attach,
+                chart, or print. Each run also has its own line pass.
+              </p>
             </li>
             <li>
               <h3>Mark the outage</h3>
-              <p>Failed hours stay on the tape.</p>
+              <p>
+                Failed samples stay in the tape. Open one to see when the line
+                went down and when it came back.
+              </p>
             </li>
           </ol>
         </section>
 
-        <section class="facts" aria-label="House facts">
-          <article>
-            <h2>Privacy first</h2>
-            <p>Nothing leaves this computer.</p>
-          </article>
-          <article>
-            <h2>Zero cost</h2>
-            <p>MIT. No plan. No meter.</p>
-          </article>
-          <article>
-            <h2>Background job</h2>
-            <p>Localhost stays off.</p>
-          </article>
-          <article>
-            <h2>Failed runs stay</h2>
-            <p>Gaps stay visible.</p>
-          </article>
+        <section class="system" aria-labelledby="closed-title">
+          <div class="close-panel">
+            <span class="mark mark-lg" data-brand-mark="true" aria-hidden="true">
+              <span data-brand-bars="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </span>
+            </span>
+            <h2 id="closed-title">
+              Close the dashboard. This computer keeps testing.
+            </h2>
+            <p>
+              macOS and Windows. Official Ookla Speedtest CLI. Not a test
+              inside the browser.
+            </p>
+          </div>
+          <dl class="facts">
+            <div>
+              <dt>Peak and off-peak</dt>
+              <dd>
+                Collectors fire on an interval or at clock times, so busy
+                evenings and quiet mornings both land in the record.
+              </dd>
+            </div>
+            <div>
+              <dt>CSV for your ISP</dt>
+              <dd>
+                Export every sample as a spreadsheet. Share it, chart it, or
+                keep it with the ticket.
+              </dd>
+            </div>
+            <div>
+              <dt>Failed runs stay</dt>
+              <dd>
+                When a test cannot finish, the tape keeps the gap. Open the
+                run to see when the line went down and when it came back.
+              </dd>
+            </div>
+            <div>
+              <dt>This computer only</dt>
+              <dd>
+                Samples never leave this house. Phones on the same Wi-Fi can
+                still watch the tape.
+              </dd>
+            </div>
+          </dl>
         </section>
       </main>
 
       <footer class="footer">
-        <p>
+        <div class="footer-brand">
           <span class="brand brand-foot">
-            <svg class="mark mark-sm" viewBox="0 0 32 32" aria-hidden="true">
-              <rect
-                x="1.5"
-                y="1.5"
-                width="29"
-                height="29"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.75"
-              />
-              <rect x="7" y="18" width="4.5" height="7.5" fill="currentColor" />
-              <rect x="13.75" y="12" width="4.5" height="13.5" fill="currentColor" />
-              <rect x="20.5" y="7" width="4.5" height="18.5" fill="currentColor" />
-            </svg>
+            <span class="mark mark-sm" data-brand-mark="true" aria-hidden="true">
+              <span data-brand-bars="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </span>
+            </span>
             Speedtape
           </span>
-          <span>MIT</span>
-          <span>For developers</span>
-        </p>
-        <a href="https://github.com/tusharv/speedtape" target="_blank" rel="noreferrer">
-          GitHub
-        </a>
+          <p>MIT</p>
+        </div>
+        <nav aria-label="Footer">
+          <a href="docs.html">Docs</a>
+          <a href="https://github.com/tusharv/speedtape" target="_blank" rel="noreferrer">
+            GitHub
+          </a>
+        </nav>
       </footer>
     </div>
     <script type="module" src="tape.js"></script>

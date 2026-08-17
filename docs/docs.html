@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Docs · Speedtape</title>
+    <meta
+      name="description"
+      content="Mac and Windows setup, and how an AI agent should run and change this tool."
+    />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <div class="nav-sticky">
+        <header class="nav">
+          <a class="brand" href="./" aria-label="Speedtape home">
+            <span class="mark" data-brand-mark="true" aria-hidden="true">
+              <span data-brand-bars="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </span>
+            </span>
+            Speedtape
+          </a>
+          <nav class="guide-jump" aria-label="Guide">
+            <a href="#mac">Mac</a>
+            <a href="#windows">Windows</a>
+            <a href="#agents">AI agents</a>
+          </nav>
+        </header>
+      </div>
+
+      <main>
+        <section class="guide-hero" aria-labelledby="guide-title">
+          <h1 id="guide-title">How to run it.</h1>
+          <p class="lede">
+            Mac and Windows setup, and how an AI agent should run and change
+            this tool.
+          </p>
+        </section>
+
+        <section
+          class="guide-section"
+          id="mac"
+          aria-labelledby="mac-title"
+        >
+          <div class="guide-split">
+            <div class="setup-copy">
+              <h2 id="mac-title">Mac</h2>
+              <p>
+                Homebrew installs the official Ookla CLI. Collectors then live
+                in LaunchAgents.
+              </p>
+            </div>
+            <div class="setup-panel">
+              <ul class="commands" data-commands="mac"></ul>
+            </div>
+          </div>
+          <div class="guide-body">
+            <dl class="guide-items">
+              <div>
+                <dt>What you need</dt>
+                <dd>
+                  macOS, Node.js 20+, Homebrew, and the official Ookla Speedtest
+                  CLI. The first CLI run may ask you to accept the license.
+                  Collectors pass --accept-license and --accept-gdpr so they can
+                  run unattended.
+                </dd>
+              </div>
+              <div>
+                <dt>Setup</dt>
+                <dd>
+                  From the repo root, run the Mac commands in order. Then open
+                  http://localhost:3000 and go to /app. From another device on
+                  the same Wi-Fi use http://&lt;this-computer-lan-ip&gt;:3000.
+                  The dev server listens on all interfaces.
+                </dd>
+              </div>
+              <div>
+                <dt>After you move the folder</dt>
+                <dd>
+                  Run npm run install-agent again so every collector points at
+                  the new path. Closing the browser is fine. The computer must
+                  stay awake or the job is skipped.
+                </dd>
+              </div>
+            </dl>
+            <dl class="guide-paths">
+              <div>
+                <dt>Plists</dt>
+                <dd>~/Library/LaunchAgents/com.speedtape.speedtest.&lt;id&gt;.plist</dd>
+              </div>
+              <div>
+                <dt>Login item</dt>
+                <dd>~/Library/Application Support/speedtape/Speedtape.app</dd>
+              </div>
+              <div>
+                <dt>Logs</dt>
+                <dd>~/Library/Logs/speedtape.out.log and speedtape.err.log</dd>
+              </div>
+              <div>
+                <dt>Database</dt>
+                <dd>~/Library/Application Support/speedtape/speedtests.db</dd>
+              </div>
+            </dl>
+          </div>
+        </section>
+
+        <section
+          class="guide-section"
+          id="windows"
+          aria-labelledby="windows-title"
+        >
+          <h2 id="windows-title">Windows</h2>
+          <p>
+            Winget installs the CLI. Task Scheduler runs each collector while
+            this computer is awake.
+          </p>
+          <div class="setup-panel guide-commands">
+            <ul class="commands" data-commands="windows"></ul>
+            <p class="windows-note">
+              Visual Studio C++ Build Tools are required so npm can compile
+              better-sqlite3.
+            </p>
+          </div>
+          <dl class="guide-items">
+            <div>
+              <dt>What you need</dt>
+              <dd>
+                Windows, Node.js 20+, Visual Studio C++ Build Tools, and the
+                official Ookla Speedtest CLI. Build Tools are required so npm
+                install can compile better-sqlite3.
+              </dd>
+            </div>
+            <div>
+              <dt>Setup</dt>
+              <dd>
+                From the repo root, run the Windows commands in order. Then
+                open http://localhost:3000 and go to /app. From another device
+                on the same Wi-Fi use http://&lt;this-computer-lan-ip&gt;:3000.
+              </dd>
+            </div>
+            <div>
+              <dt>After you move the folder</dt>
+              <dd>
+                Run npm run install-agent again so every scheduled task points
+                at the new path. Sleeping skips the job. Closing the dashboard
+                does not.
+              </dd>
+            </div>
+          </dl>
+          <dl class="guide-paths">
+            <div>
+              <dt>Tasks</dt>
+              <dd>Speedtape.speedtest.&lt;id&gt; in Task Scheduler</dd>
+            </div>
+            <div>
+              <dt>Logs and database</dt>
+              <dd>%APPDATA%\speedtape\</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section
+          class="guide-section"
+          id="agents"
+          aria-labelledby="agents-title"
+        >
+          <h2 id="agents-title">AI agents</h2>
+          <p>
+            Speedtape is a local house record. Change the right files, verify
+            with tests, and leave generated collector jobs alone.
+          </p>
+          <dl class="guide-items">
+            <div>
+              <dt>What the tool is</dt>
+              <dd>
+                A speed record for one computer. The official Ookla CLI writes
+                samples into SQLite on this machine. /app is the dashboard:
+                latest run, 24-hour tape, history, and failed gaps. /app/config
+                adds collectors. /app/runs is the archive and CSV export. The
+                public site in docs/ is GitHub Pages only. It is not the
+                dashboard.
+              </dd>
+            </div>
+            <div>
+              <dt>How the pieces connect</dt>
+              <dd>
+                app/page.tsx is the local landing. docs/index.html and
+                docs/docs.html are the Pages copies. Keep landing copy and
+                structure in sync. Dashboard routes live under app/app/. lib/
+                owns the database, schedules, speedtest CLI, and paths. scripts/
+                owns npm run speedtest, install-agent, and uninstall-agent.
+                Collectors are OS jobs (launchd on Mac, Task Scheduler on
+                Windows), not tests inside the browser.
+              </dd>
+            </div>
+            <div>
+              <dt>Before you edit</dt>
+              <dd>
+                Read AGENTS.md. This Next.js has breaking changes, so read
+                node_modules/next/dist/docs/ before writing app code. npm test
+                is Vitest. Add a failing test before a behavior change. The
+                Pages site has no dashboard button. Do not add one. Do not
+                hand-edit generated plists or Task Scheduler jobs. install-agent
+                is the source of truth.
+              </dd>
+            </div>
+            <div>
+              <dt>How to operate it</dt>
+              <dd>
+                npm run dev serves landing and dashboard on 0.0.0.0:3000. npm
+                run speedtest runs one sample now. npm run install-agent creates
+                Hourly if none exist, or rewrites every collector. npm run
+                uninstall-agent unloads every Speedtape collector. Schedules are
+                an interval (15 minutes through 24 hours) or clock times. This
+                computer must be awake. If two jobs fire at once, the second
+                waits. Override the database path with SPEEDTAPE_DB.
+              </dd>
+            </div>
+            <div>
+              <dt>Check Speedtest CLI</dt>
+              <dd>
+                This repo calls speedtest on Mac and speedtest.exe on Windows
+                (lib/speedtest.ts). On Mac run command -v speedtest &amp;&amp;
+                speedtest --version. On Windows run where.exe speedtest. The
+                version line should name Ookla. A missing binary, spawn ENOENT,
+                or the stored error speedtest CLI was not found means it is not
+                installed. The pip package speedtest-cli is the wrong tool.
+                Install with the Mac or Windows commands on this page.
+              </dd>
+            </div>
+            <div>
+              <dt>Read logs without the dashboard</dt>
+              <dd>
+                Collectors write stdout to speedtape.out.log and stderr to
+                speedtape.err.log. On Mac those files are in ~/Library/Logs/.
+                On Windows they are in %APPDATA%\speedtape\. A successful run
+                prints JSON with testedAt and speeds. A failed run prints Speed
+                test failed: and the error. Missing files mean the collector
+                has not run yet. Saved samples are also in SQLite table
+                speed_tests. Query with SELECT tested_at, download_mbps, error
+                FROM speed_tests ORDER BY id DESC LIMIT 20; against
+                ~/Library/Application Support/speedtape/speedtests.db or
+                %APPDATA%\speedtape\speedtests.db, or SPEEDTAPE_DB if it is set.
+              </dd>
+            </div>
+          </dl>
+          <div class="setup-panel guide-commands">
+            <ul class="commands" data-commands="agents"></ul>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <div class="footer-brand">
+          <span class="brand brand-foot">
+            <span class="mark mark-sm" data-brand-mark="true" aria-hidden="true">
+              <span data-brand-bars="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </span>
+            </span>
+            Speedtape
+          </span>
+          <p>MIT</p>
+        </div>
+        <nav aria-label="Footer">
+          <a href="docs.html" aria-current="page">Docs</a>
+          <a href="https://github.com/tusharv/speedtape" target="_blank" rel="noreferrer">
+            GitHub
+          </a>
+        </nav>
+      </footer>
+    </div>
+    <script type="module" src="tape.js"></script>
+  </body>
+</html>

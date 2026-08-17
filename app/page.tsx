@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
+  BookOpenIcon,
   GaugeIcon,
   GithubLogoIcon,
 } from "@phosphor-icons/react/ssr";
@@ -10,8 +11,10 @@ import {
 } from "@/app/components/brand-lockup";
 import { LandingCommands } from "@/app/components/landing-commands";
 import { LandingTape } from "@/app/components/landing-tape";
+import { RunCard } from "@/app/components/run-card";
 import { SiteHeader } from "@/app/components/site-nav";
-import { landingTapeCells } from "@/lib/landing-tape";
+import { landingSampleRuns, landingTapeCells } from "@/lib/landing-tape";
+import { DOCS_HREF, DOCS_LABEL } from "@/lib/guide";
 import { GITHUB_URL, LICENSE_LABEL } from "@/lib/site";
 
 const dashboardHref = "/app";
@@ -77,6 +80,8 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
     redirect(`/app?${qs.toString()}`);
   }
 
+  const samples = landingSampleRuns();
+
   return (
     <div className="mx-auto flex min-h-dvh w-full min-w-0 max-w-7xl flex-col overflow-x-clip px-4 sm:px-8 lg:px-10">
       <SiteHeader
@@ -85,6 +90,10 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
             aria-label="Landing"
             className="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:flex-row sm:items-center"
           >
+            <Link href={DOCS_HREF} className={secondaryCta}>
+              <BookOpenIcon {...icon} />
+              {DOCS_LABEL}
+            </Link>
             <a
               href={GITHUB_URL}
               target="_blank"
@@ -133,6 +142,25 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
               <span>Sample data</span>
             </div>
             <LandingTape cells={landingTapeCells()} />
+          </div>
+        </section>
+
+        <section
+          className="border-t border-hairline py-14 md:py-20"
+          aria-labelledby="sample-runs-title"
+        >
+          <h2
+            id="sample-runs-title"
+            className="max-w-[18ch] font-display text-3xl font-semibold tracking-[-0.035em] text-paper md:text-4xl"
+          >
+            Every run stays in the record.
+          </h2>
+          <p className="mt-3 max-w-[54ch] text-sm leading-6 text-muted">
+            An ok hour keeps the numbers. A failed hour keeps the gap.
+          </p>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2">
+            <RunCard test={samples.ok} />
+            <RunCard test={samples.failed} />
           </div>
         </section>
 
@@ -201,6 +229,12 @@ export default async function Landing({ searchParams }: PageProps<"/">) {
           <p>{LICENSE_LABEL}</p>
         </div>
         <nav aria-label="Footer" className="flex items-center gap-5">
+          <Link
+            href={DOCS_HREF}
+            className="rounded-lg outline-none transition-colors hover:text-copper focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
+          >
+            {DOCS_LABEL}
+          </Link>
           <a
             href={GITHUB_URL}
             target="_blank"

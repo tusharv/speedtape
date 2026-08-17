@@ -33,10 +33,23 @@ describe("Speedtape landing page", () => {
     expect(html).toContain("This computer only");
     expect(html).toContain("macOS and Windows");
     expect(html).toContain('href="/app"');
+    expect(html).toContain('href="/docs"');
+    expect(html).toContain("Docs");
     expect(html).toContain("View on GitHub");
     expect(html).toContain("MIT");
-    expect(html).not.toContain("—");
+    expect(html).toContain("Every run stays in the record.");
+    expect(html).toContain("run-card-ticket");
+    expect(html).toContain("run-card-ticket-void");
+    expect(html).toContain('aria-label="Run 12, ok');
+    expect(html).toContain('aria-label="Run 18, failed');
+    expect(html).toContain("110.0");
+    expect(html).toContain("Cannot open socket");
     expect(html).not.toContain("–");
+    const headlines =
+      [...html.matchAll(/<h[12][^>]*>([\s\S]*?)<\/h[12]>/g)].map(
+        (match) => match[1],
+      ).join(" ");
+    expect(headlines).not.toContain("\u2014");
   });
 
   it("renders responsive navigation and accessible interaction states", async () => {
@@ -65,7 +78,7 @@ describe("Speedtape landing page", () => {
       html.match(
         /class="rounded-lg outline-none transition-colors hover:text-copper focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink"/g,
       ) ?? [],
-    ).toHaveLength(2);
+    ).toHaveLength(3);
   });
 
   it("renders the intended landmark and heading hierarchy", async () => {
@@ -76,9 +89,10 @@ describe("Speedtape landing page", () => {
     const html = renderToStaticMarkup(page);
 
     expect(html.match(/<h1/g) ?? []).toHaveLength(1);
-    expect(html.match(/<h2/g) ?? []).toHaveLength(3);
+    expect(html.match(/<h2/g) ?? []).toHaveLength(4);
     expect(html.match(/<nav/g) ?? []).toHaveLength(2);
     expect(html.match(/href="\/app"/g) ?? []).toHaveLength(3);
+    expect(html.match(/href="\/docs"/g) ?? []).toHaveLength(2);
   });
 
   it("preserves range query redirects to the dashboard", async () => {

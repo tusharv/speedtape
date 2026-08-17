@@ -4,7 +4,13 @@ on:
   push:
     branches: [main]
     paths:
-      - "site/**"
+      - "docs/index.html"
+      - "docs/docs.html"
+      - "docs/styles.css"
+      - "docs/tape.js"
+      - "docs/landing.mjs"
+      - "docs/favicon.svg"
+      - "docs/fonts/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -28,8 +34,8 @@ jobs:
       - name: Stage public files
         run: |
           mkdir -p _pages/fonts
-          cp site/index.html site/styles.css site/tape.js site/landing.mjs site/favicon.svg _pages/
-          cp site/fonts/*.woff2 site/fonts/LICENSE.txt _pages/fonts/
+          cp docs/index.html docs/docs.html docs/styles.css docs/tape.js docs/landing.mjs docs/favicon.svg _pages/
+          cp docs/fonts/*.woff2 docs/fonts/LICENSE.txt _pages/fonts/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
