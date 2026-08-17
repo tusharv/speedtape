@@ -202,6 +202,23 @@ describe("pages markup", () => {
     expect(css).toMatch(/\.copy-status:empty\s*\{\s*display:\s*none/);
   });
 
+  it("uses the same site header on landing and docs", () => {
+    const landing = readFileSync(join(siteDir, "index.html"), "utf8");
+    const docs = readFileSync(join(siteDir, "docs.html"), "utf8");
+    const header = /<header class="nav">[\s\S]*?<\/header>/;
+
+    const landingHeader = landing.match(header)?.[0];
+    const docsHeader = docs.match(header)?.[0];
+
+    expect(landingHeader).toBeTruthy();
+    expect(docsHeader).toBeTruthy();
+    expect(landingHeader).toContain('href="./"');
+    expect(landingHeader).toContain('href="docs.html"');
+    expect(landingHeader).toContain("View on GitHub");
+    expect(landingHeader).toContain('class="btn btn-ghost"');
+    expect(docsHeader).toBe(landingHeader);
+  });
+
   it("publishes a docs page for Mac, Windows, and agents", () => {
     const html = readFileSync(join(siteDir, "docs.html"), "utf8");
     expect(html).toContain("How to run it.");

@@ -653,6 +653,10 @@ h2 {
   gap: 0.25rem;
 }
 
+.guide-hero .guide-jump {
+  margin-top: 1.5rem;
+}
+
 .guide-jump a {
   border-radius: var(--radius);
   padding: 0.375rem 0.5rem;
