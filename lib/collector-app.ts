@@ -2,12 +2,16 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
-import { APP_NAME } from "@/lib/site";
+import {
+  BRAND_MARK_VIEWBOX,
+  pointInBrandMark,
+} from "@/lib/brand-mark";
 import {
   COLLECTOR_BUNDLE_ID,
   collectorAppExecutablePath,
   collectorAppPath,
 } from "@/lib/paths";
+import { APP_NAME } from "@/lib/site";
 
 export type CollectorAppCommand = {
   homeDir: string;
@@ -60,20 +64,20 @@ function inRoundedRect(
 }
 
 function brandPixel(x: number, y: number): [number, number, number] {
-  const scale = ICON_SIZE / 64;
-  const inIcon = inRoundedRect(x, y, 2, 2, ICON_SIZE - 3, ICON_SIZE - 3, 12 * scale);
+  const inIcon = inRoundedRect(x, y, 2, 2, ICON_SIZE - 3, ICON_SIZE - 3, 12 * (ICON_SIZE / 64));
   if (!inIcon) return [0, 0, 0];
-  const bars: Array<[number, number, number, number]> = [
-    [14, 37, 9, 13],
-    [28, 27, 9, 23],
-    [42, 14, 9, 36],
-  ];
-  for (const [bx, by, bw, bh] of bars) {
-    const left = bx * scale;
-    const top = by * scale;
-    if (x >= left && x < left + bw * scale && y >= top && y < top + bh * scale) {
-      return [0x2d, 0xd4, 0xbf];
-    }
+  const pad = ICON_SIZE * 0.18;
+  const inner = ICON_SIZE - pad * 2;
+  const scale = Math.min(
+    inner / BRAND_MARK_VIEWBOX.width,
+    inner / BRAND_MARK_VIEWBOX.height,
+  );
+  const markWidth = BRAND_MARK_VIEWBOX.width * scale;
+  const markHeight = BRAND_MARK_VIEWBOX.height * scale;
+  const localX = (x - (ICON_SIZE - markWidth) / 2) / scale;
+  const localY = (y - (ICON_SIZE - markHeight) / 2) / scale;
+  if (pointInBrandMark(localX, localY)) {
+    return [0x2d, 0xd4, 0xbf];
   }
   return [0x09, 0x09, 0x0b];
 }

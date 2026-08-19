@@ -1,5 +1,6 @@
 import { kicker, sectionTitle } from "@/app/components/chrome";
 import { formatMbps } from "@/app/components/stats";
+import { SaveTapePng } from "@/app/components/save-tape-png";
 import { TermTip } from "@/app/components/term-tip";
 import {
   DAY_PART_LABELS,
@@ -31,10 +32,13 @@ export function SpeedTape({ cells }: { cells: TapeCell[] }) {
         <h2 className={`min-w-0 ${sectionTitle}`}>
           <TermTip term="range24h">24hr History</TermTip>
         </h2>
-        <p className={`min-w-0 leading-snug sm:shrink sm:text-right ${kicker}`}>
-          <TermTip term="download">Avg download</TermTip>
-          {" · one bar per hour"}
-        </p>
+        <div className="flex min-w-0 flex-col items-start gap-3 sm:items-end">
+          <p className={`min-w-0 leading-snug sm:text-right ${kicker}`}>
+            <TermTip term="download">Avg download</TermTip>
+            {" · one bar per hour"}
+          </p>
+          <SaveTapePng cells={cells} />
+        </div>
       </div>
       <div className="flex min-w-0 gap-0">
         {groups.map((group, index) => (

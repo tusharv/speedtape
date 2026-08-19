@@ -6,6 +6,9 @@ import {
   CLONE_COMMAND,
   COPY_FEEDBACK_MS,
   GITHUB_URL,
+  OG_IMAGE_ALT,
+  OG_IMAGE_URL,
+  PAGES_URL,
   WINDOWS_BUILD_TOOLS_NOTE,
   commandsFor,
   copyCommand,
@@ -14,7 +17,9 @@ import {
   landingHourReadout,
   landingTapeCells,
   summarizeTapeGroups,
+  tapeBarHeightPct,
 } from "./landing.mjs";
+import { brandMarkPointsAttr, brandMarkPolygons } from "@/lib/brand-mark";
 
 const siteDir = dirname(fileURLToPath(import.meta.url));
 
@@ -76,6 +81,9 @@ describe("copy helpers", () => {
       "git clone https://github.com/tusharv/speedtape.git",
     );
     expect(GITHUB_URL).toBe("https://github.com/tusharv/speedtape");
+    expect(PAGES_URL).toBe("https://tusharv.github.io/speedtape");
+    expect(OG_IMAGE_URL).toBe("https://tusharv.github.io/speedtape/og.png");
+    expect(OG_IMAGE_ALT).toBe("Speedtape 24 hour sample tape");
     expect(COPY_FEEDBACK_MS).toBe(1800);
   });
 
@@ -131,6 +139,10 @@ describe("sample tape", () => {
       "Noon 12:00  110.0 down  12.0 up  9.0 ping",
     );
     expect(landingHourReadout(cells[18]!)).toBe("Evening 18:00 failed");
+    expect(tapeBarHeightPct(cells[18]!, 110)).toBe(tapeBarHeightPct(cells[10]!, 0));
+    expect(tapeBarHeightPct(cells[18]!, 110)).toBeLessThan(
+      tapeBarHeightPct(cells[12]!, 110),
+    );
   });
 
   it("groups sample hours by day part", () => {
@@ -170,6 +182,11 @@ describe("pages markup", () => {
     expect(html).not.toMatch(/Open dashboard/i);
     expect(html).toContain('data-brand-mark="true"');
     expect(html).toContain('class="mark"');
+    expect(html).toContain("<polygon");
+    expect(html).not.toContain("data-brand-bars");
+    for (const points of brandMarkPolygons().map(brandMarkPointsAttr)) {
+      expect(html).toContain(`points="${points}"`);
+    }
     const cloneStart = html.indexOf('data-copy="clone"');
     const cloneBlock = html.slice(
       cloneStart,
@@ -179,6 +196,36 @@ describe("pages markup", () => {
     expect(cloneBlock).toContain("aria-live");
     expect(cloneBlock).not.toContain("sr-live");
     expect(cloneBlock).not.toContain("sr-only");
+    const hero = html.slice(
+      html.indexOf('class="hero-copy"'),
+      html.indexOf('class="printout"'),
+    );
+    expect(hero).toContain("btn-primary");
+    expect(hero).toContain('data-copy="clone"');
+    expect(hero).not.toContain("View on GitHub");
+  });
+
+  it("unfurls with an absolute open graph image", () => {
+    const landing = readFileSync(join(siteDir, "index.html"), "utf8");
+    const docs = readFileSync(join(siteDir, "docs.html"), "utf8");
+    for (const html of [landing, docs]) {
+      expect(html).toContain(`content="${OG_IMAGE_URL}"`);
+      expect(html).toContain(`content="${OG_IMAGE_ALT}"`);
+      expect(html).toContain('name="twitter:card"');
+      expect(html).toContain("summary_large_image");
+      expect(html).toContain(`content="${PAGES_URL}/"`);
+    }
+  });
+
+  it("publishes a 1200 by 630 open graph png", () => {
+    const png = readFileSync(join(siteDir, "og.png"));
+    expect([...png.subarray(0, 8)]).toEqual([
+      137, 80, 78, 71, 13, 10, 26, 10,
+    ]);
+    expect(png.readUInt32BE(16)).toBe(1200);
+    expect(png.readUInt32BE(20)).toBe(630);
+    const nextPng = readFileSync(join(siteDir, "..", "app", "opengraph-image.png"));
+    expect(nextPng.equals(png)).toBe(true);
   });
 
   it("does not stretch the hero to the full viewport", () => {

@@ -211,4 +211,13 @@ describe("tapeBarHeightPct", () => {
     expect(tapeBarHeightPct(weatherCell("14", null, true), 80)).toBeLessThan(30);
     expect(tapeBarHeightPct(weatherCell("12", 40), 0)).toBeLessThan(15);
   });
+
+  it("treats a failed hour as no speed, not a short reading", () => {
+    const empty = tapeBarHeightPct(weatherCell("13", null), 110);
+    const failed = tapeBarHeightPct(weatherCell("18", null, true), 110);
+    const slow = tapeBarHeightPct(weatherCell("12", 22), 110);
+
+    expect(failed).toBe(empty);
+    expect(failed).toBeLessThan(slow);
+  });
 });

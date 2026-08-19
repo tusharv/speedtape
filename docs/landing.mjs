@@ -3,6 +3,9 @@
 export const APP_NAME = "Speedtape";
 export const LICENSE_LABEL = "MIT";
 export const GITHUB_URL = "https://github.com/tusharv/speedtape";
+export const PAGES_URL = "https://tusharv.github.io/speedtape";
+export const OG_IMAGE_URL = `${PAGES_URL}/og.png`;
+export const OG_IMAGE_ALT = "Speedtape 24 hour sample tape";
 export const CLONE_COMMAND = "git clone https://github.com/tusharv/speedtape.git";
 export const COPY_FEEDBACK_MS = 1800;
 export const WINDOWS_BUILD_TOOLS_NOTE =
@@ -186,7 +189,7 @@ export function tapeBarMax(cells) {
 export function tapeBarHeightPct(cell, max) {
   const value = successfulDownload(cell);
   if (value === null || max <= 0) {
-    return cell.failed ? 20 : 8;
+    return 8;
   }
   return Math.max(8, (value / max) * 100);
 }

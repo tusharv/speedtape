@@ -137,7 +137,7 @@ export function tapeBarTitle(cell: TapeCell): string {
 }
 
 const EMPTY_STUB_PCT = 8;
-const FAIL_STUB_PCT = 20;
+const FAIL_STUB_PCT = EMPTY_STUB_PCT;
 
 export function tapeBarHeightPct(cell: TapeCell, max: number): number {
   const value = successfulDownload(cell);

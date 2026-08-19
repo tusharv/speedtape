@@ -1,12 +1,17 @@
 import Link from "next/link";
 import { APP_NAME } from "@/lib/site";
+import {
+  BRAND_MARK_VIEWBOX,
+  brandMarkPointsAttr,
+  brandMarkPolygons,
+} from "@/lib/brand-mark";
 
 type BrandMarkSize = "sm" | "md" | "lg";
 
 const markSizes: Record<BrandMarkSize, string> = {
-  sm: "size-7",
-  md: "size-9",
-  lg: "size-16",
+  sm: "h-5 w-auto",
+  md: "h-7 w-auto",
+  lg: "h-12 w-auto",
 };
 
 export function BrandMark({
@@ -17,20 +22,20 @@ export function BrandMark({
   className?: string;
 }) {
   return (
-    <span
+    <svg
       aria-hidden="true"
       data-brand-mark="true"
-      className={`relative inline-flex shrink-0 rounded-lg border border-copper/40 bg-copper/5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] ${markSizes[size]} ${className}`}
+      viewBox={`0 0 ${BRAND_MARK_VIEWBOX.width} ${BRAND_MARK_VIEWBOX.height}`}
+      className={`inline-block shrink-0 ${markSizes[size]} ${className}`}
     >
-      <span
-        data-brand-bars="true"
-        className="absolute inset-[20%] flex items-end gap-[12%]"
-      >
-        <span className="h-[34%] min-w-0 flex-1 rounded-[1px] bg-copper" />
-        <span className="h-[61%] min-w-0 flex-1 rounded-[1px] bg-copper" />
-        <span className="h-[88%] min-w-0 flex-1 rounded-[1px] bg-copper" />
-      </span>
-    </span>
+      {brandMarkPolygons().map((points) => (
+        <polygon
+          key={brandMarkPointsAttr(points)}
+          points={brandMarkPointsAttr(points)}
+          className="fill-copper"
+        />
+      ))}
+    </svg>
   );
 }
 

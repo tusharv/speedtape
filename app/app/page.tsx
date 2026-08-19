@@ -1,18 +1,10 @@
 import Link from "next/link";
 import { connection } from "next/server";
-import { HistoryRuns } from "@/app/components/history-runs";
+import { DashboardHistory } from "@/app/components/dashboard-history";
 import { RunTestButton } from "@/app/components/run-test-button";
 import { PageIntro, PageShell, SiteHeader } from "@/app/components/site-nav";
-import { SpeedChart } from "@/app/components/speed-chart";
 import { SpeedTape } from "@/app/components/speed-tape";
-import {
-  RangeTabs,
-  Stat,
-  Triple,
-  formatMbps,
-  formatMs,
-  formatTime,
-} from "@/app/components/stats";
+import { Stat, formatMbps, formatMs, formatTime } from "@/app/components/stats";
 import { TermTip } from "@/app/components/term-tip";
 import { loadDashboard } from "@/lib/dashboard";
 import { parseRange } from "@/lib/range";
@@ -35,7 +27,7 @@ export default async function Home({
   const data = loadDashboard(range);
   const latestOk =
     data.latest && data.latest.error === null ? data.latest : null;
-  const empty = data.preview.length === 0 && !data.latest;
+  const empty = !data.latest;
 
   return (
     <PageShell>
@@ -120,66 +112,14 @@ export default async function Home({
         />
       </section>
 
-      <section className="flex min-w-0 flex-col gap-6 rounded-lg border border-hairline bg-raised px-5 py-6 sm:px-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-          <div className="min-w-0">
-            <h2 className="font-display text-2xl font-semibold tracking-[-0.03em] text-paper">History</h2>
-            <p className="mt-2 text-xs leading-5 text-muted">
-              <TermTip term="minAvgMax">Min / avg / max</TermTip> from successful
-              tests in this range
-            </p>
-          </div>
-          <RangeTabs range={range} />
-        </div>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Triple
-            label="Down"
-            stats={data.summary.download}
-            unit="Mbps"
-            term="download"
-            unitTerm="mbps"
-          />
-          <Triple
-            label="Up"
-            stats={data.summary.upload}
-            unit="Mbps"
-            term="upload"
-            unitTerm="mbps"
-          />
-          <Triple
-            label="Ping"
-            stats={data.summary.ping}
-            unit="ms"
-            term="ping"
-            unitTerm="ms"
-          />
-        </div>
-        <SpeedChart points={data.chart} range={range} />
-        <div className="flex flex-col gap-4 border-t border-hairline pt-5 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-muted">
-            {data.latest?.isp ? (
-              <>
-                <TermTip term="isp">{data.latest.isp}</TermTip>
-                {data.latest.serverName ? (
-                  <>
-                    {" · "}
-                    <TermTip term="server">{data.latest.serverName}</TermTip>
-                  </>
-                ) : null}
-              </>
-            ) : (
-              <>
-                <TermTip term="isp">ISP</TermTip> unknown until a successful test
-              </>
-            )}
-          </p>
-          <RunTestButton />
-        </div>
-      </section>
-
-      {data.preview.length > 0 ? (
-        <HistoryRuns tests={data.preview} range={range} />
-      ) : null}
+      <DashboardHistory
+        initialRange={range}
+        initialSummary={data.summary}
+        initialChart={data.chart}
+        initialPreview={data.preview}
+        isp={data.latest?.isp}
+        serverName={data.latest?.serverName}
+      />
     </PageShell>
   );
 }

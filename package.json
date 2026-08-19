@@ -12,7 +12,8 @@
     "test:watch": "vitest --reporter=verbose",
     "speedtest": "tsx scripts/run-speedtest.ts",
     "install-agent": "tsx scripts/install-agent.ts",
-    "uninstall-agent": "tsx scripts/uninstall-agent.ts"
+    "uninstall-agent": "tsx scripts/uninstall-agent.ts",
+    "render-og": "tsx scripts/render-og-image.tsx"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

@@ -80,4 +80,15 @@ describe("SpeedTape", () => {
     expect(html).toContain("bg-amber");
     expect(html).toContain("bg-copper");
   });
+
+  it("offers Save PNG when the tape has bars", () => {
+    const html = renderToStaticMarkup(<SpeedTape cells={noonCells} />);
+    expect(html).toContain("Save PNG");
+  });
+
+  it("hides Save PNG when there are no bars", () => {
+    const html = renderToStaticMarkup(<SpeedTape cells={[]} />);
+    expect(html).toContain("24hr History");
+    expect(html).not.toContain("Save PNG");
+  });
 });

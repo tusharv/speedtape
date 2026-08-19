@@ -26,27 +26,47 @@ import { listSchedules } from "@/lib/schedules";
 import { buildSpeedTape, type TapeCell } from "@/lib/tape";
 import type { SpeedTestRow } from "@/lib/types";
 
-export type DashboardData = {
+export type DashboardHistoryData = {
   range: Range;
-  latest: SpeedTestRow | null;
   summary: Summary;
-  tape: TapeCell[];
   chart: ChartPoint[];
   preview: SpeedTestRow[];
+};
+
+export type DashboardData = DashboardHistoryData & {
+  latest: SpeedTestRow | null;
+  tape: TapeCell[];
   agentsLoaded: number;
 };
+
+function dashboardHistoryFrom(
+  db: Database.Database,
+  range: Range,
+  now: Date,
+): DashboardHistoryData {
+  return {
+    range,
+    summary: summarizeRange(db, range, now),
+    chart: downsampleChart(listChartPoints(db, range, now)),
+    preview: listRecentSpeedTests(db, range, now),
+  };
+}
+
+export function loadDashboardHistory(
+  range: Range,
+  now = new Date(),
+): DashboardHistoryData {
+  return withDatabase((db) => dashboardHistoryFrom(db, range, now));
+}
 
 export function loadDashboard(range: Range, now = new Date()): DashboardData {
   return withDatabase((db) => {
     const runtime = houseCollectorRuntime();
     const tapeSource = listSpeedTests(db, "24h", now);
     return {
-      range,
+      ...dashboardHistoryFrom(db, range, now),
       latest: getLatest(db),
-      summary: summarizeRange(db, range, now),
       tape: buildSpeedTape(tapeSource, now),
-      chart: downsampleChart(listChartPoints(db, range, now)),
-      preview: listRecentSpeedTests(db, range, now),
       agentsLoaded: listSchedules(db).filter((row) => runtime.isLoaded(row.id))
         .length,
     };

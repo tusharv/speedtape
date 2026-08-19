@@ -142,52 +142,19 @@ dd {
 }
 
 .mark {
-  position: relative;
-  display: inline-flex;
+  display: block;
   flex-shrink: 0;
-  width: 2.25rem;
-  height: 2.25rem;
-  border: 1px solid color-mix(in oklab, var(--copper) 40%, transparent);
-  border-radius: var(--radius);
-  background: color-mix(in oklab, var(--copper) 5%, transparent);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  width: auto;
+  height: 1.75rem;
+  overflow: visible;
 }
 
 .mark-sm {
-  width: 1.75rem;
-  height: 1.75rem;
+  height: 1.25rem;
 }
 
 .mark-lg {
-  width: 4rem;
-  height: 4rem;
-}
-
-[data-brand-bars] {
-  position: absolute;
-  inset: 20%;
-  display: flex;
-  align-items: flex-end;
-  gap: 12%;
-}
-
-[data-brand-bars] span {
-  min-width: 0;
-  flex: 1;
-  border-radius: 1px;
-  background: var(--copper);
-}
-
-[data-brand-bars] span:nth-child(1) {
-  height: 34%;
-}
-
-[data-brand-bars] span:nth-child(2) {
-  height: 61%;
-}
-
-[data-brand-bars] span:nth-child(3) {
-  height: 88%;
+  height: 3rem;
 }
 
 .icon {
@@ -274,6 +241,11 @@ dd {
   justify-content: center;
   border-radius: inherit;
   background: var(--ink);
+}
+
+.btn-primary[data-copy="clone"] .copy-status:not(:empty) {
+  background: var(--copper);
+  color: var(--ink);
 }
 
 .btn:focus-visible,

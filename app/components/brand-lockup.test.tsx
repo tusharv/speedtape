@@ -10,11 +10,13 @@ describe("BrandLockup", () => {
     expect(html).toContain('aria-label="Speedtape home"');
     expect(html).toContain("<span>Speedtape</span>");
     expect(html).toMatch(
-      /<span(?=[^>]*data-brand-mark="true")(?=[^>]*aria-hidden="true")[^>]*>/,
+      /<(?:svg|span)(?=[^>]*data-brand-mark="true")(?=[^>]*aria-hidden="true")[^>]*>/,
     );
-    expect(html).toMatch(
-      /<span[^>]*data-brand-bars="true"[^>]*class="[^"]*absolute[^"]*inset-\[20%\][^"]*flex[^"]*items-end[^"]*gap-\[12%\][^"]*"[^>]*>/,
-    );
+    expect(html).toContain("<svg");
+    expect(html).toContain("<polygon");
+    expect(html).not.toContain("border-copper/40");
+    expect(html).not.toContain("data-brand-bars");
+    expect(html).not.toContain("inset-[20%]");
   });
 
   it("supports compact and prominent signal mark sizes", () => {
@@ -25,8 +27,9 @@ describe("BrandLockup", () => {
       </>,
     );
 
-    expect(html).toMatch(/data-brand-mark="true"[^>]*class="[^"]*size-7/);
-    expect(html).toMatch(/data-brand-mark="true"[^>]*class="[^"]*size-16/);
+    expect(html).toMatch(/data-brand-mark="true"[^>]*class="[^"]*h-5/);
+    expect(html).toMatch(/data-brand-mark="true"[^>]*class="[^"]*h-12/);
+    expect(html).not.toMatch(/data-brand-mark="true"[^>]*class="[^"]*size-7/);
   });
 
   it("uses a custom accessible label for non-home links", () => {

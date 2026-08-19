@@ -1,6 +1,14 @@
 # Speedtape
 
-Internet speed for the house. Results stay in SQLite on this computer. Collectors run the same test on the schedules you set, even when the dashboard is closed.
+House internet record. Scheduled tests you can take to your ISP.
+
+[![24 hour sample tape](docs/og.png)](https://tusharv.github.io/speedtape/)
+
+```bash
+git clone https://github.com/tusharv/speedtape.git
+```
+
+The public project page is [https://tusharv.github.io/speedtape/](https://tusharv.github.io/speedtape/). That page is not the local dashboard.
 
 ## What you need
 
@@ -37,8 +45,6 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) for the landing page, then Open dashboard, or go to [http://localhost:3000/app](http://localhost:3000/app). From another device on the same Wi-Fi use `http://<this-computer-lan-ip>:3000`. The dev server listens on all interfaces and allows private LAN origins so charts and **Run test now** work off-localhost.
 
-The public project page lives in `docs/` and is served at [https://tusharv.github.io/speedtape/](https://tusharv.github.io/speedtape/) after GitHub Pages is set to GitHub Actions. That page is not the local dashboard.
-
 ## Collectors
 
 Open [http://localhost:3000/app/config](http://localhost:3000/app/config) to add or remove agents and set each one to an interval (15 minutes through 24 hours) or to clock times. You can also use the CLI:
@@ -73,7 +79,7 @@ The computer must be **awake** for scheduled tests. Sleeping skips the job. Clos
 
 ## Dashboard
 
-`/app` shows the latest download, upload, and ping, a 24-hour speed tape, a history chart (24h / 7d / 30d / all), and a Runs list of each sample. `/app/runs` is the archive: pick start and end days, or a 24h / 7d / 30d window, then filter by status, slow download, or high ping, and Save CSV for that window. `/app/config` adds and removes collectors. Sort newest, oldest, slowest download, or highest ping. Failed tests are stored as error rows so gaps stay visible. Open a failed run to see when the line went down and when it came back.
+`/app` shows the latest download, upload, and ping, a 24-hour speed tape, a history chart (24h / 7d / 30d / all), and a Runs list of each sample. Save PNG on the 24-hour tape downloads a card of that window; samples stay on this computer. `/app/runs` is the archive: pick start and end days, or a 24h / 7d / 30d window, then filter by status, slow download, or high ping, and Save CSV for that window. `/app/config` adds and removes collectors. Sort newest, oldest, slowest download, or highest ping. Failed tests are stored as error rows so gaps stay visible. Open a failed run to see when the line went down and when it came back.
 
 ## Scripts
 

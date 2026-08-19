@@ -1,11 +1,7 @@
-import Link from "next/link";
-import { chipClass, kicker } from "@/app/components/chrome";
+import { kicker } from "@/app/components/chrome";
 import { TermTip } from "@/app/components/term-tip";
-import { RANGE_LABELS, RANGES } from "@/lib/range";
-import { homeHref } from "@/lib/runs";
 import type { MetricStats } from "@/lib/db";
 import type { TermKey } from "@/lib/terms";
-import type { Range } from "@/lib/types";
 
 function formatMbps(value: number | null): string {
   return value === null ? "—" : value.toFixed(1);
@@ -89,38 +85,5 @@ function Triple({
   );
 }
 
-const RANGE_TERMS: Record<Range, TermKey> = {
-  "24h": "range24h",
-  "7d": "range7d",
-  "30d": "range30d",
-  all: "rangeAll",
-};
-
-export function RangeTabs({
-  range,
-  hrefFor = homeHref,
-  label = "History range",
-}: {
-  range: Range | null;
-  hrefFor?: (range: Range) => string;
-  label?: string;
-}) {
-  return (
-    <nav aria-label={label} className="flex flex-wrap gap-2">
-      {RANGES.map((value) => {
-        const active = range !== null && value === range;
-        return (
-          <Link
-            key={value}
-            href={hrefFor(value)}
-            className={chipClass(active)}
-          >
-            <TermTip term={RANGE_TERMS[value]}>{RANGE_LABELS[value]}</TermTip>
-          </Link>
-        );
-      })}
-    </nav>
-  );
-}
-
+export { RangeTabs } from "@/app/components/range-tabs";
 export { formatMbps, formatMs, formatPercent, formatTime, detail, Stat, Triple };
