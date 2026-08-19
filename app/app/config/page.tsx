@@ -1,10 +1,8 @@
-import os from "node:os";
 import { connection } from "next/server";
 import { AddAgentForm } from "@/app/components/add-agent-form";
 import { AgentList } from "@/app/components/agent-list";
 import { PageIntro, PageShell, SiteHeader } from "@/app/components/site-nav";
-import { agentRuntimePaths, loadConfigAgents } from "@/lib/agent-sync";
-import { defaultCollectorRuntime } from "@/lib/collector-runtime";
+import { houseAgentContext, loadConfigAgents } from "@/lib/agent-sync";
 import { withDatabase } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -17,17 +15,7 @@ export const metadata = {
 
 export default async function ConfigPage() {
   await connection();
-  const agents = withDatabase((db) =>
-    loadConfigAgents({
-      homeDir: os.homedir(),
-      db,
-      runtime: defaultCollectorRuntime({
-        homeDir: os.homedir(),
-        ...agentRuntimePaths(),
-      }),
-      ...agentRuntimePaths(),
-    }),
-  );
+  const agents = withDatabase((db) => loadConfigAgents(houseAgentContext(db)));
 
   return (
     <PageShell>

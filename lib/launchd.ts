@@ -30,7 +30,7 @@ export type PlistSchedule =
   | { kind: "interval"; seconds: number }
   | { kind: "clock"; entries: CalendarEntry[] };
 
-function xmlEscape(value: string): string {
+export function xmlEscape(value: string): string {
   return value
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")

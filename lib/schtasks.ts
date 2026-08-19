@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type { CalendarEntry, PlistSchedule } from "@/lib/launchd";
+import { xmlEscape, type CalendarEntry, type PlistSchedule } from "@/lib/launchd";
 
 const WEEKDAY_TAGS = [
   "Sunday",
@@ -26,13 +26,6 @@ export type SchtasksCtl = {
   create: (taskName: string, xml: string) => void;
   delete: (taskName: string) => boolean;
 };
-
-function xmlEscape(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
-}
 
 function pad2(value: number): string {
   return String(value).padStart(2, "0");

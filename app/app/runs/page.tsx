@@ -2,7 +2,7 @@ import { connection } from "next/server";
 import { RunArchive } from "@/app/components/run-archive";
 import { PageIntro, PageShell, SiteHeader } from "@/app/components/site-nav";
 import { loadArchive } from "@/lib/dashboard";
-import { parseArchiveQuery } from "@/lib/runs";
+import { firstSearchParam, parseArchiveQuery } from "@/lib/runs";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -12,22 +12,18 @@ export const metadata = {
   description: "Every speed test stored on this computer",
 };
 
-function firstString(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
-}
-
 export default async function RunsPage({ searchParams }: PageProps<"/app/runs">) {
   await connection();
   const params = await searchParams;
   const query = parseArchiveQuery({
-    range: firstString(params.range),
-    from: firstString(params.from),
-    to: firstString(params.to),
-    status: firstString(params.status),
-    slow: firstString(params.slow),
-    ping: firstString(params.ping),
-    sort: firstString(params.sort),
-    isp: firstString(params.isp),
+    range: firstSearchParam(params.range),
+    from: firstSearchParam(params.from),
+    to: firstSearchParam(params.to),
+    status: firstSearchParam(params.status),
+    slow: firstSearchParam(params.slow),
+    ping: firstSearchParam(params.ping),
+    sort: firstSearchParam(params.sort),
+    isp: firstSearchParam(params.isp),
   });
   const data = loadArchive(query);
 

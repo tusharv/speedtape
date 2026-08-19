@@ -9,21 +9,18 @@ import {
   BrandLockup,
   BrandMark,
 } from "@/app/components/brand-lockup";
+import { primaryCta, secondaryCta } from "@/app/components/chrome";
 import { LandingCommands } from "@/app/components/landing-commands";
 import { LandingTape } from "@/app/components/landing-tape";
 import { RunCard } from "@/app/components/run-card";
 import { SiteHeader } from "@/app/components/site-nav";
 import { landingSampleRuns, landingTapeCells } from "@/lib/landing-tape";
 import { DOCS_HREF, DOCS_LABEL } from "@/lib/guide";
+import { firstSearchParam } from "@/lib/runs";
 import { GITHUB_URL, LICENSE_LABEL } from "@/lib/site";
 
 const dashboardHref = "/app";
 const icon = { size: 15, weight: "regular" as const, "aria-hidden": true };
-
-const primaryCta =
-  "inline-flex w-full items-center justify-center gap-2 rounded-lg border border-copper bg-copper px-4 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.12em] text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.16)] outline-none transition-[transform,background-color] hover:bg-paper hover:text-ink active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:w-auto sm:whitespace-nowrap";
-const secondaryCta =
-  "inline-flex w-full items-center justify-center gap-2 rounded-lg border border-hairline px-3 py-2 text-center text-[11px] font-medium uppercase tracking-[0.1em] text-paper outline-none transition-[transform,border-color,color] hover:border-copper hover:text-copper active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:w-auto sm:whitespace-nowrap sm:px-4 sm:text-xs";
 
 const systemFacts = [
   {
@@ -63,18 +60,12 @@ const ispSteps = [
   },
 ] as const;
 
-function firstString(
-  value: string | string[] | undefined,
-): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
-}
-
 export default async function Landing({ searchParams }: PageProps<"/">) {
   const params = await searchParams;
   if (typeof params.range === "string") {
     const qs = new URLSearchParams();
     for (const [key, value] of Object.entries(params)) {
-      const text = firstString(value);
+      const text = firstSearchParam(value);
       if (text !== undefined) qs.set(key, text);
     }
     redirect(`/app?${qs.toString()}`);

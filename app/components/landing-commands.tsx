@@ -11,96 +11,35 @@ import {
   WINDOWS_BUILD_TOOLS_NOTE,
   WINDOWS_COMMANDS,
 } from "@/lib/guide";
+import {
+  COPY_FEEDBACK_MS,
+  copyCommand,
+  copyFeedbackReducer,
+  createCopyRequestTracker,
+  detectSetupOs,
+  initialCopyFeedbackState,
+  type SetupOs,
+} from "@/app/components/copy-command";
 
 const icon = { size: 15, weight: "regular" as const, "aria-hidden": true };
 
-export type SetupOs = "mac" | "windows";
+export type { SetupOs };
 
 export {
   MAC_COMMANDS,
   WINDOWS_BUILD_TOOLS_NOTE,
   WINDOWS_COMMANDS,
+  COPY_FEEDBACK_MS,
+  copyCommand,
+  copyFeedbackReducer,
+  createCopyRequestTracker,
+  detectSetupOs,
+  initialCopyFeedbackState,
 };
-
-export function detectSetupOs(userAgent: string): SetupOs {
-  return /windows/i.test(userAgent) ? "windows" : "mac";
-}
+export type { CopyFeedbackState, CopyResult } from "@/app/components/copy-command";
 
 function commandsFor(os: SetupOs) {
   return os === "windows" ? WINDOWS_COMMANDS : MAC_COMMANDS;
-}
-
-export const COPY_FEEDBACK_MS = 1800;
-
-export type CopyResult = "copied" | "failed";
-export type CopyFeedbackState = {
-  latestRequestId: number;
-  feedback?: { name: string; result: CopyResult };
-};
-type CopyFeedbackAction =
-  | { type: "start"; requestId: number }
-  | { type: "settle"; requestId: number; name: string; result: CopyResult }
-  | { type: "reset"; requestId: number };
-
-export const initialCopyFeedbackState: CopyFeedbackState = {
-  latestRequestId: 0,
-};
-
-export async function copyCommand(
-  writeText: ((text: string) => Promise<void>) | undefined,
-  command: string,
-): Promise<CopyResult> {
-  if (!writeText) {
-    return "failed";
-  }
-
-  try {
-    await writeText(command);
-    return "copied";
-  } catch {
-    return "failed";
-  }
-}
-
-export function createCopyRequestTracker() {
-  let active = true;
-  let latestRequestId = 0;
-
-  return {
-    start() {
-      active = true;
-      latestRequestId += 1;
-      return latestRequestId;
-    },
-    isCurrent(requestId: number) {
-      return active && requestId === latestRequestId;
-    },
-    invalidate() {
-      active = false;
-      latestRequestId += 1;
-    },
-  };
-}
-
-export function copyFeedbackReducer(
-  state: CopyFeedbackState,
-  action: CopyFeedbackAction,
-): CopyFeedbackState {
-  switch (action.type) {
-    case "start":
-      return { latestRequestId: action.requestId };
-    case "settle":
-      return action.requestId === state.latestRequestId
-        ? {
-            ...state,
-            feedback: { name: action.name, result: action.result },
-          }
-        : state;
-    case "reset":
-      return action.requestId === state.latestRequestId
-        ? { latestRequestId: state.latestRequestId }
-        : state;
-  }
 }
 
 export function CopyCommandList({
@@ -129,6 +68,35 @@ export function CopyCommandList({
     [],
   );
 
+  async function copyNamedCommand(name: string, command: string) {
+    const copyRequest = copyRequests.current.start();
+    if (feedbackTimeout.current !== null) {
+      window.clearTimeout(feedbackTimeout.current);
+      feedbackTimeout.current = null;
+    }
+    dispatchCopyState({ type: "start", requestId: copyRequest });
+    const nextResult = await copyCommand(
+      navigator.clipboard?.writeText?.bind(navigator.clipboard),
+      command,
+    );
+    if (!copyRequests.current.isCurrent(copyRequest)) {
+      return;
+    }
+    dispatchCopyState({
+      type: "settle",
+      requestId: copyRequest,
+      name,
+      result: nextResult,
+    });
+    feedbackTimeout.current = window.setTimeout(() => {
+      if (!copyRequests.current.isCurrent(copyRequest)) {
+        return;
+      }
+      dispatchCopyState({ type: "reset", requestId: copyRequest });
+      feedbackTimeout.current = null;
+    }, COPY_FEEDBACK_MS);
+  }
+
   return (
     <div>
       <ul className="min-w-0 divide-y divide-hairline">
@@ -148,34 +116,7 @@ export function CopyCommandList({
             <li key={`${listKey}-${item.name}`}>
               <button
                 type="button"
-                onClick={async () => {
-                  const copyRequest = copyRequests.current.start();
-                  if (feedbackTimeout.current !== null) {
-                    window.clearTimeout(feedbackTimeout.current);
-                    feedbackTimeout.current = null;
-                  }
-                  dispatchCopyState({ type: "start", requestId: copyRequest });
-                  const nextResult = await copyCommand(
-                    navigator.clipboard?.writeText?.bind(navigator.clipboard),
-                    item.command,
-                  );
-                  if (!copyRequests.current.isCurrent(copyRequest)) {
-                    return;
-                  }
-                  dispatchCopyState({
-                    type: "settle",
-                    requestId: copyRequest,
-                    name: item.name,
-                    result: nextResult,
-                  });
-                  feedbackTimeout.current = window.setTimeout(() => {
-                    if (!copyRequests.current.isCurrent(copyRequest)) {
-                      return;
-                    }
-                    dispatchCopyState({ type: "reset", requestId: copyRequest });
-                    feedbackTimeout.current = null;
-                  }, COPY_FEEDBACK_MS);
-                }}
+                onClick={() => void copyNamedCommand(item.name, item.command)}
                 className="group flex w-full min-w-0 flex-col items-start gap-3 py-6 text-left outline-none transition-[color,transform] hover:text-copper active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-panel"
               >
                 <span className="flex w-full items-center justify-between gap-4">

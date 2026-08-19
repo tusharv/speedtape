@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { formatMbps, formatMs, formatTime } from "@/app/components/stats";
+import { formatMbps, formatMs, formatPercent, formatTime, detail } from "@/app/components/stats";
 import { TapeMark, passSerial } from "@/app/components/tape-mark";
 import { TermTip } from "@/app/components/term-tip";
 import { formatRunId, runCardId } from "@/lib/runs";
@@ -21,14 +21,6 @@ import {
 } from "@phosphor-icons/react/ssr";
 
 const iconProps = { size: 14, weight: "regular" as const, "aria-hidden": true };
-
-function formatPercent(value: number | null): string {
-  return value === null ? "—" : `${value.toFixed(1)}%`;
-}
-
-function detail(value: string | null): string {
-  return value && value.length > 0 ? value : "—";
-}
 
 function Metric({
   icon: Icon,

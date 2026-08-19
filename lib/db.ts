@@ -231,6 +231,45 @@ function rangeSince(range: Range, now: Date): string | null {
   return new Date(now.getTime() - RANGE_MS[range]).toISOString();
 }
 
+function selectSince<T>(
+  db: Database.Database,
+  since: string | null,
+  sql: { ranged: string; all: string },
+  extra: unknown[] = [],
+): T[] {
+  if (since) {
+    return db.prepare(sql.ranged).all(since, ...extra) as T[];
+  }
+  return db.prepare(sql.all).all(...extra) as T[];
+}
+
+type TimeWindow = {
+  since: string | null;
+  until: string | null;
+  isp?: string | null;
+};
+
+function windowClauses(window: TimeWindow): {
+  clauses: string[];
+  params: unknown[];
+} {
+  const clauses: string[] = [];
+  const params: unknown[] = [];
+  if (window.since) {
+    clauses.push("tested_at >= ?");
+    params.push(window.since);
+  }
+  if (window.until) {
+    clauses.push("tested_at < ?");
+    params.push(window.until);
+  }
+  if (window.isp) {
+    clauses.push("isp = ?");
+    params.push(window.isp);
+  }
+  return { clauses, params };
+}
+
 export function timeBounds(opts: {
   range: Range;
   from: string | null;
@@ -255,25 +294,12 @@ export function listSpeedTests(
   range: Range,
   now = new Date(),
 ): SpeedTestRow[] {
-  const since = rangeSince(range, now);
-
-  const rows = (
-    since
-      ? db
-          .prepare(
-            `SELECT * FROM speed_tests
+  return selectSince<DbRow>(db, rangeSince(range, now), {
+    ranged: `SELECT * FROM speed_tests
              WHERE tested_at >= ?
              ORDER BY tested_at ASC, id ASC`,
-          )
-          .all(since)
-      : db
-          .prepare(
-            `SELECT * FROM speed_tests ORDER BY tested_at ASC, id ASC`,
-          )
-          .all()
-  ) as DbRow[];
-
-  return rows.map(mapRow);
+    all: `SELECT * FROM speed_tests ORDER BY tested_at ASC, id ASC`,
+  }).map(mapRow);
 }
 
 export function listRecentSpeedTests(
@@ -282,26 +308,20 @@ export function listRecentSpeedTests(
   now = new Date(),
   limit = HOME_PREVIEW_SIZE,
 ): SpeedTestRow[] {
-  const since = rangeSince(range, now);
-  const rows = (
-    since
-      ? db
-          .prepare(
-            `SELECT * FROM speed_tests
+  return selectSince<DbRow>(
+    db,
+    rangeSince(range, now),
+    {
+      ranged: `SELECT * FROM speed_tests
              WHERE tested_at >= ?
              ORDER BY tested_at DESC, id DESC
              LIMIT ?`,
-          )
-          .all(since, limit)
-      : db
-          .prepare(
-            `SELECT * FROM speed_tests
+      all: `SELECT * FROM speed_tests
              ORDER BY tested_at DESC, id DESC
              LIMIT ?`,
-          )
-          .all(limit)
-  ) as DbRow[];
-  return rows.map(mapRow);
+    },
+    [limit],
+  ).map(mapRow);
 }
 
 export function listChartPoints(
@@ -309,30 +329,20 @@ export function listChartPoints(
   range: Range,
   now = new Date(),
 ): ChartPoint[] {
-  const since = rangeSince(range, now);
-  const rows = (
-    since
-      ? db
-          .prepare(
-            `SELECT tested_at, download_mbps, upload_mbps, ping_ms
-             FROM speed_tests
-             WHERE tested_at >= ?
-             ORDER BY tested_at ASC, id ASC`,
-          )
-          .all(since)
-      : db
-          .prepare(
-            `SELECT tested_at, download_mbps, upload_mbps, ping_ms
-             FROM speed_tests
-             ORDER BY tested_at ASC, id ASC`,
-          )
-          .all()
-  ) as Array<{
+  const rows = selectSince<{
     tested_at: string;
     download_mbps: number | null;
     upload_mbps: number | null;
     ping_ms: number | null;
-  }>;
+  }>(db, rangeSince(range, now), {
+    ranged: `SELECT tested_at, download_mbps, upload_mbps, ping_ms
+             FROM speed_tests
+             WHERE tested_at >= ?
+             ORDER BY tested_at ASC, id ASC`,
+    all: `SELECT tested_at, download_mbps, upload_mbps, ping_ms
+             FROM speed_tests
+             ORDER BY tested_at ASC, id ASC`,
+  });
   return rows.map((row) => ({
     time: row.tested_at,
     download: row.download_mbps,
@@ -366,22 +376,17 @@ function pageWhere(query: SpeedTestPageQuery, now: Date): {
   sql: string;
   params: unknown[];
 } {
-  const clauses: string[] = [];
-  const params: unknown[] = [];
   const { since, until } = timeBounds({
     range: query.range,
     from: query.from ?? null,
     to: query.to ?? null,
     now,
   });
-  if (since) {
-    clauses.push("tested_at >= ?");
-    params.push(since);
-  }
-  if (until) {
-    clauses.push("tested_at < ?");
-    params.push(until);
-  }
+  const { clauses, params } = windowClauses({
+    since,
+    until,
+    isp: query.isp,
+  });
   if (query.status === "ok") clauses.push("error IS NULL");
   if (query.status === "failed") clauses.push("error IS NOT NULL");
   if (query.slow && query.downAvg !== null) {
@@ -393,10 +398,6 @@ function pageWhere(query: SpeedTestPageQuery, now: Date): {
   if (query.ping && query.pingAvg !== null) {
     clauses.push("error IS NULL AND ping_ms IS NOT NULL AND ping_ms > ?");
     params.push(query.pingAvg);
-  }
-  if (query.isp) {
-    clauses.push("isp = ?");
-    params.push(query.isp);
   }
   return {
     sql: clauses.length > 0 ? `WHERE ${clauses.join(" AND ")}` : "",
@@ -494,33 +495,6 @@ type SummaryRow = {
   ping_avg: number | null;
   ping_max: number | null;
 };
-
-type TimeWindow = {
-  since: string | null;
-  until: string | null;
-  isp?: string | null;
-};
-
-function windowClauses(window: TimeWindow): {
-  clauses: string[];
-  params: unknown[];
-} {
-  const clauses: string[] = [];
-  const params: unknown[] = [];
-  if (window.since) {
-    clauses.push("tested_at >= ?");
-    params.push(window.since);
-  }
-  if (window.until) {
-    clauses.push("tested_at < ?");
-    params.push(window.until);
-  }
-  if (window.isp) {
-    clauses.push("isp = ?");
-    params.push(window.isp);
-  }
-  return { clauses, params };
-}
 
 export function listIsps(
   db: Database.Database,

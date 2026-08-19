@@ -26,3 +26,9 @@ export const sectionTitle =
 
 export const kicker =
   "text-[11px] font-medium uppercase tracking-[0.12em] text-muted";
+
+export const primaryCta =
+  "inline-flex w-full items-center justify-center gap-2 rounded-lg border border-copper bg-copper px-4 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.12em] text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.16)] outline-none transition-[transform,background-color] hover:bg-paper hover:text-ink active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:w-auto sm:whitespace-nowrap";
+
+export const secondaryCta =
+  "inline-flex w-full items-center justify-center gap-2 rounded-lg border border-hairline px-3 py-2 text-center text-[11px] font-medium uppercase tracking-[0.1em] text-paper outline-none transition-[transform,border-color,color] hover:border-copper hover:text-copper active:translate-y-px focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:w-auto sm:whitespace-nowrap sm:px-4 sm:text-xs";

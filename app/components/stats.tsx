@@ -15,6 +15,14 @@ function formatMs(value: number | null): string {
   return value === null ? "—" : value.toFixed(1);
 }
 
+function formatPercent(value: number | null): string {
+  return value === null ? "—" : `${value.toFixed(1)}%`;
+}
+
+function detail(value: string | null): string {
+  return value && value.length > 0 ? value : "—";
+}
+
 function formatTime(iso: string | undefined): string {
   if (!iso) return "never";
   return new Date(iso).toLocaleString([], {
@@ -115,4 +123,4 @@ export function RangeTabs({
   );
 }
 
-export { formatMbps, formatMs, formatTime, Stat, Triple };
+export { formatMbps, formatMs, formatPercent, formatTime, detail, Stat, Triple };

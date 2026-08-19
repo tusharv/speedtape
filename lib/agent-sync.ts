@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import type Database from "better-sqlite3";
 import type { LaunchdCtl } from "@/lib/agent";
@@ -117,6 +118,31 @@ export function agentRuntimePaths(
     pathEnv: [...new Set([...extras, ...current.filter(Boolean)])].join(
       delimiter,
     ),
+  };
+}
+
+export function houseCollectorRuntime(
+  options: {
+    homeDir?: string;
+    platform?: NodeJS.Platform;
+  } = {},
+): CollectorRuntime {
+  const homeDir = options.homeDir ?? os.homedir();
+  const paths = agentRuntimePaths();
+  return defaultCollectorRuntime({
+    homeDir,
+    platform: options.platform,
+    ...paths,
+  });
+}
+
+export function houseAgentContext(db: Database.Database): AgentSyncOptions {
+  const paths = agentRuntimePaths();
+  return {
+    homeDir: os.homedir(),
+    db,
+    runtime: houseCollectorRuntime(),
+    ...paths,
   };
 }
 
