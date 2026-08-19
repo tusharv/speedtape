@@ -14,7 +14,8 @@
     "install-agent": "tsx scripts/install-agent.ts",
     "uninstall-agent": "tsx scripts/uninstall-agent.ts",
     "render-og": "tsx scripts/render-og-image.tsx",
-    "render-marketing": "tsx scripts/render-marketing-images.tsx"
+    "render-marketing": "tsx scripts/render-marketing-images.tsx",
+    "release": "tsx scripts/release.ts"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
