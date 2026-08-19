@@ -3,6 +3,7 @@
 import type { ChangeEvent } from "react";
 import {
   ArrowDownIcon,
+  BroadcastIcon,
   CalendarBlankIcon,
   CaretDownIcon,
   CheckCircleIcon,
@@ -61,11 +62,13 @@ export function RunToolbar({
   onUpdate,
   slowEnabled,
   pingEnabled,
+  providers,
 }: {
   query: ArchiveQuery;
   onUpdate: (patch: Partial<ArchiveQuery>) => void;
   slowEnabled: boolean;
   pingEnabled: boolean;
+  providers: string[];
 }) {
   function onStatus(event: ChangeEvent<HTMLSelectElement>) {
     onUpdate({ status: event.target.value as RunStatus });
@@ -80,6 +83,10 @@ export function RunToolbar({
   }
 
   const today = formatDay();
+  const providerNames =
+    query.isp && !providers.includes(query.isp)
+      ? [...providers, query.isp]
+      : providers;
 
   return (
     <div className="flex flex-col gap-4">
@@ -113,7 +120,37 @@ export function RunToolbar({
         </label>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <label className="flex min-w-0 flex-col gap-2">
+        <span className={`inline-flex items-center gap-1.5 ${kicker}`}>
+          <BroadcastIcon {...icon} />
+          <TermTip term="isp">Service provider</TermTip>
+        </span>
+        <span className="relative block">
+          <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-copper">
+            <BroadcastIcon {...icon} />
+          </span>
+          <select
+            value={query.isp ?? ""}
+            onChange={(event) =>
+              onUpdate({ isp: event.target.value === "" ? null : event.target.value })
+            }
+            className={selectClass}
+          >
+            <option value="">All providers</option>
+            {providerNames.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+          <CaretDownIcon
+            {...icon}
+            className="pointer-events-none absolute inset-y-0 right-3 my-auto text-muted"
+          />
+        </span>
+      </label>
+
       <label className="flex min-w-0 flex-col gap-2">
         <span className={`inline-flex items-center gap-1.5 ${kicker}`}>
           <FunnelIcon {...icon} />

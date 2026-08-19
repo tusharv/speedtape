@@ -6,6 +6,7 @@ import {
   getLatest,
   getSpeedTest,
   listChartPoints,
+  listIsps,
   listOutageContext,
   listPreviousSpeedTests,
   listNextSpeedTests,
@@ -59,6 +60,7 @@ export type ArchiveData = {
   summary: Summary;
   rows: SpeedTestRow[];
   total: number;
+  providers: string[];
 };
 
 export function loadArchive(
@@ -68,7 +70,7 @@ export function loadArchive(
 ): ArchiveData {
   return withDatabase((db) => {
     const window = timeBounds({ ...query, now });
-    const summary = summarizeWindow(db, window);
+    const summary = summarizeWindow(db, { ...window, isp: query.isp });
     const page = listSpeedTestsPage(db, {
       range: query.range,
       from: query.from,
@@ -77,12 +79,18 @@ export function loadArchive(
       slow: query.slow,
       ping: query.ping,
       sort: query.sort,
+      isp: query.isp,
       offset,
       downAvg: summary.download.avg,
       pingAvg: summary.ping.avg,
       now,
     });
-    return { summary, rows: page.rows, total: page.total };
+    return {
+      summary,
+      rows: page.rows,
+      total: page.total,
+      providers: listIsps(db, window),
+    };
   });
 }
 
@@ -120,7 +128,7 @@ export function loadArchiveExport(
 ): SpeedTestRow[] {
   return withDatabase((db) => {
     const window = timeBounds({ ...query, now });
-    const summary = summarizeWindow(db, window);
+    const summary = summarizeWindow(db, { ...window, isp: query.isp });
     return listSpeedTestsPage(db, {
       range: query.range,
       from: query.from,
@@ -129,6 +137,7 @@ export function loadArchiveExport(
       slow: query.slow,
       ping: query.ping,
       sort: query.sort,
+      isp: query.isp,
       offset: 0,
       limit: EXPORT_LIMIT,
       downAvg: summary.download.avg,

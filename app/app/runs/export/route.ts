@@ -17,6 +17,7 @@ export async function GET(request: Request) {
     slow: url.searchParams.get("slow") ?? undefined,
     ping: url.searchParams.get("ping") ?? undefined,
     sort: url.searchParams.get("sort") ?? undefined,
+    isp: url.searchParams.get("isp") ?? undefined,
   });
   const csv = speedTestsToCsv(loadArchiveExport(query));
   return new Response(csv, {

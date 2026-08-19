@@ -12,12 +12,14 @@ import {
   listPreviousSpeedTests,
   listNextSpeedTests,
   listRecentSpeedTests,
+  listIsps,
   listSpeedTests,
   listSpeedTestsPage,
   openDatabase,
   resolveDbPath,
   summarize,
   summarizeRange,
+  summarizeWindow,
   type SpeedTestRecord,
 } from "@/lib/db";
 import { PREVIOUS_RUN_LIMIT } from "@/lib/outage";
@@ -287,6 +289,81 @@ describe("speed test database", () => {
     expect(paged.total).toBe(3);
     expect(paged.rows).toHaveLength(1);
     expect(paged.rows[0]?.downloadMbps).toBe(40);
+    db.close();
+  });
+
+  it("filters paged runs and range stats by service provider", () => {
+    const db = openDatabase(tempDbPath());
+    const now = new Date("2026-08-13T10:00:00.000Z");
+    insertSpeedTest(
+      db,
+      sample({
+        testedAt: "2026-08-13T01:00:00.000Z",
+        downloadMbps: 40,
+        uploadMbps: 10,
+        pingMs: 20,
+        isp: "Spectrum",
+      }),
+    );
+    insertSpeedTest(
+      db,
+      sample({
+        testedAt: "2026-08-13T02:00:00.000Z",
+        downloadMbps: 120,
+        uploadMbps: 30,
+        pingMs: 8,
+        isp: "Spectrum",
+      }),
+    );
+    insertSpeedTest(
+      db,
+      sample({
+        testedAt: "2026-08-13T03:00:00.000Z",
+        downloadMbps: 200,
+        isp: "Comcast Cable",
+      }),
+    );
+    insertSpeedTest(
+      db,
+      sample({
+        testedAt: "2026-08-13T04:00:00.000Z",
+        downloadMbps: null,
+        uploadMbps: null,
+        pingMs: null,
+        isp: null,
+        error: "timeout",
+      }),
+    );
+
+    expect(listIsps(db, { since: null, until: null })).toEqual([
+      "Comcast Cable",
+      "Spectrum",
+    ]);
+
+    const page = listSpeedTestsPage(db, {
+      range: "all",
+      status: "all",
+      slow: false,
+      ping: false,
+      sort: "oldest",
+      offset: 0,
+      isp: "Spectrum",
+      downAvg: null,
+      pingAvg: null,
+      now,
+    });
+    expect(page.total).toBe(2);
+    expect(page.rows.map((row) => row.downloadMbps)).toEqual([40, 120]);
+
+    const stats = summarizeWindow(db, {
+      since: null,
+      until: null,
+      isp: "Spectrum",
+    });
+    expect(stats.count).toBe(2);
+    expect(stats.download.min).toBe(40);
+    expect(stats.download.avg).toBe(80);
+    expect(stats.download.max).toBe(120);
     db.close();
   });
 

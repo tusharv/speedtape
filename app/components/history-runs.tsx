@@ -31,6 +31,7 @@ export function HistoryRuns({
               slow: false,
               ping: false,
               sort: "newest",
+              isp: null,
             })}
             className={ghostBtn}
           >

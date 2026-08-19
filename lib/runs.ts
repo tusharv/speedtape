@@ -14,6 +14,7 @@ export type ArchiveQuery = {
   slow: boolean;
   ping: boolean;
   sort: RunSort;
+  isp: string | null;
 };
 
 export const DEFAULT_ARCHIVE_QUERY: ArchiveQuery = {
@@ -24,6 +25,7 @@ export const DEFAULT_ARCHIVE_QUERY: ArchiveQuery = {
   slow: false,
   ping: false,
   sort: "newest",
+  isp: null,
 };
 
 export type RunQuery = ArchiveQuery & {
@@ -46,8 +48,14 @@ export type RunSearchParams = {
   slow?: string;
   ping?: string;
   sort?: string;
+  isp?: string;
   page?: string;
 };
+
+function parseIsp(value: string | undefined): string | null {
+  const name = value?.trim();
+  return name ? name : null;
+}
 
 function parseStatus(value: string | undefined): RunStatus {
   return value === "ok" || value === "failed" ? value : "all";
@@ -69,6 +77,7 @@ export function parseRunQuery(params: RunSearchParams): RunQuery {
     slow: params.slow === "1",
     ping: params.ping === "1",
     sort: parseSort(params.sort),
+    isp: parseIsp(params.isp),
     page: Number.isInteger(pageNum) && pageNum >= 1 ? pageNum : 1,
   };
 }
@@ -84,6 +93,7 @@ export function parseArchiveQuery(params: RunSearchParams): ArchiveQuery {
     slow: params.slow === "1",
     ping: params.ping === "1",
     sort: parseSort(params.sort),
+    isp: parseIsp(params.isp),
   };
 }
 
@@ -142,6 +152,7 @@ function archiveSearch(query: ArchiveQuery): string {
   if (query.slow) params.set("slow", "1");
   if (query.ping) params.set("ping", "1");
   if (query.sort !== "newest") params.set("sort", query.sort);
+  if (query.isp) params.set("isp", query.isp);
   return params.toString();
 }
 

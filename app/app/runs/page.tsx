@@ -27,6 +27,7 @@ export default async function RunsPage({ searchParams }: PageProps<"/app/runs">)
     slow: firstString(params.slow),
     ping: firstString(params.ping),
     sort: firstString(params.sort),
+    isp: firstString(params.isp),
   });
   const data = loadArchive(query);
 
@@ -38,9 +39,10 @@ export default async function RunsPage({ searchParams }: PageProps<"/app/runs">)
         ISP. Open a row for jitter, loss, outage times, and nearby runs.
       </PageIntro>
       <RunArchive
-        key={`${query.range}-${query.from}-${query.to}-${query.status}-${query.slow}-${query.ping}-${query.sort}`}
+        key={`${query.range}-${query.from}-${query.to}-${query.status}-${query.slow}-${query.ping}-${query.sort}-${query.isp}`}
         query={query}
         summary={data.summary}
+        providers={data.providers}
         initialRows={data.rows}
         total={data.total}
       />

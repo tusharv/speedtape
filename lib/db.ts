@@ -349,6 +349,7 @@ export type SpeedTestPageQuery = {
   slow: boolean;
   ping: boolean;
   sort: "newest" | "oldest" | "slowest-down" | "highest-ping";
+  isp?: string | null;
   offset: number;
   limit?: number;
   downAvg: number | null;
@@ -392,6 +393,10 @@ function pageWhere(query: SpeedTestPageQuery, now: Date): {
   if (query.ping && query.pingAvg !== null) {
     clauses.push("error IS NULL AND ping_ms IS NOT NULL AND ping_ms > ?");
     params.push(query.pingAvg);
+  }
+  if (query.isp) {
+    clauses.push("isp = ?");
+    params.push(query.isp);
   }
   return {
     sql: clauses.length > 0 ? `WHERE ${clauses.join(" AND ")}` : "",
@@ -490,11 +495,17 @@ type SummaryRow = {
   ping_max: number | null;
 };
 
-export function summarizeWindow(
-  db: Database.Database,
-  window: { since: string | null; until: string | null },
-): Summary {
-  const clauses = ["error IS NULL AND download_mbps IS NOT NULL"];
+type TimeWindow = {
+  since: string | null;
+  until: string | null;
+  isp?: string | null;
+};
+
+function windowClauses(window: TimeWindow): {
+  clauses: string[];
+  params: unknown[];
+} {
+  const clauses: string[] = [];
   const params: unknown[] = [];
   if (window.since) {
     clauses.push("tested_at >= ?");
@@ -504,6 +515,35 @@ export function summarizeWindow(
     clauses.push("tested_at < ?");
     params.push(window.until);
   }
+  if (window.isp) {
+    clauses.push("isp = ?");
+    params.push(window.isp);
+  }
+  return { clauses, params };
+}
+
+export function listIsps(
+  db: Database.Database,
+  window: TimeWindow,
+): string[] {
+  const { clauses, params } = windowClauses(window);
+  clauses.push("isp IS NOT NULL AND TRIM(isp) != ''");
+  const rows = db
+    .prepare(
+      `SELECT DISTINCT isp FROM speed_tests
+       WHERE ${clauses.join(" AND ")}
+       ORDER BY isp COLLATE NOCASE ASC`,
+    )
+    .all(...params) as Array<{ isp: string }>;
+  return rows.map((row) => row.isp);
+}
+
+export function summarizeWindow(
+  db: Database.Database,
+  window: TimeWindow,
+): Summary {
+  const { clauses, params } = windowClauses(window);
+  clauses.unshift("error IS NULL AND download_mbps IS NOT NULL");
   const row = db
     .prepare(
       `SELECT

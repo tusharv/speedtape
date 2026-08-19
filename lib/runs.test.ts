@@ -71,6 +71,7 @@ describe("parseRunQuery", () => {
       slow: false,
       ping: false,
       sort: "newest",
+      isp: null,
       page: 1,
     });
     expect(
@@ -88,6 +89,7 @@ describe("parseRunQuery", () => {
       slow: false,
       ping: false,
       sort: "newest",
+      isp: null,
       page: 1,
     });
   });
@@ -108,6 +110,7 @@ describe("parseRunQuery", () => {
       slow: true,
       ping: true,
       sort: "slowest-down",
+      isp: null,
       page: 3,
     });
   });
@@ -123,6 +126,7 @@ describe("parseArchiveQuery", () => {
       slow: false,
       ping: false,
       sort: "newest",
+      isp: null,
     });
     expect(
       parseArchiveQuery({
@@ -140,6 +144,7 @@ describe("parseArchiveQuery", () => {
       slow: true,
       ping: false,
       sort: "oldest",
+      isp: null,
     });
   });
 
@@ -152,7 +157,16 @@ describe("parseArchiveQuery", () => {
       slow: false,
       ping: false,
       sort: "newest",
+      isp: null,
     });
+  });
+
+  it("reads a service provider and ignores blank names", () => {
+    expect(parseArchiveQuery({ isp: "Spectrum" }).isp).toBe("Spectrum");
+    expect(parseArchiveQuery({ isp: "  Comcast Cable  " }).isp).toBe(
+      "Comcast Cable",
+    );
+    expect(parseArchiveQuery({ isp: "   " }).isp).toBeNull();
   });
 
   it("reads start and end days and swaps them when inverted", () => {
@@ -170,6 +184,7 @@ describe("parseArchiveQuery", () => {
       slow: false,
       ping: false,
       sort: "newest",
+      isp: null,
     });
   });
 });
@@ -183,6 +198,7 @@ describe("runHref", () => {
         slow: false,
         ping: false,
         sort: "newest",
+        isp: null,
         page: 1,
       }),
     ).toBe("/app?range=24h");
@@ -196,6 +212,7 @@ describe("runHref", () => {
         slow: true,
         ping: true,
         sort: "highest-ping",
+        isp: null,
         page: 2,
       }),
     ).toBe("/app?range=7d&status=ok&slow=1&ping=1&sort=highest-ping&page=2");
@@ -226,6 +243,7 @@ describe("archiveHref", () => {
         slow: false,
         ping: false,
         sort: "newest",
+        isp: null,
       }),
     ).toBe("/app/runs");
   });
@@ -240,8 +258,11 @@ describe("archiveHref", () => {
         slow: true,
         ping: true,
         sort: "oldest",
+        isp: "Spectrum",
       }),
-    ).toBe("/app/runs?range=7d&status=failed&slow=1&ping=1&sort=oldest");
+    ).toBe(
+      "/app/runs?range=7d&status=failed&slow=1&ping=1&sort=oldest&isp=Spectrum",
+    );
     expect(
       archiveHref({
         range: "all",
@@ -251,6 +272,7 @@ describe("archiveHref", () => {
         slow: false,
         ping: false,
         sort: "newest",
+        isp: null,
       }),
     ).toBe("/app/runs?from=2026-08-01&to=2026-08-10");
   });
@@ -267,6 +289,7 @@ describe("exportHref", () => {
         slow: false,
         ping: false,
         sort: "newest",
+        isp: null,
       }),
     ).toBe("/app/runs/export");
     expect(
@@ -278,8 +301,11 @@ describe("exportHref", () => {
         slow: true,
         ping: true,
         sort: "oldest",
+        isp: "Comcast Cable",
       }),
-    ).toBe("/app/runs/export?range=30d&status=failed&slow=1&ping=1&sort=oldest");
+    ).toBe(
+      "/app/runs/export?range=30d&status=failed&slow=1&ping=1&sort=oldest&isp=Comcast+Cable",
+    );
     expect(
       exportHref({
         range: "all",
@@ -289,6 +315,7 @@ describe("exportHref", () => {
         slow: false,
         ping: false,
         sort: "newest",
+        isp: null,
       }),
     ).toBe("/app/runs/export?from=2026-08-01&to=2026-08-03");
   });
@@ -317,6 +344,7 @@ describe("patchRunQuery", () => {
     slow: true,
     ping: false,
     sort: "newest" as const,
+    isp: null,
     page: 3,
   };
 

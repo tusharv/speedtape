@@ -7,7 +7,8 @@ import { ghostBtn, panel, sectionTitle } from "@/app/components/chrome";
 import { loadMoreRuns } from "@/app/actions";
 import { RunRow } from "@/app/components/run-row";
 import { RunToolbar } from "@/app/components/run-toolbar";
-import { RangeTabs } from "@/app/components/stats";
+import { RangeTabs, Triple } from "@/app/components/stats";
+import { TermTip } from "@/app/components/term-tip";
 import type { Summary } from "@/lib/db";
 import {
   DEFAULT_ARCHIVE_QUERY,
@@ -20,11 +21,13 @@ import type { SpeedTestRow } from "@/lib/types";
 export function RunArchive({
   query,
   summary,
+  providers,
   initialRows,
   total,
 }: {
   query: ArchiveQuery;
   summary: Summary;
+  providers: string[];
   initialRows: SpeedTestRow[];
   total: number;
 }) {
@@ -43,7 +46,8 @@ export function RunArchive({
     query.to !== null ||
     query.status !== "all" ||
     query.slow ||
-    query.ping;
+    query.ping ||
+    query.isp !== null;
 
   useEffect(() => {
     const node = sentinelRef.current;
@@ -106,12 +110,45 @@ export function RunArchive({
       />
       <RunToolbar
         query={query}
+        providers={providers}
         slowEnabled={slowEnabled}
         pingEnabled={pingEnabled}
         onUpdate={(patch) =>
           router.replace(archiveHref({ ...query, ...patch }))
         }
       />
+
+      {query.isp ? (
+        <div className="grid gap-4 rounded-lg border border-hairline bg-panel px-5 py-5 sm:grid-cols-3">
+          <div className="sm:col-span-3">
+            <p className="text-xs leading-5 text-muted">
+              <TermTip term="minAvgMax">Min / avg / max</TermTip> for{" "}
+              <TermTip term="isp">{query.isp}</TermTip>
+            </p>
+          </div>
+          <Triple
+            label="Down"
+            stats={summary.download}
+            unit="Mbps"
+            term="download"
+            unitTerm="mbps"
+          />
+          <Triple
+            label="Up"
+            stats={summary.upload}
+            unit="Mbps"
+            term="upload"
+            unitTerm="mbps"
+          />
+          <Triple
+            label="Ping"
+            stats={summary.ping}
+            unit="ms"
+            term="ping"
+            unitTerm="ms"
+          />
+        </div>
+      ) : null}
 
       {loadedTotal === 0 ? (
         <div className="flex flex-col gap-3 rounded-lg border border-dashed border-hairline bg-panel px-5 py-6">

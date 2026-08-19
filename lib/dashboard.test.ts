@@ -170,6 +170,7 @@ describe("loadArchive", () => {
       slow: false,
       ping: false,
       sort: "newest" as const,
+      isp: null,
     };
     const archive = loadArchive(query, 0, now);
     expect(archive.total).toBe(1);
@@ -225,10 +226,76 @@ describe("loadArchive", () => {
       slow: false,
       ping: false,
       sort: "newest" as const,
+      isp: null,
     };
     const archive = loadArchive(query);
     expect(archive.total).toBe(1);
     expect(archive.rows[0]?.testedAt).toBe("2026-08-01T12:00:00.000Z");
     expect(loadArchiveExport(query)).toHaveLength(1);
+  });
+
+  it("filters the archive list, stats, and CSV by service provider", () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "hnc-dash-"));
+    tmpDirs.push(dir);
+    const dbPath = path.join(dir, "speedtests.db");
+    process.env.SPEEDTAPE_DB = dbPath;
+
+    const db = openDatabase(dbPath);
+    insertSpeedTest(db, {
+      testedAt: "2026-08-16T11:00:00.000Z",
+      downloadMbps: 40,
+      uploadMbps: 10,
+      pingMs: 20,
+      jitterMs: 1,
+      packetLoss: 0,
+      isp: "Spectrum",
+      serverName: "Server",
+      serverLocation: "Here",
+      error: null,
+    });
+    insertSpeedTest(db, {
+      testedAt: "2026-08-16T12:00:00.000Z",
+      downloadMbps: 120,
+      uploadMbps: 30,
+      pingMs: 8,
+      jitterMs: 1,
+      packetLoss: 0,
+      isp: "Spectrum",
+      serverName: "Server",
+      serverLocation: "Here",
+      error: null,
+    });
+    insertSpeedTest(db, {
+      testedAt: "2026-08-16T13:00:00.000Z",
+      downloadMbps: 200,
+      uploadMbps: 40,
+      pingMs: 5,
+      jitterMs: 1,
+      packetLoss: 0,
+      isp: "Comcast Cable",
+      serverName: "Server",
+      serverLocation: "Here",
+      error: null,
+    });
+    db.close();
+
+    const query = {
+      range: "all" as const,
+      from: null,
+      to: null,
+      status: "all" as const,
+      slow: false,
+      ping: false,
+      sort: "newest" as const,
+      isp: "Spectrum",
+    };
+    const archive = loadArchive(query);
+    expect(archive.providers).toEqual(["Comcast Cable", "Spectrum"]);
+    expect(archive.total).toBe(2);
+    expect(archive.rows.map((row) => row.isp)).toEqual(["Spectrum", "Spectrum"]);
+    expect(archive.summary.download.min).toBe(40);
+    expect(archive.summary.download.avg).toBe(80);
+    expect(archive.summary.download.max).toBe(120);
+    expect(loadArchiveExport(query)).toHaveLength(2);
   });
 });
